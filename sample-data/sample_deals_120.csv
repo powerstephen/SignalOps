@@ -1,0 +1,121 @@
+deal_id,company,primary_contact,buyer_title,industry,employees,product,stage,amount_eur,created_date,close_date,sales_cycle_days,outcome,loss_reason,source
+D-1000,SellStack 12,Anna Reid,Head of Sales,Operations SaaS,190,Sales Automation,Won,35000,2025-07-31,2025-10-04,65,Won,,Inbound
+D-1001,FlowMetrics 51,Sara Carter,Head of Sales,Logistics SaaS,75,RevOps Analytics,Negotiation,22000,2026-01-20,,,Open,,Inbound
+D-1002,AdLift 32,Liam Shaw,COO,Operations SaaS,90,Pipeline Recovery,Lost,18000,2025-08-10,2025-10-08,59,Lost,Competing priority,Partner
+D-1003,SignalPath 6,Tom Carter,Head of Sales,HR Software,340,Revenue Intelligence,Discovery,6500,2025-12-10,,,Open,,Event
+D-1004,SellStack 36,Daniel Laurent,Founder,AdTech SaaS,190,Sales Automation,Proposal,12000,2025-07-11,,,Open,,Partner
+D-1005,MetricForge 86,James Jensen,Head of Sales,HR Software,75,Core Platform,Discovery,15000,2025-03-04,,,Open,,Outbound
+D-1006,FunnelPilot 83,Liam Wright,Founder,Revenue Operations Software,280,Core Platform,Negotiation,18000,2025-08-09,,,Open,,Partner
+D-1007,LogiHub 10,Barry Byrne,VP Revenue Operations,Revenue Operations Software,340,Revenue Intelligence,Discovery,35000,2025-02-09,,,Open,,Inbound
+D-1008,SellStack 36,Luke Kelly,Head of Sales,AdTech SaaS,190,Revenue Intelligence,Won,4500,2026-01-27,2026-03-14,46,Won,,Outbound
+D-1009,LogiHub 82,Noah Keane,RevOps Manager,Sales Enablement Software,35,Pipeline Recovery,Negotiation,6500,2025-05-05,,,Open,,Inbound
+D-1010,FlowMetrics,Tom Dunne,Head of Sales,FinTech SaaS,45,Core Platform,Negotiation,9000,2026-01-11,,,Open,,Inbound
+D-1011,SellStack 36,Maria Reid,Head of Sales,AdTech SaaS,190,Sales Automation,Proposal,22000,2025-06-18,,,Open,,Event
+D-1012,Navisync,Tom Reid,Founder,Analytics Software,45,Core Platform,Won,15000,2025-07-14,2025-08-20,37,Won,,Referral
+D-1013,AdLift 56,Eleanor Power,Marketing Director,Marketing Software,420,Core Platform,Lost,22000,2025-05-22,2025-08-09,79,Lost,Timing,Partner
+D-1014,PipelineIQ 26,Daniel Becker,VP Revenue Operations,HR Software,110,Core Platform,Negotiation,35000,2025-10-23,,,Open,,Event
+D-1015,OpsPilot 77,Noah Fischer,COO,HR Software,45,RevOps Analytics,Proposal,28000,2025-09-04,,,Open,,Partner
+D-1016,PipelineIQ 26,Maria OSullivan,Founder,HR Software,110,Core Platform,Lost,12000,2026-02-12,2026-04-06,53,Lost,Competing priority,Referral
+D-1017,ClearFunnel 22,Eleanor Jensen,Marketing Director,Operations SaaS,190,Core Platform,Won,12000,2025-10-14,2026-01-08,86,Won,,Outbound
+D-1018,PipelineIQ 50,Noah Reid,RevOps Manager,Customer Support Software,340,RevOps Analytics,Discovery,9000,2025-11-29,,,Open,,Partner
+D-1019,AdLift 80,Chloe Collins,COO,Revenue Operations Software,60,RevOps Analytics,Stalled,4500,2025-03-04,,,Open,,Referral
+D-1020,LeadOrbit,Tom Quinn,Marketing Director,Marketing Software,75,Revenue Intelligence,Stalled,28000,2025-05-26,,,Open,,Event
+D-1021,OpsPilot,Anna Shaw,Head of Sales,B2B SaaS,35,Core Platform,Proposal,4500,2025-06-03,,,Open,,Partner
+D-1022,ClearFunnel 94,Tom Kelly,Marketing Director,FinTech SaaS,60,Core Platform,Won,9000,2025-09-15,2025-10-10,25,Won,,Outbound
+D-1023,DemandForge 52,Alex Carter,COO,AdTech SaaS,60,Pipeline Recovery,Discovery,35000,2025-08-25,,,Open,,Event
+D-1024,DemandForge 52,Ava Richter,Head of Sales,AdTech SaaS,60,Sales Automation,Lost,9000,2025-02-18,2025-05-02,73,Lost,Process stalled,Partner
+D-1025,Navisync,Ben Mills,COO,Analytics Software,45,Revenue Intelligence,Stalled,18000,2025-11-05,,,Open,,Event
+D-1026,ShipVista 16,Chloe Richter,COO,HR Software,160,Sales Automation,Won,4500,2025-03-05,2025-06-04,91,Won,,Referral
+D-1027,OpsPilot,Owen Murphy,VP Revenue Operations,B2B SaaS,35,Core Platform,Stalled,12000,2025-04-06,,,Open,,Event
+D-1028,LeadOrbit,Mason Wright,Founder,Marketing Software,75,Pipeline Recovery,Won,18000,2025-12-04,2026-01-02,29,Won,,Event
+D-1029,PipelineIQ,Tom Shaw,Founder,Revenue Operations Software,75,Core Platform,Negotiation,18000,2025-10-19,,,Open,,Inbound
+D-1030,PipelineIQ 26,Mason Walsh,RevOps Manager,HR Software,110,Pipeline Recovery,Stalled,22000,2025-06-20,,,Open,,Referral
+D-1031,RevScale 25,Eva Fischer,Head of Sales,Sales Enablement Software,420,Core Platform,Discovery,12000,2025-12-06,,,Open,,Inbound
+D-1032,MetricForge 14,Ava Brooks,Head of Sales,Operations SaaS,420,Sales Automation,Stalled,6500,2025-09-05,,,Open,,Outbound
+D-1033,ClearFunnel 70,Ben Dunne,Head of Sales,HR Software,35,Core Platform,Stalled,18000,2025-04-29,,,Open,,Event
+D-1034,SellStack 60,Owen Dunne,VP Revenue Operations,Revenue Operations Software,130,Revenue Intelligence,Lost,4500,2026-01-07,2026-03-08,60,Lost,Budget,Event
+D-1035,ConvertLoop 66,Mason Reid,Marketing Director,Sales Enablement Software,60,Pipeline Recovery,Negotiation,15000,2025-03-26,,,Open,,Outbound
+D-1036,CloseLayer,Emily Novak,Head of Sales,Maritime Workforce SaaS,110,Pipeline Recovery,Proposal,28000,2025-12-11,,,Open,,Inbound
+D-1037,CrewStack 31,Jonas Quinn,Head of Sales,Operations SaaS,280,Core Platform,Negotiation,28000,2025-11-17,,,Open,,Outbound
+D-1038,ClearFunnel,Jonas Wright,COO,Analytics Software,90,Sales Automation,Lost,6500,2025-09-23,2025-11-30,68,Lost,Competing priority,Partner
+D-1039,SellStack,Ben Byrne,COO,Marketing Software,45,Sales Automation,Won,22000,2025-08-22,2025-10-02,41,Won,,Inbound
+D-1040,LogiHub 10,Laura Brooks,RevOps Manager,Revenue Operations Software,340,Revenue Intelligence,Won,15000,2025-05-15,2025-06-09,25,Won,,Inbound
+D-1041,FunnelPilot,Noah Kelly,COO,Revenue Operations Software,60,Sales Automation,Proposal,12000,2025-05-20,,,Open,,Referral
+D-1042,SignalPath 30,Jake Moran,Marketing Director,Marketing Software,420,Core Platform,Stalled,12000,2025-06-29,,,Open,,Event
+D-1043,QuotaPath 92,Anna Dubois,COO,AdTech SaaS,190,Core Platform,Proposal,35000,2025-05-11,,,Open,,Event
+D-1044,Navisync,Tom Kelly,VP Revenue Operations,Analytics Software,45,Sales Automation,Won,4500,2025-07-26,2025-08-23,28,Won,,Outbound
+D-1045,LogiHub 82,Liam Quinn,COO,Sales Enablement Software,35,Core Platform,Proposal,18000,2025-02-20,,,Open,,Event
+D-1046,PIS Miami 48,Ben Murphy,RevOps Manager,AdTech SaaS,340,RevOps Analytics,Discovery,35000,2025-07-08,,,Open,,Referral
+D-1047,LeadOrbit 43,Sophie Walsh,RevOps Manager,AdTech SaaS,75,Core Platform,Won,6500,2026-01-04,2026-04-04,90,Won,,Partner
+D-1048,ShipVista 88,Zoe Collins,Marketing Director,Sales Enablement Software,160,RevOps Analytics,Discovery,15000,2025-08-15,,,Open,,Referral
+D-1049,CloseLayer 37,Maria Brooks,Head of Sales,Logistics SaaS,75,Pipeline Recovery,Lost,22000,2026-02-08,2026-04-17,68,Lost,Process stalled,Outbound
+D-1050,CrewStack,Max Reid,COO,Sales Enablement Software,75,Pipeline Recovery,Won,18000,2026-02-17,2026-04-19,61,Won,,Partner
+D-1051,SellStack 12,Sam Mills,RevOps Manager,Operations SaaS,190,Sales Automation,Negotiation,12000,2025-12-21,,,Open,,Partner
+D-1052,FunnelPilot 11,Daniel Hughes,COO,HR Software,130,Sales Automation,Negotiation,12000,2025-07-16,,,Open,,Event
+D-1053,PipelineIQ 74,Sam Collins,Marketing Director,Revenue Operations Software,130,Pipeline Recovery,Discovery,35000,2025-12-08,,,Open,,Referral
+D-1054,DemandForge 28,Nina Moran,VP Revenue Operations,Logistics SaaS,35,Revenue Intelligence,Proposal,4500,2025-12-01,,,Open,,Inbound
+D-1055,AdLift 8,Laura Meyer,Head of Sales,AdTech SaaS,60,Sales Automation,Stalled,12000,2025-10-10,,,Open,,Referral
+D-1056,FlowMetrics 27,Alex Laurent,COO,Marketing Software,110,RevOps Analytics,Negotiation,12000,2025-08-21,,,Open,,Event
+D-1057,Navisync,Rachel Rossi,RevOps Manager,Analytics Software,45,Pipeline Recovery,Lost,9000,2025-10-18,2025-11-16,29,Lost,Timing,Event
+D-1058,CrewStack,Sam Novak,VP Revenue Operations,Sales Enablement Software,75,Revenue Intelligence,Discovery,12000,2025-11-06,,,Open,,Partner
+D-1059,SellStack 60,Sara OSullivan,RevOps Manager,Revenue Operations Software,130,Revenue Intelligence,Discovery,4500,2025-06-30,,,Open,,Referral
+D-1060,CrewStack 79,Eleanor Brooks,Head of Sales,Maritime Workforce SaaS,45,Sales Automation,Proposal,15000,2025-02-28,,,Open,,Event
+D-1061,MetricForge 86,Laura Brooks,Founder,HR Software,75,RevOps Analytics,Won,15000,2025-03-18,2025-06-10,84,Won,,Event
+D-1062,FlowMetrics 51,Barry Dubois,Head of Sales,Logistics SaaS,75,RevOps Analytics,Stalled,18000,2025-05-16,,,Open,,Partner
+D-1063,DealSpring 15,Sophie Fischer,COO,HR Software,45,Pipeline Recovery,Won,15000,2025-04-06,2025-06-04,59,Won,,Partner
+D-1064,SellStack 60,Zoe Power,COO,Revenue Operations Software,130,Core Platform,Lost,9000,2025-06-08,2025-07-26,48,Lost,Chose incumbent,Event
+D-1065,CloseLayer 61,Jake Carter,Founder,Sales Enablement Software,280,Sales Automation,Negotiation,28000,2025-09-29,,,Open,,Event
+D-1066,PipelineIQ 26,Anna Novak,COO,HR Software,110,RevOps Analytics,Negotiation,12000,2025-09-05,,,Open,,Event
+D-1067,ProspectIQ 93,Noah Dubois,COO,Sales Enablement Software,35,Revenue Intelligence,Lost,9000,2025-03-28,2025-06-25,89,Lost,No decision,Inbound
+D-1068,CloseLayer 37,Mason Brooks,VP Revenue Operations,Logistics SaaS,75,Pipeline Recovery,Negotiation,35000,2025-02-02,,,Open,,Inbound
+D-1069,OpsPilot 5,Eleanor Doyle,Founder,Customer Support Software,90,Pipeline Recovery,Discovery,22000,2025-09-11,,,Open,,Referral
+D-1070,MetricForge 14,Sam Laurent,RevOps Manager,Operations SaaS,420,RevOps Analytics,Lost,6500,2025-07-01,2025-08-12,42,Lost,Timing,Event
+D-1071,QuotaPath 44,Daniel Meyer,Founder,FinTech SaaS,220,Pipeline Recovery,Discovery,9000,2025-12-19,,,Open,,Event
+D-1072,RevScale 49,Liam Murphy,RevOps Manager,Analytics Software,280,Sales Automation,Discovery,9000,2025-01-25,,,Open,,Partner
+D-1073,GrowPilot 57,Ava Power,VP Revenue Operations,Customer Support Software,160,Revenue Intelligence,Won,28000,2025-10-10,2025-11-23,44,Won,,Referral
+D-1074,PipelineIQ 74,Max Kelly,VP Revenue Operations,Revenue Operations Software,130,Sales Automation,Discovery,6500,2025-12-23,,,Open,,Event
+D-1075,CrewStack 31,Emily OSullivan,RevOps Manager,Operations SaaS,280,Core Platform,Won,12000,2025-02-18,2025-04-24,65,Won,,Partner
+D-1076,RevScale 73,Tom OSullivan,Marketing Director,Analytics Software,340,Pipeline Recovery,Negotiation,12000,2025-11-04,,,Open,,Outbound
+D-1077,MetricForge,Sara Novak,RevOps Manager,B2B SaaS,340,Pipeline Recovery,Lost,6500,2026-02-04,2026-04-01,56,Lost,Competing priority,Referral
+D-1078,OpsPilot 53,Ava Walsh,Marketing Director,Revenue Operations Software,160,Pipeline Recovery,Stalled,9000,2025-09-05,,,Open,,Outbound
+D-1079,ClearFunnel,Barry Shaw,RevOps Manager,Analytics Software,90,RevOps Analytics,Won,9000,2025-11-11,2025-12-01,20,Won,,Referral
+D-1080,ClearFunnel,Noah Mills,Head of Sales,Analytics Software,90,RevOps Analytics,Negotiation,4500,2025-08-19,,,Open,,Referral
+D-1081,CrewStack,Anna Keane,Marketing Director,Sales Enablement Software,75,Sales Automation,Won,4500,2026-02-03,2026-03-07,32,Won,,Event
+D-1082,RevScale 25,Ben Brooks,Head of Sales,Sales Enablement Software,420,Pipeline Recovery,Lost,9000,2025-11-14,2025-12-03,19,Lost,Competing priority,Inbound
+D-1083,CloseLayer 61,Natalie Hughes,Marketing Director,Sales Enablement Software,280,RevOps Analytics,Proposal,9000,2025-07-28,,,Open,,Referral
+D-1084,ShipVista,Sophie Kelly,Founder,Revenue Operations Software,280,Pipeline Recovery,Won,12000,2025-04-22,2025-06-04,43,Won,,Referral
+D-1085,PipelineIQ 2,Chloe Walsh,Founder,Analytics Software,340,Revenue Intelligence,Lost,4500,2025-05-23,2025-08-12,81,Lost,Process stalled,Event
+D-1086,LeadOrbit 19,Barry OSullivan,VP Revenue Operations,Analytics Software,110,Revenue Intelligence,Negotiation,6500,2025-05-10,,,Open,,Inbound
+D-1087,DemandForge 76,James Doyle,Marketing Director,Marketing Software,35,Sales Automation,Negotiation,15000,2025-04-04,,,Open,,Partner
+D-1088,LogiHub 10,Anna Laurent,RevOps Manager,Revenue Operations Software,340,Pipeline Recovery,Discovery,4500,2025-10-02,,,Open,,Event
+D-1089,Navisync 71,Sophie Moran,Head of Sales,Customer Support Software,280,Revenue Intelligence,Discovery,4500,2026-02-23,,,Open,,Partner
+D-1090,ClearFunnel 22,Owen Brooks,RevOps Manager,Operations SaaS,190,Revenue Intelligence,Discovery,6500,2025-08-21,,,Open,,Inbound
+D-1091,DemandForge 28,Laura Brooks,RevOps Manager,Logistics SaaS,35,Core Platform,Discovery,28000,2025-07-27,,,Open,,Outbound
+D-1092,ConvertLoop 66,Anna Moran,COO,Sales Enablement Software,60,RevOps Analytics,Won,22000,2025-05-01,2025-07-19,79,Won,,Event
+D-1093,PIS Miami,Emily Flynn,Marketing Director,Operations SaaS,190,Sales Automation,Lost,4500,2025-03-14,2025-04-17,34,Lost,Competing priority,Inbound
+D-1094,ConvertLoop 90,Laura Meyer,RevOps Manager,B2B SaaS,35,RevOps Analytics,Won,18000,2026-02-21,2026-05-17,85,Won,,Referral
+D-1095,OpsPilot 5,Sam Murphy,COO,Customer Support Software,90,Sales Automation,Proposal,6500,2025-07-21,,,Open,,Partner
+D-1096,CloseLayer 61,Hannah Byrne,COO,Sales Enablement Software,280,Core Platform,Won,35000,2025-04-20,2025-05-14,24,Won,,Outbound
+D-1097,OutreachOS 41,Sam Fischer,RevOps Manager,Marketing Software,35,Pipeline Recovery,Discovery,6500,2025-02-08,,,Open,,Outbound
+D-1098,LeadOrbit 19,Anna Dubois,Founder,Analytics Software,110,Core Platform,Won,22000,2025-08-05,2025-09-22,48,Won,,Event
+D-1099,GrowPilot 33,Laura Wright,Marketing Director,Customer Support Software,75,Sales Automation,Discovery,28000,2025-09-19,,,Open,,Inbound
+D-1100,MetricForge,Daniel Meyer,RevOps Manager,B2B SaaS,340,RevOps Analytics,Proposal,4500,2026-01-12,,,Open,,Partner
+D-1101,ConvertLoop 90,Ben Becker,Marketing Director,B2B SaaS,35,Core Platform,Negotiation,28000,2025-09-06,,,Open,,Outbound
+D-1102,CloseLayer 85,Ava Rossi,RevOps Manager,Sales Enablement Software,60,Sales Automation,Discovery,28000,2025-02-26,,,Open,,Inbound
+D-1103,CloseLayer,Eleanor OSullivan,COO,Maritime Workforce SaaS,110,Pipeline Recovery,Lost,15000,2025-05-23,2025-08-15,84,Lost,Process stalled,Inbound
+D-1104,SignalPath,Max Carter,VP Revenue Operations,Logistics SaaS,190,RevOps Analytics,Discovery,22000,2026-01-04,,,Open,,Outbound
+D-1105,RevScale 1,Alex Moran,Head of Sales,Operations SaaS,160,Pipeline Recovery,Lost,28000,2025-01-23,2025-03-06,42,Lost,Timing,Event
+D-1106,SignalPath,Eva Keane,COO,Logistics SaaS,190,RevOps Analytics,Proposal,28000,2025-07-08,,,Open,,Outbound
+D-1107,ShipVista 40,Sara Doyle,Head of Sales,FinTech SaaS,280,RevOps Analytics,Won,22000,2025-05-04,2025-07-22,79,Won,,Outbound
+D-1108,OutreachOS 65,Maria Doyle,Marketing Director,B2B SaaS,220,RevOps Analytics,Discovery,6500,2025-08-13,,,Open,,Partner
+D-1109,OutreachOS 41,Daniel Hughes,RevOps Manager,Marketing Software,35,Pipeline Recovery,Stalled,12000,2025-10-10,,,Open,,Partner
+D-1110,LogiHub 34,Liam Walsh,VP Revenue Operations,FinTech SaaS,75,Pipeline Recovery,Proposal,35000,2025-09-27,,,Open,,Referral
+D-1111,GrowPilot 57,Tom Becker,VP Revenue Operations,Customer Support Software,160,Revenue Intelligence,Negotiation,15000,2025-03-13,,,Open,,Outbound
+D-1112,OutreachOS 41,Chloe Power,Marketing Director,Marketing Software,35,RevOps Analytics,Lost,6500,2025-02-03,2025-04-07,63,Lost,Competing priority,Referral
+D-1113,PipelineIQ 50,Chloe Walsh,COO,Customer Support Software,340,Core Platform,Negotiation,35000,2025-10-04,,,Open,,Referral
+D-1114,MetricForge,Emily Carter,Head of Sales,B2B SaaS,340,Revenue Intelligence,Won,4500,2025-11-17,2026-01-08,52,Won,,Partner
+D-1115,ShipVista 64,Liam Quinn,Founder,B2B SaaS,340,Core Platform,Won,15000,2025-11-15,2026-02-10,87,Won,,Partner
+D-1116,GrowPilot 81,Sophie Hughes,RevOps Manager,FinTech SaaS,90,Sales Automation,Discovery,35000,2025-11-05,,,Open,,Outbound
+D-1117,ConvertLoop 42,Jonas Mills,COO,Sales Enablement Software,75,Pipeline Recovery,Negotiation,22000,2025-08-13,,,Open,,Referral
+D-1118,CrewStack,Mason Brooks,Head of Sales,Sales Enablement Software,75,RevOps Analytics,Won,28000,2025-11-04,2026-01-08,65,Won,,Referral
+D-1119,Navisync 71,Tom Flynn,Marketing Director,Customer Support Software,280,Revenue Intelligence,Negotiation,12000,2025-09-30,,,Open,,Inbound
