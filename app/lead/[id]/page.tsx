@@ -7,209 +7,159 @@ import { leads as demoLeads } from "@/lib/data";
 import { analyzeLead } from "@/lib/openai";
 import { Lead } from "@/lib/types";
 
-function getScoreStyles(score: number) {
-  if (score >= 80) return "bg-green-100 text-green-700";
-  if (score >= 60) return "bg-amber-100 text-amber-700";
-  return "bg-gray-100 text-gray-700";
+function getScoreColor(score: number) {
+  if (score >= 80) return "text-green-600";
+  if (score >= 60) return "text-amber-600";
+  return "text-gray-600";
 }
 
 export default function LeadPage() {
   const params = useParams<{ id: string }>();
+
   const [activeLeads, setActiveLeads] = useState<Lead[]>(demoLeads);
-  const [loaded, setLoaded] = useState(false);
-  const [analysis, setAnalysis] = useState<Awaited<ReturnType<typeof analyzeLead>> | null>(null);
+  const [analysis, setAnalysis] = useState<any>(null);
 
   useEffect(() => {
     const uploaded = localStorage.getItem("uploadedLeads");
-
     if (uploaded) {
       try {
-        const parsed = JSON.parse(uploaded) as Lead[];
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setActiveLeads(parsed);
-        }
-      } catch {
-        setActiveLeads(demoLeads);
-      }
+        const parsed = JSON.parse(uploaded);
+        if (Array.isArray(parsed)) setActiveLeads(parsed);
+      } catch {}
     }
-
-    setLoaded(true);
   }, []);
 
   const lead = useMemo(() => {
-    return activeLeads.find((item) => item.id === params.id);
+    return activeLeads.find((l) => l.id === params.id);
   }, [activeLeads, params.id]);
 
   useEffect(() => {
-    if (lead) {
-      analyzeLead(lead).then(setAnalysis);
-    }
+    if (lead) analyzeLead(lead).then(setAnalysis);
   }, [lead]);
 
-  if (!loaded) {
-    return (
-      <main className="min-h-screen bg-[#f6f7fb]">
-        <div className="mx-auto max-w-6xl px-6 py-8">
-          <div className="rounded-xl border bg-white p-6 text-sm text-gray-500">
-            Loading lead...
-          </div>
-        </div>
-      </main>
-    );
-  }
+  if (!lead) return notFound();
+  if (!analysis) return <div className="p-8">Analyzing...</div>;
 
-  if (!lead) {
-    notFound();
-  }
-
-  if (!analysis) {
-    return (
-      <main className="min-h-screen bg-[#f6f7fb]">
-        <div className="mx-auto max-w-6xl px-6 py-8">
-          <div className="rounded-xl border bg-white p-6 text-sm text-gray-500">
-            Analyzing lead...
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  const topReasons = analysis.whyNow.slice(0, 4);
+  const tags = analysis.tags || [];
 
   return (
     <main className="min-h-screen bg-[#f6f7fb]">
       <div className="mx-auto max-w-6xl px-6 py-8">
+
+        {/* Back */}
         <div className="mb-6">
-          <Link href="/" className="text-sm text-gray-500 hover:text-gray-900">
-            ← Back to Recover
+          <Link href="/" className="text-sm text-gray-500 hover:text-black">
+            ← Back
           </Link>
         </div>
 
-        <div className="mb-6">
-          <h1 className="text-3xl font-semibold text-gray-900">{lead.name}</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            {lead.title} at {lead.company}
-          </p>
+        {/* TOP BAR */}
+        <div className="mb-6 flex items-center gap-6 rounded-xl border bg-white p-6">
+
+          <div className={`text-5xl font-semibold ${getScoreColor(analysis.score)}`}>
+            {analysis.score}
+          </div>
+
+          <div className="flex-1">
+            <h1 className="text-xl font-semibold text-gray-900">
+              {lead.name}
+            </h1>
+            <p className="text-sm text-gray-600">
+              {lead.title}
+            </p>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {tags.map((tag: string, i: number) => (
+                <span
+                  key={i}
+                  className="rounded-full bg-green-100 px-3 py-1 text-xs text-green-800"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
 
+        {/* 3 COLUMN GRID */}
         <div className="mb-6 grid gap-4 md:grid-cols-3">
+
+          {/* SIGNALS */}
           <div className="rounded-xl border bg-white p-5">
-            <p className="text-sm text-gray-500">Lead score</p>
-            <div className="mt-3">
-              <span
-                className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${getScoreStyles(
-                  analysis.score
-                )}`}
-              >
-                {analysis.score}
-              </span>
+            <h2 className="text-sm font-medium text-gray-500">
+              Signals
+            </h2>
+
+            <div className="mt-3 space-y-2 text-sm text-gray-800">
+              {analysis.signals?.map((s: string, i: number) => (
+                <div key={i}>• {s}</div>
+              ))}
             </div>
           </div>
 
+          {/* SUMMARY / DRIVERS */}
           <div className="rounded-xl border bg-white p-5">
-            <p className="text-sm text-gray-500">Status</p>
-            <p className="mt-3 text-base font-medium text-gray-900">
-              {analysis.state}
+            <h2 className="text-sm font-medium text-gray-500">
+              Summary
+            </h2>
+
+            <p className="mt-3 text-sm text-gray-800 leading-6">
+              {analysis.summary}
             </p>
           </div>
 
+          {/* LAST ACTIVITY */}
           <div className="rounded-xl border bg-white p-5">
-            <p className="text-sm text-gray-500">Recommended action</p>
-            <p className="mt-3 text-base font-medium text-gray-900">
-              {analysis.recommendedActionLabel}
-            </p>
-          </div>
-        </div>
+            <h2 className="text-sm font-medium text-gray-500">
+              Last activity
+            </h2>
 
-        <div className="mb-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="rounded-xl border bg-white p-6">
-            <h2 className="text-lg font-semibold text-gray-900">Why this lead</h2>
-
-            <div className="mt-4 grid gap-3">
-              {topReasons.map((reason, index) => (
-                <div
-                  key={index}
-                  className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-700"
-                >
-                  {reason}
+            <div className="mt-3 space-y-2 text-sm text-gray-800">
+              {lead.activities.map((a, i) => (
+                <div key={i}>
+                  <div className="flex justify-between">
+                    <span className="capitalize">
+                      {a.type.replace(/_/g, " ")}
+                    </span>
+                    <span className="text-gray-500 text-xs">
+                      {a.daysAgo}d
+                    </span>
+                  </div>
+                  <div className="text-gray-600 text-xs">
+                    {a.note}
+                  </div>
                 </div>
               ))}
             </div>
-          </section>
-
-          <section className="rounded-xl border bg-white p-6">
-            <h2 className="text-lg font-semibold text-gray-900">Lead details</h2>
-
-            <div className="mt-4 space-y-4 text-sm">
-              <div>
-                <p className="text-gray-500">Company</p>
-                <p className="mt-1 font-medium text-gray-900">{lead.company}</p>
-              </div>
-
-              <div>
-                <p className="text-gray-500">Signal</p>
-                <p className="mt-1 font-medium text-gray-900">
-                  {lead.companyData?.signal || "—"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-gray-500">Last contacted</p>
-                <p className="mt-1 font-medium text-gray-900">
-                  {lead.lastContactedDays} days ago
-                </p>
-              </div>
-
-              <div>
-                <p className="text-gray-500">ICP match</p>
-                <p className="mt-1 font-medium text-gray-900">
-                  {analysis.icpMatchScore}/100
-                </p>
-              </div>
-            </div>
-          </section>
-        </div>
-
-        <div className="mb-6 grid gap-6 lg:grid-cols-2">
-          <section className="rounded-xl border bg-white p-6">
-            <h2 className="text-lg font-semibold text-gray-900">Email 1</h2>
-            <div className="mt-4 rounded-lg bg-gray-50 p-4">
-              <pre className="whitespace-pre-wrap text-sm leading-7 text-gray-800">
-                {analysis.email}
-              </pre>
-            </div>
-          </section>
-
-          <section className="rounded-xl border bg-white p-6">
-            <h2 className="text-lg font-semibold text-gray-900">Follow-up</h2>
-            <div className="mt-4 rounded-lg bg-gray-50 p-4">
-              <pre className="whitespace-pre-wrap text-sm leading-7 text-gray-800">
-                {analysis.followUpEmail}
-              </pre>
-            </div>
-          </section>
-        </div>
-
-        <section className="rounded-xl border bg-white p-6">
-          <h2 className="text-lg font-semibold text-gray-900">Activity</h2>
-
-          <div className="mt-4 space-y-3">
-            {lead.activities.map((activity, index) => (
-              <div
-                key={index}
-                className="rounded-lg bg-gray-50 px-4 py-3"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <p className="text-sm font-medium capitalize text-gray-900">
-                    {activity.type.replace(/_/g, " ")}
-                  </p>
-                  <p className="text-xs text-gray-500">{activity.daysAgo}d ago</p>
-                </div>
-                <p className="mt-2 text-sm text-gray-700">{activity.note}</p>
-              </div>
-            ))}
           </div>
-        </section>
+        </div>
+
+        {/* EMAIL 1 */}
+        <div className="mb-6 rounded-xl border bg-white p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Email 1
+          </h2>
+
+          <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+            <pre className="whitespace-pre-wrap text-sm text-gray-800">
+              {analysis.email}
+            </pre>
+          </div>
+        </div>
+
+        {/* EMAIL 2 */}
+        <div className="rounded-xl border bg-white p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Follow-up
+          </h2>
+
+          <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+            <pre className="whitespace-pre-wrap text-sm text-gray-800">
+              {analysis.followUpEmail}
+            </pre>
+          </div>
+        </div>
+
       </div>
     </main>
   );
