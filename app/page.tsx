@@ -138,29 +138,7 @@ export default function HomePage() {
         </div>
 
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <button
-            onClick={() => setMode("recover")}
-            className={`rounded-xl px-4 py-2 text-sm font-medium ${
-              mode === "recover"
-                ? "bg-white text-gray-900 shadow-sm ring-1 ring-gray-200"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            Recover
-          </button>
-
-          <button
-            onClick={() => setMode("generate")}
-            className={`rounded-xl px-4 py-2 text-sm font-medium ${
-              mode === "generate"
-                ? "bg-white text-gray-900 shadow-sm ring-1 ring-gray-200"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            Generate
-          </button>
-
-          <div className="ml-auto rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200">
+          <div className="rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200">
             {dataMode === "sample"
               ? "Sample data loaded"
               : dataMode === "uploaded"
@@ -204,30 +182,13 @@ export default function HomePage() {
             </div>
 
             <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Your best customers
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-gray-900">
-                    {icp.label}
-                  </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
-                    Based on revenue patterns, your strongest segment appears to be{" "}
-                    {icp.industry} companies with {icp.employeeBand} employees,
-                    typically buying through {icp.persona} stakeholders.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl bg-amber-50 px-5 py-4">
-                  <p className="text-sm text-amber-800">
-                    Only <span className="font-semibold">{pipelineQuality}%</span>{" "}
-                    of your current pipeline matches your best-performing ICP
-                  </p>
-                </div>
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  ICP Recommendation
+                </h2>
               </div>
 
-              <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                 <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Industry
