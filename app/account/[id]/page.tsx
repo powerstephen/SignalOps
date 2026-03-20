@@ -1,10 +1,28 @@
 import { notFound } from "next/navigation"
+import PageContainer from "@/components/page-container"
 import { accounts } from "@/lib/accounts"
 
 type AccountPageProps = {
   params: {
     id: string
   }
+}
+
+function Section({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <section>
+      <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+        {label}
+      </p>
+      <div className="mt-2 text-sm leading-6 text-gray-900">{children}</div>
+    </section>
+  )
 }
 
 export default function AccountPage({ params }: AccountPageProps) {
@@ -15,53 +33,36 @@ export default function AccountPage({ params }: AccountPageProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">{account.name}</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {account.status} • {account.lastTouched}
-          </p>
-        </div>
-
-        <button className="rounded-lg bg-black px-4 py-2 text-sm text-white">
+    <PageContainer
+      title={account.name}
+      subtitle={`${account.status} • ${account.lastTouched}`}
+      action={
+        <button className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90">
           Launch agent
         </button>
-      </div>
+      }
+    >
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,1fr)_240px]">
+        <div className="space-y-8">
+          <Section label="Summary">
+            <p>{account.summary}</p>
+          </Section>
 
-      <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
-        <div className="space-y-8 md:col-span-2">
-          <section>
-            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              Summary
-            </p>
-            <p className="mt-2 text-sm text-gray-900">{account.summary}</p>
-          </section>
-
-          <section>
-            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              Signals
-            </p>
-            <ul className="mt-2 space-y-1 text-sm text-gray-900">
+          <Section label="Signals">
+            <ul className="space-y-2">
               {account.signals.map((signal) => (
                 <li key={signal}>{signal}</li>
               ))}
             </ul>
-          </section>
+          </Section>
 
-          <section>
-            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              Angle
-            </p>
-            <p className="mt-2 text-sm text-gray-900">{account.angle}</p>
-          </section>
+          <Section label="Angle">
+            <p>{account.angle}</p>
+          </Section>
 
-          <section>
-            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              Email
-            </p>
-            <p className="mt-2 text-sm text-gray-900">{account.email}</p>
-          </section>
+          <Section label="Email">
+            <p>{account.email}</p>
+          </Section>
         </div>
 
         <aside className="space-y-6">
@@ -69,12 +70,14 @@ export default function AccountPage({ params }: AccountPageProps) {
             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
               Score
             </p>
-            <p className="mt-2 text-sm text-gray-900">{account.score}/100</p>
+            <p className="mt-2 text-sm font-medium text-gray-900">
+              {account.score}/100
+            </p>
           </div>
 
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              ICP Fit
+              ICP fit
             </p>
             <p className="mt-2 text-sm text-gray-900">{account.icpFit}</p>
           </div>
@@ -87,6 +90,6 @@ export default function AccountPage({ params }: AccountPageProps) {
           </div>
         </aside>
       </div>
-    </div>
+    </PageContainer>
   )
 }
