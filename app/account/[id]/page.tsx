@@ -1,3 +1,4 @@
+import { ReactNode } from "react"
 import { notFound } from "next/navigation"
 import PageContainer from "@/components/page-container"
 import { accounts } from "@/lib/accounts"
@@ -13,7 +14,7 @@ function Section({
   children,
 }: {
   label: string
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <section>
