@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { leads as demoLeads } from "@/lib/data";
 import { buildICP, calculateICPMatchScore } from "@/lib/icp";
 import {
@@ -14,6 +13,7 @@ import {
 import { normalizeDeals, buildICPFromDeals } from "@/lib/deals";
 import { signals, scoreSignal, getSignalReasons } from "@/lib/signals";
 import { Lead } from "@/lib/types";
+import Link from "next/link";
 
 function getScoreStyles(score: number) {
   if (score >= 80) return "bg-green-100 text-green-700 border-green-200";
@@ -93,9 +93,14 @@ export default function HomePage() {
     []
   );
 
-  const pipelineMatches = enrichedLeads.filter((lead) => lead.icpMatchScore >= 70).length;
+  const pipelineMatches = enrichedLeads.filter(
+    (lead) => lead.icpMatchScore >= 70
+  ).length;
+
   const pipelineQuality =
-    enrichedLeads.length > 0 ? Math.round((pipelineMatches / enrichedLeads.length) * 100) : 0;
+    enrichedLeads.length > 0
+      ? Math.round((pipelineMatches / enrichedLeads.length) * 100)
+      : 0;
 
   const highValueDormant = enrichedLeads.filter(
     (lead) => lead.score >= 80 && lead.lastContactedDays > 60
@@ -103,66 +108,25 @@ export default function HomePage() {
 
   const estimatedPipeline = highValueDormant.length * (icp.avgDealSize || 20000);
 
-  const highPriorityCount = enrichedLeads.filter((lead) => lead.priority === "High").length;
+  const highPriorityCount = enrichedLeads.filter(
+    (lead) => lead.priority === "High"
+  ).length;
+
   const warmNeglectedCount = enrichedLeads.filter(
     (lead) => lead.state === "Warm but Neglected"
   ).length;
-  const highICPCount = enrichedLeads.filter((lead) => lead.icpMatchScore >= 80).length;
+
+  const highICPCount = enrichedLeads.filter(
+    (lead) => lead.icpMatchScore >= 80
+  ).length;
 
   return (
     <main className="min-h-screen bg-[#f6f7fb]">
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="text-xl font-semibold text-gray-900">
-              SignalOps
-            </Link>
-
-            <nav className="flex items-center gap-5 text-sm">
-              <button
-                onClick={() => setMode("recover")}
-                className={`${
-                  mode === "recover"
-                    ? "font-semibold text-gray-900"
-                    : "text-gray-500 hover:text-gray-900"
-                }`}
-              >
-                Recover
-              </button>
-
-              <button
-                onClick={() => setMode("generate")}
-                className={`${
-                  mode === "generate"
-                    ? "font-semibold text-gray-900"
-                    : "text-gray-500 hover:text-gray-900"
-                }`}
-              >
-                Generate
-              </button>
-
-              <Link href="/opportunities" className="text-gray-500 hover:text-gray-900">
-                Opportunities
-              </Link>
-
-              <Link href="/calculator" className="text-gray-500 hover:text-gray-900">
-                Calculator
-              </Link>
-            </nav>
-          </div>
-
-          <Link
-            href="/connect"
-            className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white"
-          >
-            Import
-          </Link>
-        </div>
-      </div>
-
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10">
         <div className="mb-6">
-          <p className="text-sm font-medium text-gray-500">Revenue Intelligence Workspace</p>
+          <p className="text-sm font-medium text-gray-500">
+            Revenue Intelligence Workspace
+          </p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-gray-900">
             {mode === "recover" ? "Recover pipeline" : "Generate pipeline"}
           </h1>
@@ -173,8 +137,30 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="mb-6 flex items-center gap-3">
-          <div className="rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200">
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => setMode("recover")}
+            className={`rounded-xl px-4 py-2 text-sm font-medium ${
+              mode === "recover"
+                ? "bg-white text-gray-900 shadow-sm ring-1 ring-gray-200"
+                : "text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            Recover
+          </button>
+
+          <button
+            onClick={() => setMode("generate")}
+            className={`rounded-xl px-4 py-2 text-sm font-medium ${
+              mode === "generate"
+                ? "bg-white text-gray-900 shadow-sm ring-1 ring-gray-200"
+                : "text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            Generate
+          </button>
+
+          <div className="ml-auto rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200">
             {dataMode === "sample"
               ? "Sample data loaded"
               : dataMode === "uploaded"
@@ -185,29 +171,58 @@ export default function HomePage() {
 
         {mode === "recover" && (
           <>
-            <div className="mb-6 rounded-2xl bg-black p-6 text-white shadow-sm">
-              <p className="text-sm text-gray-300">Missed opportunity</p>
-              <p className="mt-2 text-2xl font-semibold">
-                {highValueDormant.length} high-value leads not contacted in 60+ days
-              </p>
-              <p className="mt-2 text-sm text-gray-300">
-                Estimated recoverable pipeline: €{estimatedPipeline.toLocaleString()}
-              </p>
+            <div className="mb-6 grid gap-4 md:grid-cols-3">
+              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                <p className="text-sm text-gray-500">Missed opportunities</p>
+                <p className="mt-2 text-2xl font-semibold text-gray-900">
+                  {highValueDormant.length}
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Leads not contacted in 60+ days
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                <p className="text-sm text-gray-500">Recoverable pipeline</p>
+                <p className="mt-2 text-2xl font-semibold text-gray-900">
+                  €{estimatedPipeline.toLocaleString()}
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Based on current ICP deal size
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                <p className="text-sm text-gray-500">Pipeline quality</p>
+                <p className="mt-2 text-2xl font-semibold text-gray-900">
+                  {pipelineQuality}%
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Matches your best-performing ICP
+                </p>
+              </div>
             </div>
 
             <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Your best customers</p>
-                  <h2 className="mt-2 text-2xl font-semibold text-gray-900">{icp.label}</h2>
+                  <p className="text-sm font-medium text-gray-500">
+                    Your best customers
+                  </p>
+                  <h2 className="mt-2 text-2xl font-semibold text-gray-900">
+                    {icp.label}
+                  </h2>
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
-                    Based on revenue patterns, your strongest segment appears to be {icp.industry} companies with {icp.employeeBand} employees, typically buying through {icp.persona} stakeholders.
+                    Based on revenue patterns, your strongest segment appears to be{" "}
+                    {icp.industry} companies with {icp.employeeBand} employees,
+                    typically buying through {icp.persona} stakeholders.
                   </p>
                 </div>
 
                 <div className="rounded-2xl bg-amber-50 px-5 py-4">
                   <p className="text-sm text-amber-800">
-                    Only <span className="font-semibold">{pipelineQuality}%</span> of your current pipeline matches your best-performing ICP
+                    Only <span className="font-semibold">{pipelineQuality}%</span>{" "}
+                    of your current pipeline matches your best-performing ICP
                   </p>
                 </div>
               </div>
@@ -217,21 +232,27 @@ export default function HomePage() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Industry
                   </p>
-                  <p className="mt-2 text-sm font-medium text-gray-900">{icp.industry}</p>
+                  <p className="mt-2 text-sm font-medium text-gray-900">
+                    {icp.industry}
+                  </p>
                 </div>
 
                 <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Company size
                   </p>
-                  <p className="mt-2 text-sm font-medium text-gray-900">{icp.employeeBand}</p>
+                  <p className="mt-2 text-sm font-medium text-gray-900">
+                    {icp.employeeBand}
+                  </p>
                 </div>
 
                 <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Primary persona
                   </p>
-                  <p className="mt-2 text-sm font-medium text-gray-900">{icp.persona}</p>
+                  <p className="mt-2 text-sm font-medium text-gray-900">
+                    {icp.persona}
+                  </p>
                 </div>
 
                 <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
@@ -247,7 +268,9 @@ export default function HomePage() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Win rate
                   </p>
-                  <p className="mt-2 text-sm font-medium text-gray-900">{icp.winRate}%</p>
+                  <p className="mt-2 text-sm font-medium text-gray-900">
+                    {icp.winRate}%
+                  </p>
                 </div>
               </div>
 
@@ -266,12 +289,16 @@ export default function HomePage() {
             <div className="mb-6 grid gap-4 md:grid-cols-3">
               <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
                 <p className="text-sm text-gray-500">High priority leads</p>
-                <p className="mt-2 text-2xl font-semibold text-gray-900">{highPriorityCount}</p>
+                <p className="mt-2 text-2xl font-semibold text-gray-900">
+                  {highPriorityCount}
+                </p>
               </div>
 
               <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
                 <p className="text-sm text-gray-500">Strong ICP matches</p>
-                <p className="mt-2 text-2xl font-semibold text-gray-900">{highICPCount}</p>
+                <p className="mt-2 text-2xl font-semibold text-gray-900">
+                  {highICPCount}
+                </p>
               </div>
 
               <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -284,7 +311,9 @@ export default function HomePage() {
 
             <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
               <div className="border-b border-gray-200 px-6 py-4">
-                <h2 className="text-lg font-semibold text-gray-900">Existing pipeline</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Existing pipeline
+                </h2>
               </div>
 
               <div className="overflow-x-auto">
@@ -300,6 +329,7 @@ export default function HomePage() {
                       <th className="px-6 py-4 font-medium">Priority</th>
                     </tr>
                   </thead>
+
                   <tbody className="divide-y divide-gray-200">
                     {enrichedLeads.map((lead) => (
                       <tr key={lead.id} className="text-sm text-gray-700">
@@ -310,11 +340,15 @@ export default function HomePage() {
                           >
                             {lead.name}
                           </Link>
-                          <p className="mt-1 text-xs text-gray-500">{lead.title}</p>
+                          <p className="mt-1 text-xs text-gray-500">
+                            {lead.title}
+                          </p>
                         </td>
 
                         <td className="px-6 py-4">
-                          <p className="font-medium text-gray-900">{lead.company}</p>
+                          <p className="font-medium text-gray-900">
+                            {lead.company}
+                          </p>
                           <p className="mt-1 text-xs text-gray-500">
                             {lead.companyData.signal}
                           </p>
@@ -367,7 +401,9 @@ export default function HomePage() {
         {mode === "generate" && (
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">New opportunities detected</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                New opportunities detected
+              </h2>
               <p className="mt-1 text-sm text-gray-600">
                 External signals that appear to match your ICP and may deserve outbound attention.
               </p>
@@ -381,7 +417,9 @@ export default function HomePage() {
                 >
                   <div>
                     <div className="flex items-center gap-3">
-                      <p className="text-base font-semibold text-gray-900">{signal.company}</p>
+                      <p className="text-base font-semibold text-gray-900">
+                        {signal.company}
+                      </p>
                       <span
                         className={`inline-flex min-w-[52px] justify-center rounded-full border px-3 py-1 text-xs font-semibold ${getScoreStyles(
                           signal.score
@@ -392,11 +430,13 @@ export default function HomePage() {
                     </div>
 
                     <p className="mt-2 text-sm text-gray-600">
-                      {signal.persona} · {signal.industry} · {signal.employees} employees ·{" "}
-                      {signal.location}
+                      {signal.persona} · {signal.industry} · {signal.employees}{" "}
+                      employees · {signal.location}
                     </p>
 
-                    <p className="mt-2 text-sm font-medium text-gray-900">{signal.signal}</p>
+                    <p className="mt-2 text-sm font-medium text-gray-900">
+                      {signal.signal}
+                    </p>
 
                     <div className="mt-3 flex flex-wrap gap-2">
                       {signal.reasons.map((reason, index) => (
