@@ -46,7 +46,7 @@ function buildEmailSteps(
     {
       id: 1,
       label: "Email 1",
-      subject: `Worth reconnecting?`,
+      subject: "Worth reconnecting?",
       body: `Hi ${firstName},
 
 Noticed ${whyNow.toLowerCase()} and, given we previously ${interactionSummary.toLowerCase()}, thought it might be a good time to reconnect.
@@ -60,7 +60,7 @@ Open to a quick chat?`,
     {
       id: 2,
       label: "Email 2",
-      subject: `Quick follow up`,
+      subject: "Quick follow up",
       body: `Hi ${firstName},
 
 Just following up on my note below.
@@ -72,7 +72,7 @@ Happy to share a few ideas if useful.`,
     {
       id: 3,
       label: "Email 3",
-      subject: `Close the loop`,
+      subject: "Close the loop",
       body: `Hi ${firstName},
 
 Last note from me.
@@ -92,6 +92,7 @@ export default function ContactPage({ params }: Props) {
   }
 
   const firstName = lead.name.split(" ")[0];
+
   const emails = useMemo(
     () =>
       buildEmailSteps(
@@ -109,10 +110,19 @@ export default function ContactPage({ params }: Props) {
   const activeEmail =
     emails.find((email) => email.id === activeEmailId) ?? emails[0];
 
-  const isUnlocked = (emailId: number) => emailId <= approvedUpTo;
+  const activeIndex = emails.findIndex((email) => email.id === activeEmail.id);
+  const prevEmail = activeIndex > 0 ? emails[activeIndex - 1] : null;
+  const nextEmail = activeIndex < emails.length - 1 ? emails[activeIndex + 1] : null;
+
+  function canOpen(emailId: number) {
+    return emailId <= approvedUpTo;
+  }
 
   function handleApprove() {
     setApprovedUpTo((current) => Math.min(current + 1, emails.length));
+    if (activeEmailId < emails.length) {
+      setActiveEmailId(activeEmailId + 1);
+    }
   }
 
   function handleRegenerate() {
@@ -120,37 +130,43 @@ export default function ContactPage({ params }: Props) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-8 py-10 md:px-10">
+    <div className="mx-auto w-full max-w-7xl px-8 py-8 md:px-10">
       <div className="space-y-10">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-8">
-          <div className="text-6xl font-semibold leading-none text-green-600">
-            {lead.score}
-          </div>
-
-          <div>
-            <div className="text-2xl font-semibold tracking-tight text-gray-950">
-              {lead.name}
+        {/* TOP */}
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex items-start gap-6">
+            <div className="text-6xl font-semibold leading-none text-green-600">
+              {lead.score}
             </div>
-            <div className="mt-1 text-gray-600">
-              {lead.role} at {lead.company}
-            </div>
-          </div>
 
-          <div className="md:ml-auto flex max-w-[520px] flex-wrap gap-2">
-            <Pill label="Recent Engagement" />
-            <Pill label="Dormant Opportunity" />
-            <Pill label="High ICP Match" />
-            <Pill label="Senior Persona" />
+            <div className="space-y-3">
+              <div>
+                <div className="text-2xl font-semibold tracking-tight text-gray-950">
+                  {lead.name}
+                </div>
+                <div className="mt-1 text-gray-600">
+                  {lead.role} at {lead.company}
+                </div>
+              </div>
+
+              <div className="flex max-w-[560px] flex-wrap gap-2">
+                <Pill label="Recent Engagement" />
+                <Pill label="Dormant Opportunity" />
+                <Pill label="High ICP Match" />
+                <Pill label="Senior Persona" />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <div className="rounded-3xl bg-white p-8 shadow-[0_0_0_1px_rgba(17,24,39,0.06)]">
+        {/* ABOVE THE FOLD SUMMARY */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1fr]">
+          <div>
             <div className="text-xs uppercase tracking-wide text-gray-400">
               Signals
             </div>
 
-            <p className="mt-5 text-base leading-7 text-gray-900">
+            <p className="mt-4 text-base leading-7 text-gray-900">
               {lead.whyNow}
             </p>
 
@@ -162,12 +178,12 @@ export default function ContactPage({ params }: Props) {
             </ul>
           </div>
 
-          <div className="rounded-3xl bg-white p-8 shadow-[0_0_0_1px_rgba(17,24,39,0.06)]">
+          <div>
             <div className="text-xs uppercase tracking-wide text-gray-400">
               Activity
             </div>
 
-            <div className="mt-5 space-y-6">
+            <div className="mt-4 space-y-5">
               {lead.timeline.map((item) => (
                 <div key={item.id} className="flex gap-4">
                   <TimelineDot type={item.type} />
@@ -187,71 +203,98 @@ export default function ContactPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-          <div className="rounded-3xl bg-white p-8 shadow-[0_0_0_1px_rgba(17,24,39,0.06)] xl:col-span-8">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="text-xs uppercase tracking-wide text-gray-400">
-                  {activeEmail.label}
-                </div>
-                <div className="mt-2 text-lg font-semibold text-gray-950">
-                  {activeEmail.subject}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleRegenerate}
-                  className="rounded-2xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                >
-                  Regenerate
-                </button>
-                <button
-                  onClick={handleApprove}
-                  className="rounded-2xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
-                >
-                  {approvedUpTo < emails.length ? "Approve" : "Approved"}
-                </button>
-              </div>
+        {/* EMAIL CAROUSEL */}
+        <div className="pt-2">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="text-sm font-medium text-gray-400">
+              Sequence
             </div>
 
-            <div className="mt-8 max-w-3xl whitespace-pre-wrap text-sm leading-7 text-gray-900">
-              {activeEmail.body}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleRegenerate}
+                className="rounded-2xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              >
+                Regenerate
+              </button>
+              <button
+                onClick={handleApprove}
+                className="rounded-2xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+              >
+                {approvedUpTo < emails.length ? "Approve & continue" : "Approved"}
+              </button>
             </div>
           </div>
 
-          {emails
-            .filter((email) => email.id !== activeEmail.id)
-            .map((email) => {
-              const unlocked = isUnlocked(email.id);
+          <div className="relative h-[420px] overflow-hidden">
+            {prevEmail ? (
+              <button
+                type="button"
+                onClick={() => canOpen(prevEmail.id) && setActiveEmailId(prevEmail.id)}
+                className={`absolute left-0 top-10 z-0 h-[320px] w-[18%] rounded-3xl border border-gray-200 bg-white px-4 py-6 text-left shadow-[0_0_0_1px_rgba(17,24,39,0.04)] transition ${
+                  canOpen(prevEmail.id) ? "hover:-translate-y-0.5" : "cursor-not-allowed opacity-50"
+                }`}
+              >
+                <div className="mt-24 text-center text-5xl font-semibold tracking-tight text-gray-900">
+                  {prevEmail.id}
+                </div>
+              </button>
+            ) : null}
 
-              return (
-                <button
-                  key={email.id}
-                  type="button"
-                  onClick={() => unlocked && setActiveEmailId(email.id)}
-                  className={`relative min-h-[320px] rounded-3xl p-6 text-left shadow-[0_0_0_1px_rgba(17,24,39,0.06)] transition xl:col-span-2 ${
-                    unlocked
-                      ? "bg-white hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(17,24,39,0.08)]"
-                      : "cursor-not-allowed bg-gray-100"
-                  }`}
-                >
+            <div className="absolute left-1/2 top-0 z-10 h-[360px] w-[72%] -translate-x-1/2 rounded-3xl border border-gray-200 bg-white px-8 py-8 shadow-[0_18px_40px_rgba(17,24,39,0.08)]">
+              <div className="flex items-start justify-between gap-4">
+                <div>
                   <div className="text-xs uppercase tracking-wide text-gray-400">
-                    {email.label}
+                    {activeEmail.label}
                   </div>
-
-                  <div className="mt-20 text-center text-4xl font-semibold tracking-tight text-gray-950">
-                    {email.id}
+                  <div className="mt-2 text-xl font-semibold text-gray-950">
+                    {activeEmail.subject}
                   </div>
+                </div>
 
-                  {!unlocked ? (
-                    <div className="absolute inset-x-4 bottom-4 rounded-2xl bg-white/80 px-3 py-2 text-center text-xs font-medium text-gray-500 backdrop-blur">
-                      Unlock after {email.id - 1 === 1 ? "Email 1" : `Email ${email.id - 1}`}
-                    </div>
-                  ) : null}
-                </button>
-              );
-            })}
+                <div className="flex items-center gap-2">
+                  {emails.map((email) => (
+                    <button
+                      key={email.id}
+                      type="button"
+                      onClick={() => canOpen(email.id) && setActiveEmailId(email.id)}
+                      className={`h-2.5 w-2.5 rounded-full ${
+                        email.id === activeEmail.id
+                          ? "bg-gray-900"
+                          : canOpen(email.id)
+                            ? "bg-gray-300"
+                            : "bg-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-8 max-w-3xl whitespace-pre-wrap text-sm leading-7 text-gray-900">
+                {activeEmail.body}
+              </div>
+            </div>
+
+            {nextEmail ? (
+              <button
+                type="button"
+                onClick={() => canOpen(nextEmail.id) && setActiveEmailId(nextEmail.id)}
+                className={`absolute right-0 top-10 z-0 h-[320px] w-[18%] rounded-3xl border border-gray-200 bg-white px-4 py-6 text-left shadow-[0_0_0_1px_rgba(17,24,39,0.04)] transition ${
+                  canOpen(nextEmail.id) ? "hover:-translate-y-0.5" : "cursor-not-allowed opacity-50"
+                }`}
+              >
+                <div className="mt-24 text-center text-5xl font-semibold tracking-tight text-gray-900">
+                  {nextEmail.id}
+                </div>
+
+                {!canOpen(nextEmail.id) ? (
+                  <div className="absolute inset-x-4 bottom-4 rounded-2xl bg-gray-50 px-3 py-2 text-center text-xs font-medium text-gray-500">
+                    Locked
+                  </div>
+                ) : null}
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
