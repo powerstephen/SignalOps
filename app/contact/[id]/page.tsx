@@ -559,7 +559,7 @@ export default function ContactPage({ params }: Props) {
     }
   }
 
-  function handleRegenerate() {
+  function handleResetDraft() {
     setActiveSignalId(null);
     setDraftMode("default");
   }
@@ -660,20 +660,6 @@ export default function ContactPage({ params }: Props) {
                 }`}
               >
                 {drawerOpen ? "Hide reasoning" : "Why this email?"}
-              </button>
-
-              <button
-                onClick={handleRegenerate}
-                className="rounded-2xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-              >
-                Reset draft
-              </button>
-
-              <button
-                onClick={handleApprove}
-                className="rounded-2xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
-              >
-                {approvedUpTo < emails.length ? "Approve & continue" : "Approved"}
               </button>
             </div>
           </div>
@@ -798,24 +784,24 @@ export default function ContactPage({ params }: Props) {
             </div>
           </div>
 
-          <div className="relative h-[500px] overflow-hidden">
+          <div className="relative min-h-[640px] overflow-hidden">
             {prevEmail ? (
               <button
                 type="button"
                 onClick={() => handleSelectEmail(prevEmail.id)}
-                className={`absolute left-0 top-12 z-0 h-[320px] w-[18%] rounded-3xl border border-gray-200 bg-white px-4 py-6 text-left shadow-[0_0_0_1px_rgba(17,24,39,0.04)] transition ${
+                className={`absolute left-0 top-12 z-0 h-[360px] w-[18%] rounded-3xl border border-gray-200 bg-white px-4 py-6 text-left shadow-[0_0_0_1px_rgba(17,24,39,0.04)] transition ${
                   canOpen(prevEmail.id)
                     ? "hover:-translate-y-0.5"
                     : "cursor-not-allowed opacity-50"
                 }`}
               >
-                <div className="mt-24 text-center text-5xl font-semibold tracking-tight text-gray-900">
+                <div className="mt-28 text-center text-5xl font-semibold tracking-tight text-gray-900">
                   {prevEmail.id}
                 </div>
               </button>
             ) : null}
 
-            <div className="absolute left-1/2 top-0 z-10 h-[440px] w-[72%] -translate-x-1/2 rounded-3xl border border-gray-200 bg-white px-8 py-8 shadow-[0_18px_40px_rgba(17,24,39,0.08)]">
+            <div className="absolute left-1/2 top-0 z-10 w-[72%] -translate-x-1/2 rounded-3xl border border-gray-200 bg-white px-8 py-8 shadow-[0_18px_40px_rgba(17,24,39,0.08)]">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-3">
@@ -889,19 +875,46 @@ export default function ContactPage({ params }: Props) {
                   </p>
                 ))}
               </div>
+
+              <div className="mt-8 flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4">
+                <div className="text-sm text-gray-500">
+                  {draftMode !== "default"
+                    ? "AI updated draft ready for review"
+                    : "Draft ready for review"}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleResetDraft}
+                    className="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                  >
+                    Reset draft
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApprove}
+                    className="rounded-2xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+                  >
+                    {approvedUpTo < emails.length
+                      ? "Approve & continue"
+                      : "Approved"}
+                  </button>
+                </div>
+              </div>
             </div>
 
             {nextEmail ? (
               <button
                 type="button"
                 onClick={() => handleSelectEmail(nextEmail.id)}
-                className={`absolute right-0 top-12 z-0 h-[320px] w-[18%] rounded-3xl border border-gray-200 bg-white px-4 py-6 text-left shadow-[0_0_0_1px_rgba(17,24,39,0.04)] transition ${
+                className={`absolute right-0 top-12 z-0 h-[360px] w-[18%] rounded-3xl border border-gray-200 bg-white px-4 py-6 text-left shadow-[0_0_0_1px_rgba(17,24,39,0.04)] transition ${
                   canOpen(nextEmail.id)
                     ? "hover:-translate-y-0.5"
                     : "cursor-not-allowed opacity-50"
                 }`}
               >
-                <div className="mt-24 text-center text-5xl font-semibold tracking-tight text-gray-900">
+                <div className="mt-28 text-center text-5xl font-semibold tracking-tight text-gray-900">
                   {nextEmail.id}
                 </div>
 
