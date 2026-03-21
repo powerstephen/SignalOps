@@ -7,12 +7,14 @@ type SourceTileProps = {
 
 function ConnectedBadge() {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-green-50 px-2.5 py-1 text-[12px] font-medium text-green-700">
-      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-green-500 text-[10px] text-white">
-        ✓
+    <div className="mt-4">
+      <span className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-[11px] font-medium text-green-700">
+        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-green-500 text-[10px] text-white">
+          ✓
+        </span>
+        Connected
       </span>
-      Connected
-    </span>
+    </div>
   );
 }
 
@@ -23,18 +25,18 @@ function SourceTile({
   connected = false,
 }: SourceTileProps) {
   return (
-    <div className="w-full max-w-[280px]">
+    <div className="w-full max-w-[248px]">
       <div
         className={`flex h-[112px] w-full items-center justify-center rounded-[20px] ${brandBg}`}
       >
-        <span className="text-[34px] font-semibold tracking-tight text-white">
+        <span className="text-[32px] font-semibold tracking-tight text-white">
           {brand}
         </span>
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-3">
-        <button className="inline-flex items-center gap-3 text-[18px] font-semibold text-gray-950 transition hover:opacity-70">
-          <span className="text-[28px] leading-none">→</span>
+      <div className="mt-5">
+        <button className="inline-flex items-center gap-3 text-[16px] font-semibold text-gray-950 transition hover:opacity-70">
+          <span className="text-[24px] leading-none">→</span>
           <span>{buttonLabel}</span>
         </button>
 
@@ -62,11 +64,11 @@ export default function ConnectPage() {
         </div>
       </div>
 
-      <div className="grid gap-x-10 gap-y-14 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid justify-between gap-y-14 sm:grid-cols-2 xl:grid-cols-4">
         <SourceTile
           brand="HubSpot"
           brandBg="bg-[#ff5a0a]"
-          buttonLabel="Connect to HubSpot CRM"
+          buttonLabel="Connect HubSpot CRM"
           connected={true}
         />
 
