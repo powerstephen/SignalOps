@@ -54,19 +54,17 @@ export default function RecoverPage() {
                   <div className="text-sm text-gray-500">{lead.role}</div>
                 </td>
 
-                <td className="px-6 py-5 text-gray-700">
-                  {lead.company}
-                </td>
+                <td className="px-6 py-5 text-gray-700">{lead.company}</td>
 
                 <td className="px-6 py-5 text-gray-700">
                   {lead.lastInteraction}
                 </td>
 
-                <td className="px-6 py-5 text-gray-600 max-w-[260px]">
+                <td className="px-6 py-5 max-w-[260px] text-gray-600">
                   {lead.interactionSummary}
                 </td>
 
-                <td className="px-6 py-5 text-gray-700 max-w-[260px]">
+                <td className="px-6 py-5 max-w-[260px] text-gray-700">
                   {lead.whyNow}
                 </td>
 
