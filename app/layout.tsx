@@ -17,7 +17,7 @@ export default function RootLayout({
         <div className="border-b border-gray-200 bg-white">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
             <div className="flex items-center gap-8">
-              <Link href="/" className="text-lg font-semibold text-gray-900">
+              <Link href="/" className="text-2xl font-semibold tracking-tight text-gray-950">
                 SignalOps
               </Link>
 
@@ -25,7 +25,7 @@ export default function RootLayout({
                 <Link href="/" className="font-medium text-gray-900">
                   Recover
                 </Link>
-                <Link href="/" className="text-gray-500 hover:text-gray-900">
+                <Link href="/generate" className="text-gray-500 hover:text-gray-900">
                   Generate
                 </Link>
                 <Link
@@ -45,7 +45,7 @@ export default function RootLayout({
 
             <Link
               href="/connect"
-              className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white"
+              className="rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
             >
               Import
             </Link>
