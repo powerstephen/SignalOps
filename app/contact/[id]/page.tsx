@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { notFound } from "next/navigation";
 import { recoverLeads } from "@/lib/recover-leads";
 
@@ -38,9 +38,35 @@ function Pill({
   );
 }
 
-function ReasonChip({ label }: { label: string }) {
+function ReasonChip({
+  label,
+  active = false,
+  onClick,
+}: {
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}) {
+  const classes = active
+    ? "border-gray-900 bg-gray-900 text-white"
+    : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50";
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={`rounded-full border px-3 py-1 text-xs font-medium transition ${classes}`}
+      >
+        {label}
+      </button>
+    );
+  }
+
   return (
-    <span className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700">
+    <span
+      className={`rounded-full border px-3 py-1 text-xs font-medium transition ${classes}`}
+    >
       {label}
     </span>
   );
@@ -78,6 +104,14 @@ type EmailStep = {
   signals: EmailSignal[];
 };
 
+type EmailDraft = {
+  subject: string;
+  intro: string;
+  paragraphs: string[];
+};
+
+type DraftMode = "default" | "shorter" | "warmer" | "direct" | "stronger-cta";
+
 function highlightPhrase(
   text: string,
   phrase: string,
@@ -97,9 +131,7 @@ function highlightPhrase(
       {before}
       <span
         className={`rounded-md px-1 py-0.5 transition ${
-          active
-            ? "bg-green-100 text-green-900"
-            : "bg-gray-100 text-gray-800"
+          active ? "bg-green-100 text-green-900" : "bg-gray-100 text-gray-800"
         }`}
       >
         {match}
@@ -235,6 +267,9 @@ function getReasoning(
       "Prior engagement exists",
       "No clear next step previously",
     ],
+    personalization:
+      interactionSummary ||
+      `The draft references prior engagement and current activity to make the message feel timely and specific.`,
   };
 
   if (emailId === 1) {
@@ -265,6 +300,188 @@ function getReasoning(
   };
 }
 
+function buildDraftForMode(
+  email: EmailStep,
+  mode: DraftMode,
+  firstName: string,
+  company: string
+): EmailDraft {
+  if (mode === "default") {
+    return {
+      subject: email.subject,
+      intro: email.intro,
+      paragraphs: email.paragraphs,
+    };
+  }
+
+  if (email.id === 1) {
+    if (mode === "shorter") {
+      return {
+        subject: "Worth reconnecting?",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Noticed renewed activity from ${company} and thought the timing might be better now.`,
+          `Given the earlier interest, felt it was worth reaching out again.`,
+          `Open to a quick chat?`,
+        ],
+      };
+    }
+
+    if (mode === "warmer") {
+      return {
+        subject: "Worth reconnecting?",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Hope you are well. I noticed renewed activity from ${company} and it made me think this could be a good time to reconnect.`,
+          `We had some positive engagement before, and it felt like there was real interest even if it did not turn into a next step at the time.`,
+          `Happy to pick things back up if useful.`,
+          `Would a quick chat next week suit?`,
+        ],
+      };
+    }
+
+    if (mode === "direct") {
+      return {
+        subject: "Reconnecting on timing",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `I noticed renewed activity from ${company} and wanted to reach out directly.`,
+          `There was clear interest previously, but no defined next step.`,
+          `The current signals suggest better timing now.`,
+          `Are you open to a quick conversation this week?`,
+        ],
+      };
+    }
+
+    if (mode === "stronger-cta") {
+      return {
+        subject: "Worth reconnecting this week?",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Noticed revisited pricing and recent activity from ${company}, and given our previous engagement, this looked like the right moment to reconnect.`,
+          `There seemed to be genuine interest before, but it never converted into a clear next step.`,
+          `The latest signals suggest this may be back on the agenda.`,
+          `Would Tuesday or Wednesday suit for a 15 minute call?`,
+        ],
+      };
+    }
+  }
+
+  if (email.id === 2) {
+    if (mode === "shorter") {
+      return {
+        subject: "Quick follow up",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Just following up on my earlier note.`,
+          `The latest signals from ${company} suggest the timing may be better now.`,
+          `Happy to share a few ideas if helpful.`,
+        ],
+      };
+    }
+
+    if (mode === "warmer") {
+      return {
+        subject: "Quick follow up",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Just wanted to gently follow up on my note below.`,
+          `We often see this kind of renewed activity from ${company} when priorities are shifting and timing improves.`,
+          `Happy to share a few thoughts if that would be useful.`,
+        ],
+      };
+    }
+
+    if (mode === "direct") {
+      return {
+        subject: "Following up",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Following up on my note below.`,
+          `We are seeing renewed activity from ${company}, which usually points to better timing.`,
+          `Is it worth reopening the conversation?`,
+        ],
+      };
+    }
+
+    if (mode === "stronger-cta") {
+      return {
+        subject: "Quick follow up on timing",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Just following up on my note below.`,
+          `Usually when we see signals like this from ${company}, it means the timing may be better now than when we first spoke.`,
+          `Would it make sense to lock 15 minutes next week?`,
+        ],
+      };
+    }
+  }
+
+  if (email.id === 3) {
+    if (mode === "shorter") {
+      return {
+        subject: "Close the loop",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Last note from me.`,
+          `We are seeing renewed activity from ${company}, so I wanted to check if this is back on the agenda.`,
+          `If not, no problem at all.`,
+        ],
+      };
+    }
+
+    if (mode === "warmer") {
+      return {
+        subject: "Close the loop",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Last note from me and then I will leave it there.`,
+          `I noticed renewed activity from ${company} and thought it was worth one final follow up in case this has become more relevant again.`,
+          `If the timing is not right, no problem at all.`,
+        ],
+      };
+    }
+
+    if (mode === "direct") {
+      return {
+        subject: "Final follow up",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Final follow up from me.`,
+          `The current signals suggest this may be back on the agenda at ${company}.`,
+          `Should I close this out, or is it worth a quick conversation?`,
+        ],
+      };
+    }
+
+    if (mode === "stronger-cta") {
+      return {
+        subject: "Final follow up",
+        intro: `Hi ${firstName},`,
+        paragraphs: [
+          `Last note from me.`,
+          `Given the renewed activity we are seeing from ${company}, I thought it was worth one final follow up in case this is back on the agenda.`,
+          `If useful, I can hold 15 minutes on Thursday or Friday.`,
+        ],
+      };
+    }
+  }
+
+  return {
+    subject: email.subject,
+    intro: email.intro,
+    paragraphs: email.paragraphs,
+  };
+}
+
+function getModeLabel(mode: DraftMode) {
+  if (mode === "shorter") return "Shorter";
+  if (mode === "warmer") return "Warmer";
+  if (mode === "direct") return "More direct";
+  if (mode === "stronger-cta") return "Stronger CTA";
+  return "Original";
+}
+
 export default function ContactPage({ params }: Props) {
   const lead = recoverLeads.find((l) => l.id === params.id);
 
@@ -289,6 +506,8 @@ export default function ContactPage({ params }: Props) {
   const [approvedUpTo, setApprovedUpTo] = useState(1);
   const [activeSignalId, setActiveSignalId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [draftMode, setDraftMode] = useState<DraftMode>("default");
+  const [showUpdatedBadge, setShowUpdatedBadge] = useState(false);
 
   const activeEmail =
     emails.find((email) => email.id === activeEmailId) ?? emails[0];
@@ -309,6 +528,22 @@ export default function ContactPage({ params }: Props) {
     [activeEmail.id, lead.company, lead.whyNow, lead.interactionSummary]
   );
 
+  const activeDraft = useMemo(
+    () => buildDraftForMode(activeEmail, draftMode, firstName, lead.company),
+    [activeEmail, draftMode, firstName, lead.company]
+  );
+
+  useEffect(() => {
+    if (draftMode === "default") {
+      setShowUpdatedBadge(false);
+      return;
+    }
+
+    setShowUpdatedBadge(true);
+    const timeout = setTimeout(() => setShowUpdatedBadge(false), 2200);
+    return () => clearTimeout(timeout);
+  }, [draftMode, activeEmailId]);
+
   function canOpen(emailId: number) {
     return emailId <= approvedUpTo;
   }
@@ -320,18 +555,20 @@ export default function ContactPage({ params }: Props) {
     if (activeEmailId < emails.length) {
       setActiveEmailId(activeEmailId + 1);
       setActiveSignalId(null);
+      setDraftMode("default");
     }
   }
 
   function handleRegenerate() {
     setActiveSignalId(null);
-    setActiveEmailId((current) => current);
+    setDraftMode("default");
   }
 
   function handleSelectEmail(emailId: number) {
     if (!canOpen(emailId)) return;
     setActiveEmailId(emailId);
     setActiveSignalId(null);
+    setDraftMode("default");
   }
 
   function handleSignalClick(signalId: string) {
@@ -429,7 +666,7 @@ export default function ContactPage({ params }: Props) {
                 onClick={handleRegenerate}
                 className="rounded-2xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
               >
-                Regenerate
+                Reset draft
               </button>
 
               <button
@@ -444,7 +681,7 @@ export default function ContactPage({ params }: Props) {
           <div
             className={`overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 transition-all duration-300 ${
               drawerOpen
-                ? "mb-6 max-h-[420px] p-6 opacity-100"
+                ? "mb-6 max-h-[520px] p-6 opacity-100"
                 : "mb-0 max-h-0 px-6 py-0 opacity-0"
             }`}
           >
@@ -484,6 +721,15 @@ export default function ContactPage({ params }: Props) {
                     {reasoning.stepReason}
                   </p>
                 </div>
+
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                    Personalization anchor
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-gray-700">
+                    {reasoning.personalization}
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-5">
@@ -515,11 +761,44 @@ export default function ContactPage({ params }: Props) {
                     ))}
                   </div>
                 </div>
+
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                    Quick AI actions
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <ReasonChip
+                      label="Shorter"
+                      active={draftMode === "shorter"}
+                      onClick={() => setDraftMode("shorter")}
+                    />
+                    <ReasonChip
+                      label="Warmer"
+                      active={draftMode === "warmer"}
+                      onClick={() => setDraftMode("warmer")}
+                    />
+                    <ReasonChip
+                      label="More direct"
+                      active={draftMode === "direct"}
+                      onClick={() => setDraftMode("direct")}
+                    />
+                    <ReasonChip
+                      label="Stronger CTA"
+                      active={draftMode === "stronger-cta"}
+                      onClick={() => setDraftMode("stronger-cta")}
+                    />
+                    <ReasonChip
+                      label="Original"
+                      active={draftMode === "default"}
+                      onClick={() => setDraftMode("default")}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="relative h-[460px] overflow-hidden">
+          <div className="relative h-[500px] overflow-hidden">
             {prevEmail ? (
               <button
                 type="button"
@@ -536,14 +815,29 @@ export default function ContactPage({ params }: Props) {
               </button>
             ) : null}
 
-            <div className="absolute left-1/2 top-0 z-10 h-[400px] w-[72%] -translate-x-1/2 rounded-3xl border border-gray-200 bg-white px-8 py-8 shadow-[0_18px_40px_rgba(17,24,39,0.08)]">
+            <div className="absolute left-1/2 top-0 z-10 h-[440px] w-[72%] -translate-x-1/2 rounded-3xl border border-gray-200 bg-white px-8 py-8 shadow-[0_18px_40px_rgba(17,24,39,0.08)]">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="text-xs uppercase tracking-wide text-gray-400">
-                    {activeEmail.label}
+                  <div className="flex items-center gap-3">
+                    <div className="text-xs uppercase tracking-wide text-gray-400">
+                      {activeEmail.label}
+                    </div>
+
+                    {draftMode !== "default" ? (
+                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-700">
+                        {getModeLabel(draftMode)}
+                      </span>
+                    ) : null}
+
+                    {showUpdatedBadge ? (
+                      <span className="rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-medium text-green-700">
+                        AI updated draft
+                      </span>
+                    ) : null}
                   </div>
+
                   <div className="mt-2 text-xl font-semibold text-gray-950">
-                    {activeEmail.subject}
+                    {activeDraft.subject}
                   </div>
                 </div>
 
@@ -583,9 +877,9 @@ export default function ContactPage({ params }: Props) {
               </div>
 
               <div className="mt-8 max-w-3xl text-sm leading-7 text-gray-900">
-                <p className="whitespace-pre-wrap">{activeEmail.intro}</p>
+                <p className="whitespace-pre-wrap">{activeDraft.intro}</p>
 
-                {activeEmail.paragraphs.map((paragraph, index) => (
+                {activeDraft.paragraphs.map((paragraph, index) => (
                   <p key={index} className="mt-6">
                     {renderParagraph(
                       paragraph,
