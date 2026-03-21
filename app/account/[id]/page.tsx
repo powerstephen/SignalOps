@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { notFound } from "next/navigation";
 import PageContainer from "@/components/page-container";
+import WorkspaceSourceBanner from "@/components/workspace-source-banner";
 import { accounts, Contact } from "@/lib/accounts";
 
 type Props = {
@@ -30,7 +31,9 @@ function Badge({
   };
 
   return (
-    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${styles[variant]}`}>
+    <span
+      className={`rounded-full px-2.5 py-1 text-xs font-medium ${styles[variant]}`}
+    >
       {label}
     </span>
   );
@@ -46,14 +49,13 @@ export default function AccountPage({ params }: Props) {
     account.contacts
   );
   const [status, setStatus] = useState(account.status);
-
   const [messages, setMessages] = useState<Record<string, Message>>({});
 
   function generateContacts() {
     const mock: Contact[] = [
       {
         id: "1",
-        name: "Head of Sales",
+        name: "Sarah Turner",
         role: "Head of Sales",
         seniority: "high",
         email: `sales@${account.id}.com`,
@@ -61,10 +63,18 @@ export default function AccountPage({ params }: Props) {
       },
       {
         id: "2",
-        name: "RevOps Manager",
-        role: "Revenue Operations Manager",
+        name: "James Murphy",
+        role: "RevOps Manager",
         seniority: "mid",
         email: `revops@${account.id}.com`,
+        recommended: false,
+      },
+      {
+        id: "3",
+        name: "Emma Smith",
+        role: "VP Marketing",
+        seniority: "high",
+        email: `marketing@${account.id}.com`,
         recommended: false,
       },
     ];
@@ -75,9 +85,17 @@ export default function AccountPage({ params }: Props) {
 
   function generateMessage(contact: Contact) {
     const msg: Message = {
-      reason: `${contact.role} is directly responsible for ${account.recommendedPlay.toLowerCase()} outcomes`,
-      email: `Hi ${contact.name},\n\nNoticed ${account.whyNow.toLowerCase()}. Teams in a similar position typically struggle to convert this into pipeline efficiently.\n\nWe help identify and prioritise the right accounts and contacts automatically.\n\nWorth a quick look?\n`,
-      linkedin: `Hi ${contact.name}, saw you're leading ${contact.role.toLowerCase()} at ${account.name}. Curious how you're approaching pipeline with recent changes.`,
+      reason: `${contact.role} is closely tied to pipeline, conversion and GTM execution at ${account.name}.`,
+      email: `Hi ${contact.name},
+
+Noticed recent activity from ${account.name.toLowerCase()} across pricing and integrations, alongside broader GTM signals.
+
+Teams in a similar position often struggle to turn that intent into focused pipeline action.
+
+SignalOps helps prioritise the right accounts and contacts based on real buying signals.
+
+Worth a quick look?`,
+      linkedin: `Hi ${contact.name} — noticed some recent activity from ${account.name} and thought this might be relevant. Curious if pipeline is a focus right now and whether this sits with you?`,
     };
 
     setMessages((prev) => ({
@@ -99,28 +117,26 @@ export default function AccountPage({ params }: Props) {
         </button>
       }
     >
+      <WorkspaceSourceBanner />
+
       <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_280px]">
-        {/* LEFT */}
         <div className="space-y-10">
-          {/* Summary */}
           <div>
             <div className="text-xs uppercase text-gray-500">Summary</div>
             <p className="mt-2 text-base text-gray-900">{account.summary}</p>
           </div>
 
-          {/* Signals */}
           <div>
             <div className="text-xs uppercase text-gray-500">Signals</div>
             <ul className="mt-3 space-y-2">
-              {account.signals.map((s) => (
-                <li key={s} className="text-gray-700">
-                  {s}
+              {account.signals.map((signal) => (
+                <li key={signal} className="text-gray-700">
+                  {signal}
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* CONTACTS */}
           <div>
             <div className="text-xs uppercase text-gray-500">Contacts</div>
 
@@ -130,29 +146,28 @@ export default function AccountPage({ params }: Props) {
               </div>
             ) : (
               <div className="mt-4 space-y-4">
-                {contacts.map((c) => (
+                {contacts.map((contact) => (
                   <div
-                    key={c.id}
+                    key={contact.id}
                     className="rounded-xl border border-gray-200 bg-white p-5"
                   >
-                    {/* Top row */}
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-gray-900">
-                          {c.name}
+                          {contact.name}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {c.role} • {c.email}
+                          {contact.role} • {contact.email}
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        {c.recommended && (
+                        {contact.recommended ? (
                           <Badge label="Primary" variant="green" />
-                        )}
+                        ) : null}
 
                         <button
-                          onClick={() => generateMessage(c)}
+                          onClick={() => generateMessage(contact)}
                           className="rounded-lg border px-3 py-1.5 text-xs hover:bg-gray-50"
                         >
                           Generate message
@@ -160,15 +175,14 @@ export default function AccountPage({ params }: Props) {
                       </div>
                     </div>
 
-                    {/* MESSAGE PANEL */}
-                    {messages[c.id] && (
+                    {messages[contact.id] ? (
                       <div className="mt-4 space-y-4 border-t pt-4">
                         <div>
                           <div className="text-xs uppercase text-gray-500">
                             Why this person
                           </div>
-                          <p className="text-sm text-gray-700 mt-1">
-                            {messages[c.id].reason}
+                          <p className="mt-1 text-sm text-gray-700">
+                            {messages[contact.id].reason}
                           </p>
                         </div>
 
@@ -177,7 +191,7 @@ export default function AccountPage({ params }: Props) {
                             Email
                           </div>
                           <pre className="mt-1 whitespace-pre-wrap text-sm text-gray-900">
-                            {messages[c.id].email}
+                            {messages[contact.id].email}
                           </pre>
                         </div>
 
@@ -185,12 +199,12 @@ export default function AccountPage({ params }: Props) {
                           <div className="text-xs uppercase text-gray-500">
                             LinkedIn
                           </div>
-                          <p className="text-sm text-gray-900 mt-1">
-                            {messages[c.id].linkedin}
+                          <p className="mt-1 text-sm text-gray-900">
+                            {messages[contact.id].linkedin}
                           </p>
                         </div>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -198,7 +212,6 @@ export default function AccountPage({ params }: Props) {
           </div>
         </div>
 
-        {/* RIGHT */}
         <div className="space-y-6">
           <div>
             <div className="text-xs uppercase text-gray-500">Score</div>
@@ -210,12 +223,11 @@ export default function AccountPage({ params }: Props) {
           <div>
             <div className="text-xs uppercase text-gray-500">Status</div>
             <div className="mt-2">
-              {status === "ready" && (
-                <Badge label="Ready" variant="green" />
-              )}
+              {status === "ready" && <Badge label="Ready" variant="green" />}
               {status === "needs_contacts" && (
                 <Badge label="Needs contacts" variant="yellow" />
               )}
+              {status === "review" && <Badge label="Review" variant="default" />}
             </div>
           </div>
 
@@ -223,6 +235,15 @@ export default function AccountPage({ params }: Props) {
             <div className="text-xs uppercase text-gray-500">Play</div>
             <div className="mt-2">{account.recommendedPlay}</div>
           </div>
+
+          {account.lastTouched ? (
+            <div>
+              <div className="text-xs uppercase text-gray-500">
+                Last touched
+              </div>
+              <div className="mt-2">{account.lastTouched}</div>
+            </div>
+          ) : null}
         </div>
       </div>
     </PageContainer>
