@@ -784,7 +784,7 @@ export default function ContactPage({ params }: Props) {
             </div>
           </div>
 
-          <div className="relative min-h-[640px] overflow-hidden">
+          <div className="relative min-h-[680px] overflow-hidden">
             {prevEmail ? (
               <button
                 type="button"
@@ -801,105 +801,109 @@ export default function ContactPage({ params }: Props) {
               </button>
             ) : null}
 
-            <div className="absolute left-1/2 top-0 z-10 w-[72%] -translate-x-1/2 rounded-3xl border border-gray-200 bg-white px-8 py-8 shadow-[0_18px_40px_rgba(17,24,39,0.08)]">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-xs uppercase tracking-wide text-gray-400">
-                      {activeEmail.label}
+            <div className="absolute left-1/2 top-0 z-10 w-[72%] -translate-x-1/2 rounded-3xl border border-gray-200 bg-white shadow-[0_18px_40px_rgba(17,24,39,0.08)]">
+              <div className="px-8 py-8">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-xs uppercase tracking-wide text-gray-400">
+                        {activeEmail.label}
+                      </div>
+
+                      {draftMode !== "default" ? (
+                        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-700">
+                          {getModeLabel(draftMode)}
+                        </span>
+                      ) : null}
+
+                      {showUpdatedBadge ? (
+                        <span className="rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-medium text-green-700">
+                          AI updated draft
+                        </span>
+                      ) : null}
                     </div>
 
-                    {draftMode !== "default" ? (
-                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-700">
-                        {getModeLabel(draftMode)}
-                      </span>
-                    ) : null}
-
-                    {showUpdatedBadge ? (
-                      <span className="rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-medium text-green-700">
-                        AI updated draft
-                      </span>
-                    ) : null}
+                    <div className="mt-2 text-xl font-semibold text-gray-950">
+                      {activeDraft.subject}
+                    </div>
                   </div>
 
-                  <div className="mt-2 text-xl font-semibold text-gray-950">
-                    {activeDraft.subject}
+                  <div className="flex items-center gap-2">
+                    {emails.map((email) => (
+                      <button
+                        key={email.id}
+                        type="button"
+                        onClick={() => handleSelectEmail(email.id)}
+                        className={`h-2.5 w-2.5 rounded-full transition ${
+                          email.id === activeEmail.id
+                            ? "bg-gray-900"
+                            : canOpen(email.id)
+                              ? "bg-gray-300 hover:bg-gray-400"
+                              : "bg-gray-200"
+                        }`}
+                      />
+                    ))}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  {emails.map((email) => (
+                <div className="mt-5">
+                  <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                    AI used these signals
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {activeEmail.signals.map((signal) => (
+                      <Pill
+                        key={signal.id}
+                        label={signal.label}
+                        active={activeSignalId === signal.id}
+                        onClick={() => handleSignalClick(signal.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-8 max-w-3xl pb-28 text-sm leading-7 text-gray-900">
+                  <p className="whitespace-pre-wrap">{activeDraft.intro}</p>
+
+                  {activeDraft.paragraphs.map((paragraph, index) => (
+                    <p key={index} className="mt-6">
+                      {renderParagraph(
+                        paragraph,
+                        activeEmail.signals,
+                        activeSignalId
+                      )}
+                    </p>
+                  ))}
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 rounded-b-3xl border-t border-gray-200 bg-white/95 px-8 py-5 backdrop-blur">
+                <div className="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4">
+                  <div className="text-sm text-gray-500">
+                    {draftMode !== "default"
+                      ? "AI updated draft ready for review"
+                      : "Draft ready for review"}
+                  </div>
+
+                  <div className="flex items-center gap-2">
                     <button
-                      key={email.id}
                       type="button"
-                      onClick={() => handleSelectEmail(email.id)}
-                      className={`h-2.5 w-2.5 rounded-full transition ${
-                        email.id === activeEmail.id
-                          ? "bg-gray-900"
-                          : canOpen(email.id)
-                            ? "bg-gray-300 hover:bg-gray-400"
-                            : "bg-gray-200"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-5">
-                <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
-                  AI used these signals
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {activeEmail.signals.map((signal) => (
-                    <Pill
-                      key={signal.id}
-                      label={signal.label}
-                      active={activeSignalId === signal.id}
-                      onClick={() => handleSignalClick(signal.id)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-8 max-w-3xl text-sm leading-7 text-gray-900">
-                <p className="whitespace-pre-wrap">{activeDraft.intro}</p>
-
-                {activeDraft.paragraphs.map((paragraph, index) => (
-                  <p key={index} className="mt-6">
-                    {renderParagraph(
-                      paragraph,
-                      activeEmail.signals,
-                      activeSignalId
-                    )}
-                  </p>
-                ))}
-              </div>
-
-              <div className="mt-8 flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4">
-                <div className="text-sm text-gray-500">
-                  {draftMode !== "default"
-                    ? "AI updated draft ready for review"
-                    : "Draft ready for review"}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleResetDraft}
-                    className="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                  >
-                    Reset draft
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleApprove}
-                    className="rounded-2xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
-                  >
-                    {approvedUpTo < emails.length
-                      ? "Approve & continue"
-                      : "Approved"}
-                  </button>
+                      onClick={handleResetDraft}
+                      className="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                    >
+                      Reset draft
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleApprove}
+                      className="rounded-2xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+                    >
+                      {approvedUpTo < emails.length
+                        ? "Approve & continue"
+                        : "Approved"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
