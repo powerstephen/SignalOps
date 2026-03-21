@@ -1,10 +1,10 @@
-type SourceCardProps = {
+type SourceTileProps = {
   title: string;
   description: string;
   brand: string;
   brandBg: string;
+  buttonLabel: string;
   connected?: boolean;
-  cta: string;
 };
 
 function ConnectedBadge() {
@@ -18,32 +18,38 @@ function ConnectedBadge() {
   );
 }
 
-function SourceCard({
+function SourceTile({
   title,
   description,
   brand,
   brandBg,
+  buttonLabel,
   connected = false,
-  cta,
-}: SourceCardProps) {
+}: SourceTileProps) {
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-[0_0_0_1px_rgba(17,24,39,0.06)]">
-      <div className={`flex h-28 items-center justify-center rounded-2xl ${brandBg}`}>
-        <span className="text-3xl font-semibold tracking-tight text-white">
+    <div>
+      <div
+        className={`flex h-36 items-center justify-center rounded-2xl ${brandBg}`}
+      >
+        <span className="text-4xl font-semibold tracking-tight text-white">
           {brand}
         </span>
       </div>
 
-      <div className="mt-4">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="text-xl font-semibold text-gray-950">{title}</h3>
-          {connected ? <ConnectedBadge /> : null}
+      <div className="mt-4 flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-2xl font-semibold text-gray-950">{title}</h3>
+          <p className="mt-2 max-w-[280px] text-sm leading-7 text-gray-600">
+            {description}
+          </p>
         </div>
 
-        <p className="mt-3 text-sm leading-7 text-gray-600">{description}</p>
+        {connected ? <ConnectedBadge /> : null}
+      </div>
 
-        <button className="mt-5 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-950 transition hover:bg-gray-50">
-          {cta}
+      <div className="mt-5">
+        <button className="rounded-2xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-950 transition hover:bg-gray-50">
+          {buttonLabel}
         </button>
       </div>
     </div>
@@ -53,7 +59,7 @@ function SourceCard({
 export default function ConnectPage() {
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-12 md:px-10">
-      <div className="mb-10 flex items-center gap-5">
+      <div className="mb-12 flex items-center gap-6">
         <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white shadow-[0_0_0_1px_rgba(17,24,39,0.06)]">
           <span className="text-5xl leading-none text-[#214c8f]">↓</span>
         </div>
@@ -68,38 +74,38 @@ export default function ConnectPage() {
         </div>
       </div>
 
-      <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
-        <SourceCard
+      <div className="grid gap-x-10 gap-y-14 sm:grid-cols-2 xl:grid-cols-4">
+        <SourceTile
           title="HubSpot"
           brand="HubSpot"
           brandBg="bg-[#ff7a59]"
           description="Pull companies, contacts, deals, site activity and engagement history from your CRM."
           connected={true}
-          cta="Connected"
+          buttonLabel="Connect HubSpot"
         />
 
-        <SourceCard
+        <SourceTile
           title="Google Sheets"
           brand="Sheets"
           brandBg="bg-[#16a34a]"
           description="Import account, contact and signal data from a live sheet for pilots and demos."
-          cta="Connect Google Sheet"
+          buttonLabel="Connect Google Sheet"
         />
 
-        <SourceCard
+        <SourceTile
           title="CSV Upload"
           brand="CSV"
           brandBg="bg-[#2563eb]"
           description="Upload a structured CSV with companies, contacts and recent activity."
-          cta="Upload CSV"
+          buttonLabel="Upload CSV"
         />
 
-        <SourceCard
+        <SourceTile
           title="Sample workspace"
           brand="Demo"
           brandBg="bg-[#312e81]"
           description="Load a realistic prebuilt workspace with accounts, contacts and signals."
-          cta="Load sample data"
+          buttonLabel="Connect demo data"
         />
       </div>
     </div>
