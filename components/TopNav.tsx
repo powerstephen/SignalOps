@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/", label: "Recover" },
-  { href: "/?mode=generate", label: "Generate" },
+  { href: "/generate", label: "Generate" }, // FIXED
   { href: "/opportunities", label: "Opportunities" },
   { href: "/calculator", label: "Calculator" },
 ];
@@ -20,16 +20,23 @@ export default function TopNav() {
           <Link href="/" className="text-base font-semibold text-gray-900">
             Revenue Agent
           </Link>
+
           <nav className="flex flex-wrap items-center gap-5 text-sm text-gray-500">
             {items.map((item) => {
-              const active = item.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(item.href.split("?")[0]);
+              const isActive =
+                item.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(item.href);
+
               return (
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={active ? "font-medium text-gray-900" : "hover:text-gray-900"}
+                  className={
+                    isActive
+                      ? "font-medium text-gray-900"
+                      : "hover:text-gray-900"
+                  }
                 >
                   {item.label}
                 </Link>
