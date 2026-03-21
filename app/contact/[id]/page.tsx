@@ -13,18 +13,36 @@ function Pill({
   active?: boolean;
   onClick?: () => void;
 }) {
+  const classes = active
+    ? "bg-green-600 text-white shadow-sm"
+    : "bg-green-100 text-green-700 hover:bg-green-200";
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={`rounded-full px-3 py-1 text-xs font-medium transition ${classes}`}
+      >
+        {label}
+      </button>
+    );
+  }
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-        active
-          ? "bg-green-600 text-white shadow-sm"
-          : "bg-green-100 text-green-700 hover:bg-green-200"
-      }`}
+    <span
+      className={`inline-flex rounded-full px-3 py-1 text-xs font-medium transition ${classes}`}
     >
       {label}
-    </button>
+    </span>
+  );
+}
+
+function ReasonChip({ label }: { label: string }) {
+  return (
+    <span className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700">
+      {label}
+    </span>
   );
 }
 
@@ -196,6 +214,57 @@ function buildEmailSteps(
   ];
 }
 
+function getReasoning(
+  emailId: number,
+  company: string,
+  whyNow: string,
+  interactionSummary: string
+) {
+  const base = {
+    confidence: 92,
+    whyNow:
+      whyNow ||
+      `Recent engagement and renewed activity from ${company} suggest the timing has improved.`,
+    tone:
+      "This email uses a warm and confident tone because the lead is not cold. There was prior interest, so the copy should feel like reactivation rather than prospecting.",
+    cta:
+      "The CTA is intentionally light. A quick chat is the lowest-friction next step and fits a lead that showed interest before but did not convert.",
+    evidence: [
+      "Renewed activity detected",
+      "Strong ICP match",
+      "Prior engagement exists",
+      "No clear next step previously",
+    ],
+  };
+
+  if (emailId === 1) {
+    return {
+      ...base,
+      stepTitle: "Why Email 1",
+      stepReason:
+        "This is the opening reactivation email. Its job is to reconnect the thread, acknowledge fresh timing, and create an easy path back into conversation.",
+    };
+  }
+
+  if (emailId === 2) {
+    return {
+      ...base,
+      confidence: 88,
+      stepTitle: "Why Email 2",
+      stepReason:
+        "This follow up keeps momentum without adding pressure. It assumes the first email was seen and reinforces that the timing may be better now.",
+    };
+  }
+
+  return {
+    ...base,
+    confidence: 81,
+    stepTitle: "Why Email 3",
+    stepReason:
+      "This close-the-loop message creates urgency without sounding aggressive. It gives the lead one final opportunity to respond while keeping the door open.",
+  };
+}
+
 export default function ContactPage({ params }: Props) {
   const lead = recoverLeads.find((l) => l.id === params.id);
 
@@ -219,6 +288,7 @@ export default function ContactPage({ params }: Props) {
   const [activeEmailId, setActiveEmailId] = useState(1);
   const [approvedUpTo, setApprovedUpTo] = useState(1);
   const [activeSignalId, setActiveSignalId] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const activeEmail =
     emails.find((email) => email.id === activeEmailId) ?? emails[0];
@@ -227,6 +297,17 @@ export default function ContactPage({ params }: Props) {
   const prevEmail = activeIndex > 0 ? emails[activeIndex - 1] : null;
   const nextEmail =
     activeIndex < emails.length - 1 ? emails[activeIndex + 1] : null;
+
+  const reasoning = useMemo(
+    () =>
+      getReasoning(
+        activeEmail.id,
+        lead.company,
+        lead.whyNow,
+        lead.interactionSummary
+      ),
+    [activeEmail.id, lead.company, lead.whyNow, lead.interactionSummary]
+  );
 
   function canOpen(emailId: number) {
     return emailId <= approvedUpTo;
@@ -333,17 +414,108 @@ export default function ContactPage({ params }: Props) {
 
             <div className="flex items-center gap-2">
               <button
+                type="button"
+                onClick={() => setDrawerOpen((current) => !current)}
+                className={`rounded-2xl border px-4 py-2 text-sm font-medium transition ${
+                  drawerOpen
+                    ? "border-gray-900 bg-gray-900 text-white"
+                    : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                {drawerOpen ? "Hide reasoning" : "Why this email?"}
+              </button>
+
+              <button
                 onClick={handleRegenerate}
                 className="rounded-2xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
               >
                 Regenerate
               </button>
+
               <button
                 onClick={handleApprove}
                 className="rounded-2xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
               >
                 {approvedUpTo < emails.length ? "Approve & continue" : "Approved"}
               </button>
+            </div>
+          </div>
+
+          <div
+            className={`overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 transition-all duration-300 ${
+              drawerOpen
+                ? "mb-6 max-h-[420px] p-6 opacity-100"
+                : "mb-0 max-h-0 px-6 py-0 opacity-0"
+            }`}
+          >
+            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-5">
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                    AI confidence
+                  </div>
+                  <div className="mt-3 flex items-center gap-3">
+                    <div className="text-3xl font-semibold tracking-tight text-gray-950">
+                      {reasoning.confidence}
+                    </div>
+                    <div className="h-2 w-full max-w-[220px] overflow-hidden rounded-full bg-gray-200">
+                      <div
+                        className="h-full rounded-full bg-green-600 transition-all"
+                        style={{ width: `${reasoning.confidence}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                    Why now
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-gray-700">
+                    {reasoning.whyNow}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                    {reasoning.stepTitle}
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-gray-700">
+                    {reasoning.stepReason}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                    Why this tone
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-gray-700">
+                    {reasoning.tone}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                    Why this CTA
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-gray-700">
+                    {reasoning.cta}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                    Key evidence used
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {reasoning.evidence.map((item) => (
+                      <ReasonChip key={item} label={item} />
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
