@@ -21,84 +21,90 @@ export type Account = {
   contacts?: Contact[];
 };
 
-const firstNames = [
-  "Sarah","Michael","James","Emma","Daniel","Olivia","Liam","Sophia","Noah","Isabella"
+// realistic SaaS companies
+const companies = [
+  "Attio","Vanta","PostHog","Paddle","Linear","Sentry","Aircall","Cognism","Pleo","Remote",
+  "Deel","Oyster","Pigment","Amplitude","Webflow","Intercom","Front","Apollo","Clay","Mutiny",
+  "Chili Piper","Gong","Outreach","Salesloft","Lusha","Clearbit","Mixpanel","Heap","Typeform","Segment",
+  "Algolia","G2","Drift","HubSpot","Stripe","Checkout","Brex","Ramp","Rippling","Carta",
+  "Notion","Miro","Figma","Zapier","Calendly","ClickUp","Monday","Asana","LinearB","Supabase",
+  "Railway","Render","Fly.io","Vercel","Netlify","PlanetScale","Replit","Retool","Coda","Airtable",
+  "PandaDoc","DocuSign","Chargebee","Recurly","Zuora","Freshworks","Zoho","Intercom","Klaviyo","Customer.io"
 ];
 
-const lastNames = [
-  "Turner","Murphy","Smith","Johnson","Brown","Garcia","Meyer","Davis","Wilson","Clark"
-];
+// helper names
+const firstNames = ["Sarah","James","Emma","Daniel","Olivia","Liam","Sophia","Noah"];
+const lastNames = ["Turner","Murphy","Smith","Meyer","Davis","Wilson","Clark","Hall"];
 
-function randomName(i: number) {
+function name(i: number) {
   return `${firstNames[i % firstNames.length]} ${lastNames[i % lastNames.length]}`;
 }
 
-function generateContacts(company: string, index: number): Contact[] {
+function contacts(domain: string, i: number): Contact[] {
   return [
     {
-      id: `${company}-1`,
-      name: randomName(index),
+      id: `${domain}-1`,
+      name: name(i),
       role: "Head of Sales",
       seniority: "high",
-      email: `sales@${company}.com`,
+      email: `sales@${domain}.com`,
       recommended: true,
     },
     {
-      id: `${company}-2`,
-      name: randomName(index + 1),
-      role: "Revenue Operations Manager",
+      id: `${domain}-2`,
+      name: name(i + 1),
+      role: "RevOps Manager",
       seniority: "mid",
-      email: `revops@${company}.com`,
+      email: `revops@${domain}.com`,
       recommended: false,
     },
     {
-      id: `${company}-3`,
-      name: randomName(index + 2),
+      id: `${domain}-3`,
+      name: name(i + 2),
       role: "VP Marketing",
       seniority: "high",
-      email: `marketing@${company}.com`,
+      email: `marketing@${domain}.com`,
       recommended: false,
     },
   ];
 }
 
-function generateAccount(i: number): Account {
-  const name = `company${i + 1}`;
-  const isExisting = i < 30;
+function generateAccount(company: string, i: number): Account {
+  const domain = company.toLowerCase().replace(/\s+/g, "");
+  const isExisting = i < 45;
 
-  const visitCount = Math.floor(Math.random() * 5) + 1;
+  const visitCount = (i % 4) + 1;
+  const hasHiring = i % 2 === 0;
+  const hasFunding = i % 3 === 0;
 
   const signals = [
     visitCount > 2
       ? `${visitCount} visits (pricing + integrations)`
       : "Recent website activity",
-    Math.random() > 0.5 ? "Hiring SDRs" : "Recent funding",
-    "Strong ICP match",
+    hasHiring ? "Hiring SDRs" : "Expanding GTM team",
+    hasFunding ? "Recent funding" : "Strong ICP match",
   ];
 
   return {
-    id: name,
-    name: `Company ${i + 1}`,
+    id: domain,
+    name: company,
     type: isExisting ? "existing" : "new",
-    score: Math.floor(Math.random() * 30) + 70,
-    status:
-      i % 3 === 0 ? "ready" : i % 3 === 1 ? "needs_contacts" : "review",
-    lastTouched: isExisting
-      ? `${Math.floor(Math.random() * 90) + 10} days ago`
-      : undefined,
+    score: 70 + (i % 30),
+    status: i % 3 === 0 ? "ready" : i % 3 === 1 ? "needs_contacts" : "review",
+    lastTouched: isExisting ? `${30 + (i % 60)} days ago` : undefined,
     summary: isExisting
-      ? "Previously engaged account showing renewed buying signals and strong ICP alignment."
-      : "High-fit new account showing intent signals and strong similarity to top customers.",
+      ? "Previously engaged account showing renewed buying signals."
+      : "High-fit new account showing strong ICP alignment and intent signals.",
     whyNow:
       visitCount > 2
-        ? `${visitCount} visits across pricing + integrations + recent signal`
+        ? `${visitCount} visits across pricing + integrations + hiring signal`
         : "Recent activity + strong ICP fit",
     signals,
     recommendedPlay: isExisting ? "Reactivate" : "Prospect",
-    contacts: isExisting ? generateContacts(name, i) : undefined,
+    contacts: isExisting ? contacts(domain, i) : undefined,
   };
 }
 
-export const accounts: Account[] = Array.from({ length: 50 }).map((_, i) =>
-  generateAccount(i)
+export const accounts: Account[] = companies.map((c, i) =>
+  generateAccount(c, i)
 );
