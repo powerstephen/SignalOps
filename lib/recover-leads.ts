@@ -11,7 +11,7 @@ export type RecoverLead = {
   nextStep: string;
 };
 
-const leads: RecoverLead[] = [
+export const recoverLeads: RecoverLead[] = [
   {
     id: "1",
     name: "Sarah Turner",
@@ -72,8 +72,4 @@ const leads: RecoverLead[] = [
     score: 90,
     nextStep: "Revive deal",
   },
-
-  // you can easily extend this to 30–50 leads
 ];
-
-export const recoverLeads = leads;
