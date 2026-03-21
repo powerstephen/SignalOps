@@ -9,6 +9,7 @@ const navItems = [
   { href: "/generate", label: "Generate" },
   { href: "/opportunities", label: "Opportunities" },
   { href: "/calculator", label: "Calculator" },
+  { href: "/connect", label: "Import data" },
 ];
 
 export default function TopNav() {
@@ -61,10 +62,10 @@ export default function TopNav() {
         </div>
 
         <Link
-          href="/connect"
-          className="rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+          href="/login"
+          className="rounded-[28px] bg-black px-7 py-3 text-sm font-medium text-white transition hover:opacity-90"
         >
-          Import
+          Log in
         </Link>
       </div>
     </div>
