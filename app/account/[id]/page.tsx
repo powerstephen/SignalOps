@@ -31,15 +31,16 @@ function Badge({
 }
 
 export default function AccountPage({ params }: Props) {
-  const baseAccount = accounts.find((a) => a.id === params.id);
+  const foundAccount = accounts.find((a) => a.id === params.id);
 
-  if (!baseAccount) notFound();
+  if (!foundAccount) {
+    notFound();
+  }
 
-  const [contacts, setContacts] = useState<Contact[] | undefined>(
-    baseAccount.contacts
-  );
+  const account = foundAccount;
 
-  const [status, setStatus] = useState(baseAccount.status);
+  const [contacts, setContacts] = useState<Contact[] | undefined>(account.contacts);
+  const [status, setStatus] = useState(account.status);
 
   function generateContacts() {
     const mock: Contact[] = [
@@ -48,7 +49,7 @@ export default function AccountPage({ params }: Props) {
         name: "Head of Sales",
         role: "Head of Sales",
         seniority: "high",
-        email: "sales@" + baseAccount.id + ".com",
+        email: `sales@${account.id}.com`,
         recommended: true,
       },
       {
@@ -56,7 +57,7 @@ export default function AccountPage({ params }: Props) {
         name: "RevOps Manager",
         role: "Revenue Operations Manager",
         seniority: "mid",
-        email: "revops@" + baseAccount.id + ".com",
+        email: `revops@${account.id}.com`,
         recommended: false,
       },
     ];
@@ -67,8 +68,8 @@ export default function AccountPage({ params }: Props) {
 
   return (
     <PageContainer
-      title={baseAccount.name}
-      subtitle={baseAccount.whyNow}
+      title={account.name}
+      subtitle={account.whyNow}
       action={
         <button
           onClick={generateContacts}
@@ -79,34 +80,29 @@ export default function AccountPage({ params }: Props) {
       }
     >
       <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_260px]">
-        
-        {/* LEFT */}
         <div className="space-y-10">
           <div>
-            <h3 className="text-sm font-medium text-gray-500 uppercase">
+            <h3 className="text-sm font-medium uppercase text-gray-500">
               Summary
             </h3>
-            <p className="mt-2 text-base text-gray-900">
-              {baseAccount.summary}
-            </p>
+            <p className="mt-2 text-base text-gray-900">{account.summary}</p>
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-gray-500 uppercase">
+            <h3 className="text-sm font-medium uppercase text-gray-500">
               Signals
             </h3>
             <ul className="mt-3 space-y-2">
-              {baseAccount.signals.map((s) => (
-                <li key={s} className="text-gray-700">
-                  {s}
+              {account.signals.map((signal) => (
+                <li key={signal} className="text-gray-700">
+                  {signal}
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* CONTACTS */}
           <div>
-            <h3 className="text-sm font-medium text-gray-500 uppercase">
+            <h3 className="text-sm font-medium uppercase text-gray-500">
               Contacts
             </h3>
 
@@ -115,25 +111,25 @@ export default function AccountPage({ params }: Props) {
                 No contacts yet. Generate to find the best people to reach.
               </div>
             ) : (
-              <div className="mt-4 overflow-hidden rounded-xl border border-gray-200">
+              <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
+                  <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
                     <tr>
-                      <th className="px-4 py-3 text-left">Name</th>
-                      <th className="px-4 py-3 text-left">Role</th>
-                      <th className="px-4 py-3 text-left">Email</th>
-                      <th className="px-4 py-3 text-left">Priority</th>
+                      <th className="px-4 py-3">Name</th>
+                      <th className="px-4 py-3">Role</th>
+                      <th className="px-4 py-3">Email</th>
+                      <th className="px-4 py-3">Priority</th>
                     </tr>
                   </thead>
 
-                  <tbody className="divide-y">
-                    {contacts.map((c) => (
-                      <tr key={c.id}>
-                        <td className="px-4 py-4">{c.name}</td>
-                        <td className="px-4 py-4 text-gray-600">{c.role}</td>
-                        <td className="px-4 py-4 text-gray-600">{c.email}</td>
+                  <tbody className="divide-y divide-gray-200">
+                    {contacts.map((contact) => (
+                      <tr key={contact.id}>
+                        <td className="px-4 py-4">{contact.name}</td>
+                        <td className="px-4 py-4 text-gray-600">{contact.role}</td>
+                        <td className="px-4 py-4 text-gray-600">{contact.email}</td>
                         <td className="px-4 py-4">
-                          {c.recommended ? (
+                          {contact.recommended ? (
                             <Badge label="Primary" variant="green" />
                           ) : (
                             <Badge label="Secondary" variant="default" />
@@ -148,33 +144,36 @@ export default function AccountPage({ params }: Props) {
           </div>
         </div>
 
-        {/* RIGHT */}
         <div className="space-y-6">
           <div>
-            <div className="text-xs text-gray-500 uppercase">Score</div>
-            <div className="mt-2 text-xl font-semibold">
-              {baseAccount.score}/100
+            <div className="text-xs uppercase text-gray-500">Score</div>
+            <div className="mt-2 text-xl font-semibold text-gray-900">
+              {account.score}/100
             </div>
           </div>
 
           <div>
-            <div className="text-xs text-gray-500 uppercase">Status</div>
+            <div className="text-xs uppercase text-gray-500">Status</div>
             <div className="mt-2">
-              {status === "ready" && (
-                <Badge label="Ready" variant="green" />
-              )}
+              {status === "ready" && <Badge label="Ready" variant="green" />}
               {status === "needs_contacts" && (
                 <Badge label="Needs contacts" variant="yellow" />
               )}
+              {status === "review" && <Badge label="Review" variant="default" />}
             </div>
           </div>
 
           <div>
-            <div className="text-xs text-gray-500 uppercase">Play</div>
-            <div className="mt-2 text-gray-900">
-              {baseAccount.recommendedPlay}
-            </div>
+            <div className="text-xs uppercase text-gray-500">Play</div>
+            <div className="mt-2 text-gray-900">{account.recommendedPlay}</div>
           </div>
+
+          {account.lastTouched ? (
+            <div>
+              <div className="text-xs uppercase text-gray-500">Last touched</div>
+              <div className="mt-2 text-gray-900">{account.lastTouched}</div>
+            </div>
+          ) : null}
         </div>
       </div>
     </PageContainer>
