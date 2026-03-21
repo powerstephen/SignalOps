@@ -26,6 +26,29 @@ function Section({
   )
 }
 
+function Badge({
+  label,
+  variant,
+}: {
+  label: string
+  variant: "default" | "green" | "blue" | "yellow"
+}) {
+  const styles = {
+    default: "bg-gray-100 text-gray-700",
+    green: "bg-green-100 text-green-700",
+    blue: "bg-blue-100 text-blue-700",
+    yellow: "bg-yellow-100 text-yellow-700",
+  }
+
+  return (
+    <span
+      className={`rounded-full px-2.5 py-1 text-xs font-medium ${styles[variant]}`}
+    >
+      {label}
+    </span>
+  )
+}
+
 export default function AccountPage({ params }: AccountPageProps) {
   const account = accounts.find((item) => item.id === params.id)
 
@@ -36,10 +59,10 @@ export default function AccountPage({ params }: AccountPageProps) {
   return (
     <PageContainer
       title={account.name}
-      subtitle={`${account.status} • ${account.lastTouched}`}
+      subtitle={account.whyNow}
       action={
         <button className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90">
-          Launch agent
+          Generate contacts
         </button>
       }
     >
@@ -47,6 +70,10 @@ export default function AccountPage({ params }: AccountPageProps) {
         <div className="space-y-8">
           <Section label="Summary">
             <p>{account.summary}</p>
+          </Section>
+
+          <Section label="Why now">
+            <p>{account.whyNow}</p>
           </Section>
 
           <Section label="Signals">
@@ -57,16 +84,31 @@ export default function AccountPage({ params }: AccountPageProps) {
             </ul>
           </Section>
 
-          <Section label="Angle">
-            <p>{account.angle}</p>
+          <Section label="Recommended play">
+            <p>{account.recommendedPlay}</p>
           </Section>
 
-          <Section label="Email">
-            <p>{account.email}</p>
+          <Section label="Next step">
+            <p>
+              Generate the best-fit contacts at this account, enrich work emails,
+              and prepare tailored outreach based on the signals above.
+            </p>
           </Section>
         </div>
 
         <aside className="space-y-6">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              Type
+            </p>
+            <div className="mt-2">
+              <Badge
+                label={account.type === "existing" ? "Existing" : "New"}
+                variant={account.type === "existing" ? "default" : "blue"}
+              />
+            </div>
+          </div>
+
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
               Score
@@ -78,17 +120,29 @@ export default function AccountPage({ params }: AccountPageProps) {
 
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              ICP fit
+              Status
             </p>
-            <p className="mt-2 text-sm text-gray-900">{account.icpFit}</p>
+            <div className="mt-2">
+              {account.status === "ready" && (
+                <Badge label="Ready" variant="green" />
+              )}
+              {account.status === "needs_contacts" && (
+                <Badge label="Needs contacts" variant="yellow" />
+              )}
+              {account.status === "review" && (
+                <Badge label="Review" variant="default" />
+              )}
+            </div>
           </div>
 
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              Last touched
-            </p>
-            <p className="mt-2 text-sm text-gray-900">{account.lastTouched}</p>
-          </div>
+          {account.lastTouched ? (
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                Last touched
+              </p>
+              <p className="mt-2 text-sm text-gray-900">{account.lastTouched}</p>
+            </div>
+          ) : null}
         </aside>
       </div>
     </PageContainer>
