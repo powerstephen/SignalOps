@@ -1,28 +1,29 @@
-import Link from "next/link"
-import PageContainer from "@/components/page-container"
-import { accounts } from "@/lib/accounts"
+import Link from "next/link";
+import PageContainer from "@/components/page-container";
+import WorkspaceSourceBanner from "@/components/workspace-source-banner";
+import { accounts } from "@/lib/accounts";
 
 function Badge({
   label,
   variant,
 }: {
-  label: string
-  variant: "default" | "green" | "blue" | "yellow"
+  label: string;
+  variant: "default" | "green" | "blue" | "yellow";
 }) {
   const styles = {
     default: "bg-gray-100 text-gray-700",
     green: "bg-green-100 text-green-700",
     blue: "bg-blue-100 text-blue-700",
     yellow: "bg-yellow-100 text-yellow-700",
-  }
+  };
 
   return (
     <span
-      className={`rounded-full px-2.5 py-1 text-xs font-medium ${styles[variant]}`}
+      className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${styles[variant]}`}
     >
       {label}
     </span>
-  )
+  );
 }
 
 export default function GeneratePage() {
@@ -31,62 +32,56 @@ export default function GeneratePage() {
       title="Generate"
       subtitle="Accounts prioritised by signal and ICP fit"
     >
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-        <table className="w-full text-sm">
+      <WorkspaceSourceBanner />
+
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+        <table className="w-full table-fixed text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="px-4 py-3 font-medium">Company</th>
-              <th className="px-4 py-3 font-medium">Type</th>
-              <th className="px-4 py-3 font-medium">Why now</th>
-              <th className="px-4 py-3 font-medium">Score</th>
-              <th className="px-4 py-3 font-medium">Play</th>
-              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="w-[36%] px-6 py-4 font-medium">Company</th>
+              <th className="w-[10%] px-6 py-4 font-medium">Type</th>
+              <th className="w-[22%] px-6 py-4 font-medium">Why now</th>
+              <th className="w-[8%] px-6 py-4 font-medium">Score</th>
+              <th className="w-[12%] px-6 py-4 font-medium">Play</th>
+              <th className="w-[12%] px-6 py-4 font-medium">Status</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-200">
             {accounts.map((account) => (
-              <tr
-                key={account.id}
-                className="group hover:bg-gray-50 transition"
-              >
-                <td className="px-4 py-4">
-                  <Link
-                    href={`/account/${account.id}`}
-                    className="font-medium text-gray-900 group-hover:underline"
-                  >
-                    {account.name}
+              <tr key={account.id} className="transition hover:bg-gray-50">
+                <td className="px-6 py-6 align-top">
+                  <Link href={`/account/${account.id}`} className="block">
+                    <div className="text-xl font-medium text-gray-950 hover:underline">
+                      {account.name}
+                    </div>
+                    <div className="mt-2 max-w-xl text-sm leading-7 text-gray-500">
+                      {account.summary}
+                    </div>
                   </Link>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {account.summary}
-                  </div>
                 </td>
 
-                <td className="px-4 py-4">
+                <td className="px-6 py-6 align-top">
                   <Badge
-                    label={
-                      account.type === "existing" ? "Existing" : "New"
-                    }
-                    variant={
-                      account.type === "existing" ? "default" : "blue"
-                    }
+                    label={account.type === "existing" ? "Existing" : "New"}
+                    variant={account.type === "existing" ? "default" : "blue"}
                   />
                 </td>
 
-                <td className="px-4 py-4 text-gray-700">
+                <td className="px-6 py-6 align-top text-base leading-7 text-gray-700">
                   {account.whyNow}
                 </td>
 
-                <td className="px-4 py-4 font-medium text-gray-900">
+                <td className="px-6 py-6 align-top text-xl font-medium text-gray-950">
                   {account.score}
-                  <span className="text-gray-400">/100</span>
+                  <span className="font-normal text-gray-400">/100</span>
                 </td>
 
-                <td className="px-4 py-4 text-gray-700">
+                <td className="px-6 py-6 align-top text-base text-gray-700">
                   {account.recommendedPlay}
                 </td>
 
-                <td className="px-4 py-4">
+                <td className="px-6 py-6 align-top">
                   {account.status === "ready" && (
                     <Badge label="Ready" variant="green" />
                   )}
@@ -103,5 +98,5 @@ export default function GeneratePage() {
         </table>
       </div>
     </PageContainer>
-  )
+  );
 }
