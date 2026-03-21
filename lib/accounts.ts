@@ -1,15 +1,25 @@
+export type Contact = {
+  id: string;
+  name: string;
+  role: string;
+  seniority: "high" | "mid" | "low";
+  email: string;
+  recommended: boolean;
+};
+
 export type Account = {
-  id: string
-  name: string
-  type: "existing" | "new"
-  score: number
-  status: "ready" | "needs_contacts" | "review"
-  lastTouched?: string
-  summary: string
-  whyNow: string
-  signals: string[]
-  recommendedPlay: string
-}
+  id: string;
+  name: string;
+  type: "existing" | "new";
+  score: number;
+  status: "ready" | "needs_contacts" | "review";
+  lastTouched?: string;
+  summary: string;
+  whyNow: string;
+  signals: string[];
+  recommendedPlay: string;
+  contacts?: Contact[];
+};
 
 export const accounts: Account[] = [
   {
@@ -28,6 +38,24 @@ export const accounts: Account[] = [
       "Strong past engagement",
     ],
     recommendedPlay: "Reactivate",
+    contacts: [
+      {
+        id: "1",
+        name: "Barry O'Sullivan",
+        role: "Head of Sales",
+        seniority: "high",
+        email: "barry@revscale.com",
+        recommended: true,
+      },
+      {
+        id: "2",
+        name: "Anna Meyer",
+        role: "VP Revenue Operations",
+        seniority: "high",
+        email: "anna@revscale.com",
+        recommended: false,
+      },
+    ],
   },
   {
     id: "acme-ai",
@@ -41,4 +69,4 @@ export const accounts: Account[] = [
     signals: ["Funding event", "Traffic growth", "ICP match"],
     recommendedPlay: "Prospect",
   },
-]
+];
