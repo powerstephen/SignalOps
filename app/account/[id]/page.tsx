@@ -9,6 +9,12 @@ type Props = {
   params: { id: string };
 };
 
+type Message = {
+  email: string;
+  linkedin: string;
+  reason: string;
+};
+
 function Badge({
   label,
   variant,
@@ -31,16 +37,17 @@ function Badge({
 }
 
 export default function AccountPage({ params }: Props) {
-  const foundAccount = accounts.find((a) => a.id === params.id);
+  const found = accounts.find((a) => a.id === params.id);
+  if (!found) notFound();
 
-  if (!foundAccount) {
-    notFound();
-  }
+  const account = found;
 
-  const account = foundAccount;
-
-  const [contacts, setContacts] = useState<Contact[] | undefined>(account.contacts);
+  const [contacts, setContacts] = useState<Contact[] | undefined>(
+    account.contacts
+  );
   const [status, setStatus] = useState(account.status);
+
+  const [messages, setMessages] = useState<Record<string, Message>>({});
 
   function generateContacts() {
     const mock: Contact[] = [
@@ -66,6 +73,19 @@ export default function AccountPage({ params }: Props) {
     setStatus("ready");
   }
 
+  function generateMessage(contact: Contact) {
+    const msg: Message = {
+      reason: `${contact.role} is directly responsible for ${account.recommendedPlay.toLowerCase()} outcomes`,
+      email: `Hi ${contact.name},\n\nNoticed ${account.whyNow.toLowerCase()}. Teams in a similar position typically struggle to convert this into pipeline efficiently.\n\nWe help identify and prioritise the right accounts and contacts automatically.\n\nWorth a quick look?\n`,
+      linkedin: `Hi ${contact.name}, saw you're leading ${contact.role.toLowerCase()} at ${account.name}. Curious how you're approaching pipeline with recent changes.`,
+    };
+
+    setMessages((prev) => ({
+      ...prev,
+      [contact.id]: msg,
+    }));
+  }
+
   return (
     <PageContainer
       title={account.name}
@@ -79,75 +99,110 @@ export default function AccountPage({ params }: Props) {
         </button>
       }
     >
-      <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_260px]">
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_280px]">
+        {/* LEFT */}
         <div className="space-y-10">
+          {/* Summary */}
           <div>
-            <h3 className="text-sm font-medium uppercase text-gray-500">
-              Summary
-            </h3>
+            <div className="text-xs uppercase text-gray-500">Summary</div>
             <p className="mt-2 text-base text-gray-900">{account.summary}</p>
           </div>
 
+          {/* Signals */}
           <div>
-            <h3 className="text-sm font-medium uppercase text-gray-500">
-              Signals
-            </h3>
+            <div className="text-xs uppercase text-gray-500">Signals</div>
             <ul className="mt-3 space-y-2">
-              {account.signals.map((signal) => (
-                <li key={signal} className="text-gray-700">
-                  {signal}
+              {account.signals.map((s) => (
+                <li key={s} className="text-gray-700">
+                  {s}
                 </li>
               ))}
             </ul>
           </div>
 
+          {/* CONTACTS */}
           <div>
-            <h3 className="text-sm font-medium uppercase text-gray-500">
-              Contacts
-            </h3>
+            <div className="text-xs uppercase text-gray-500">Contacts</div>
 
             {!contacts ? (
               <div className="mt-4 text-sm text-gray-500">
                 No contacts yet. Generate to find the best people to reach.
               </div>
             ) : (
-              <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
-                    <tr>
-                      <th className="px-4 py-3">Name</th>
-                      <th className="px-4 py-3">Role</th>
-                      <th className="px-4 py-3">Email</th>
-                      <th className="px-4 py-3">Priority</th>
-                    </tr>
-                  </thead>
+              <div className="mt-4 space-y-4">
+                {contacts.map((c) => (
+                  <div
+                    key={c.id}
+                    className="rounded-xl border border-gray-200 bg-white p-5"
+                  >
+                    {/* Top row */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {c.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {c.role} • {c.email}
+                        </div>
+                      </div>
 
-                  <tbody className="divide-y divide-gray-200">
-                    {contacts.map((contact) => (
-                      <tr key={contact.id}>
-                        <td className="px-4 py-4">{contact.name}</td>
-                        <td className="px-4 py-4 text-gray-600">{contact.role}</td>
-                        <td className="px-4 py-4 text-gray-600">{contact.email}</td>
-                        <td className="px-4 py-4">
-                          {contact.recommended ? (
-                            <Badge label="Primary" variant="green" />
-                          ) : (
-                            <Badge label="Secondary" variant="default" />
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                      <div className="flex items-center gap-2">
+                        {c.recommended && (
+                          <Badge label="Primary" variant="green" />
+                        )}
+
+                        <button
+                          onClick={() => generateMessage(c)}
+                          className="rounded-lg border px-3 py-1.5 text-xs hover:bg-gray-50"
+                        >
+                          Generate message
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* MESSAGE PANEL */}
+                    {messages[c.id] && (
+                      <div className="mt-4 space-y-4 border-t pt-4">
+                        <div>
+                          <div className="text-xs uppercase text-gray-500">
+                            Why this person
+                          </div>
+                          <p className="text-sm text-gray-700 mt-1">
+                            {messages[c.id].reason}
+                          </p>
+                        </div>
+
+                        <div>
+                          <div className="text-xs uppercase text-gray-500">
+                            Email
+                          </div>
+                          <pre className="mt-1 whitespace-pre-wrap text-sm text-gray-900">
+                            {messages[c.id].email}
+                          </pre>
+                        </div>
+
+                        <div>
+                          <div className="text-xs uppercase text-gray-500">
+                            LinkedIn
+                          </div>
+                          <p className="text-sm text-gray-900 mt-1">
+                            {messages[c.id].linkedin}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
         </div>
 
+        {/* RIGHT */}
         <div className="space-y-6">
           <div>
             <div className="text-xs uppercase text-gray-500">Score</div>
-            <div className="mt-2 text-xl font-semibold text-gray-900">
+            <div className="mt-2 text-xl font-semibold">
               {account.score}/100
             </div>
           </div>
@@ -155,25 +210,19 @@ export default function AccountPage({ params }: Props) {
           <div>
             <div className="text-xs uppercase text-gray-500">Status</div>
             <div className="mt-2">
-              {status === "ready" && <Badge label="Ready" variant="green" />}
+              {status === "ready" && (
+                <Badge label="Ready" variant="green" />
+              )}
               {status === "needs_contacts" && (
                 <Badge label="Needs contacts" variant="yellow" />
               )}
-              {status === "review" && <Badge label="Review" variant="default" />}
             </div>
           </div>
 
           <div>
             <div className="text-xs uppercase text-gray-500">Play</div>
-            <div className="mt-2 text-gray-900">{account.recommendedPlay}</div>
+            <div className="mt-2">{account.recommendedPlay}</div>
           </div>
-
-          {account.lastTouched ? (
-            <div>
-              <div className="text-xs uppercase text-gray-500">Last touched</div>
-              <div className="mt-2 text-gray-900">{account.lastTouched}</div>
-            </div>
-          ) : null}
         </div>
       </div>
     </PageContainer>
