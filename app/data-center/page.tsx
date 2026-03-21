@@ -55,7 +55,7 @@ function AnalysisPanel({ progress }: { progress: number }) {
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border bg-white p-4">
-      <div className="text-xs text-gray-400 uppercase">{label}</div>
+      <div className="text-xs uppercase text-gray-400">{label}</div>
       <div className="mt-2 text-2xl font-semibold">{value}</div>
     </div>
   );
@@ -64,7 +64,7 @@ function Metric({ label, value }: { label: string; value: string }) {
 function Insight({ title, text }: { title: string; text: string }) {
   return (
     <div className="rounded-3xl border bg-white p-6">
-      <div className="text-xs text-gray-400 uppercase">{title}</div>
+      <div className="text-xs uppercase text-gray-400">{title}</div>
       <p className="mt-4 text-sm text-gray-700">{text}</p>
     </div>
   );
@@ -117,7 +117,7 @@ export default function Page() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-8 py-8 space-y-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
       <div>
         <h1 className="text-4xl font-semibold">Data Center</h1>
         <p className="mt-2 text-gray-600">
@@ -142,7 +142,7 @@ export default function Page() {
 
       {state === "connected" && (
         <div className="space-y-8">
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
             <Metric label="Accounts" value="12,480" />
             <Metric label="Contacts" value="38,920" />
             <Metric label="ICP Match" value="2,146" />
@@ -151,7 +151,7 @@ export default function Page() {
             <Metric label="Quality Score" value="86" />
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid gap-6 lg:grid-cols-2">
             <Insight
               title="ICP Summary"
               text="Your strongest ICP sits in mid-market SaaS companies with commercial leadership roles and high engagement signals."
