@@ -136,7 +136,11 @@ export default function ContactPage({ params }: Props) {
     <div className="mx-auto w-full max-w-7xl px-8 py-8 md:px-10">
       <div className="space-y-10">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-8">
+          
+          {/* LEFT COLUMN */}
+          <div className="space-y-6">
+            
+            {/* HEADER */}
             <div className="flex items-start gap-6">
               <div className="text-6xl font-semibold leading-none text-green-600">
                 {lead.score}
@@ -149,16 +153,18 @@ export default function ContactPage({ params }: Props) {
                 <div className="mt-1 text-gray-600">
                   {lead.role} at {lead.company}
                 </div>
-
-                <div className="mt-5 flex max-w-[620px] flex-wrap gap-2">
-                  <Pill label="Recent Engagement" />
-                  <Pill label="Dormant Opportunity" />
-                  <Pill label="High ICP Match" />
-                  <Pill label="Senior Persona" />
-                </div>
               </div>
             </div>
 
+            {/* ✅ PILLS NOW FULL LEFT ALIGNED */}
+            <div className="flex flex-wrap gap-2">
+              <Pill label="Recent Engagement" />
+              <Pill label="Dormant Opportunity" />
+              <Pill label="High ICP Match" />
+              <Pill label="Senior Persona" />
+            </div>
+
+            {/* SIGNALS */}
             <div>
               <div className="text-xs uppercase tracking-wide text-gray-400">
                 Signals
@@ -177,6 +183,7 @@ export default function ContactPage({ params }: Props) {
             </div>
           </div>
 
+          {/* RIGHT COLUMN */}
           <div>
             <div className="text-xs uppercase tracking-wide text-gray-400">
               Activity
@@ -202,6 +209,7 @@ export default function ContactPage({ params }: Props) {
           </div>
         </div>
 
+        {/* SEQUENCE (UNCHANGED) */}
         <div className="pt-2">
           <div className="mb-4 flex items-center justify-between">
             <div className="text-sm font-medium text-gray-400">Sequence</div>
