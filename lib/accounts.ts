@@ -21,56 +21,152 @@ export type Account = {
   contacts?: Contact[];
 };
 
-// realistic SaaS companies
 const companies = [
-  "Attio","Vanta","PostHog","Paddle","Linear","Sentry","Aircall","Cognism","Pleo","Remote",
-  "Deel","Oyster","Pigment","Amplitude","Webflow","Intercom","Front","Apollo","Clay","Mutiny",
-  "Chili Piper","Gong","Outreach","Salesloft","Lusha","Clearbit","Mixpanel","Heap","Typeform","Segment",
-  "Algolia","G2","Drift","HubSpot","Stripe","Checkout","Brex","Ramp","Rippling","Carta",
-  "Notion","Miro","Figma","Zapier","Calendly","ClickUp","Monday","Asana","LinearB","Supabase",
-  "Railway","Render","Fly.io","Vercel","Netlify","PlanetScale","Replit","Retool","Coda","Airtable",
-  "PandaDoc","DocuSign","Chargebee","Recurly","Zuora","Freshworks","Zoho","Intercom","Klaviyo","Customer.io"
+  "Attio",
+  "Vanta",
+  "PostHog",
+  "Paddle",
+  "Linear",
+  "Sentry",
+  "Aircall",
+  "Cognism",
+  "Pleo",
+  "Remote",
+  "Deel",
+  "Oyster",
+  "Pigment",
+  "Amplitude",
+  "Webflow",
+  "Intercom",
+  "Front",
+  "Apollo",
+  "Clay",
+  "Mutiny",
+  "Chili Piper",
+  "Gong",
+  "Outreach",
+  "Salesloft",
+  "Lusha",
+  "Clearbit",
+  "Mixpanel",
+  "Heap",
+  "Typeform",
+  "Segment",
+  "Algolia",
+  "G2",
+  "Drift",
+  "HubSpot",
+  "Stripe",
+  "Checkout",
+  "Brex",
+  "Ramp",
+  "Rippling",
+  "Carta",
+  "Notion",
+  "Miro",
+  "Figma",
+  "Zapier",
+  "Calendly",
+  "ClickUp",
+  "Monday",
+  "Asana",
+  "LinearB",
+  "Supabase",
+  "Railway",
+  "Render",
+  "Fly.io",
+  "Vercel",
+  "Netlify",
+  "PlanetScale",
+  "Replit",
+  "Retool",
+  "Coda",
+  "Airtable",
+  "PandaDoc",
+  "DocuSign",
+  "Chargebee",
+  "Recurly",
+  "Zuora",
+  "Freshworks",
+  "Zoho",
+  "Klaviyo",
+  "Customer.io",
+  "FullStory",
 ];
 
-// helper names
-const firstNames = ["Sarah","James","Emma","Daniel","Olivia","Liam","Sophia","Noah"];
-const lastNames = ["Turner","Murphy","Smith","Meyer","Davis","Wilson","Clark","Hall"];
+const firstNames = [
+  "Sarah",
+  "James",
+  "Emma",
+  "Daniel",
+  "Olivia",
+  "Liam",
+  "Sophia",
+  "Noah",
+  "Michael",
+  "Isla",
+  "Ethan",
+  "Chloe",
+];
 
-function name(i: number) {
+const lastNames = [
+  "Turner",
+  "Murphy",
+  "Smith",
+  "Meyer",
+  "Davis",
+  "Wilson",
+  "Clark",
+  "Hall",
+  "Bennett",
+  "Carter",
+  "Evans",
+  "Reed",
+];
+
+function fullName(i: number) {
   return `${firstNames[i % firstNames.length]} ${lastNames[i % lastNames.length]}`;
+}
+
+function firstNameOnly(i: number) {
+  return firstNames[i % firstNames.length].toLowerCase();
+}
+
+function slugifyCompany(company: string) {
+  return company.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 function contacts(domain: string, i: number): Contact[] {
   return [
     {
       id: `${domain}-1`,
-      name: name(i),
+      name: fullName(i),
       role: "Head of Sales",
       seniority: "high",
-      email: `sales@${domain}.com`,
+      email: `${firstNameOnly(i)}@${domain}.com`,
       recommended: true,
     },
     {
       id: `${domain}-2`,
-      name: name(i + 1),
+      name: fullName(i + 1),
       role: "RevOps Manager",
       seniority: "mid",
-      email: `revops@${domain}.com`,
+      email: `${firstNameOnly(i + 1)}@${domain}.com`,
       recommended: false,
     },
     {
       id: `${domain}-3`,
-      name: name(i + 2),
+      name: fullName(i + 2),
       role: "VP Marketing",
       seniority: "high",
-      email: `marketing@${domain}.com`,
+      email: `${firstNameOnly(i + 2)}@${domain}.com`,
       recommended: false,
     },
   ];
 }
 
 function generateAccount(company: string, i: number): Account {
-  const domain = company.toLowerCase().replace(/\s+/g, "");
+  const domain = slugifyCompany(company);
   const isExisting = i < 45;
 
   const visitCount = (i % 4) + 1;
@@ -105,6 +201,6 @@ function generateAccount(company: string, i: number): Account {
   };
 }
 
-export const accounts: Account[] = companies.map((c, i) =>
-  generateAccount(c, i)
+export const accounts: Account[] = companies.map((company, i) =>
+  generateAccount(company, i)
 );
