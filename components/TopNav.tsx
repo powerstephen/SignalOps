@@ -9,7 +9,6 @@ const navItems = [
   { href: "/generate", label: "Generate" },
   { href: "/opportunities", label: "Opportunities" },
   { href: "/calculator", label: "Calculator" },
-  { href: "/connect", label: "Import data" },
 ];
 
 export default function TopNav() {
@@ -23,8 +22,8 @@ export default function TopNav() {
             <Image
               src="/logo.png"
               alt="SignalOps"
-              width={180}
-              height={40}
+              width={220}
+              height={44}
               priority
             />
           </Link>
@@ -61,12 +60,22 @@ export default function TopNav() {
           </nav>
         </div>
 
-        <Link
-          href="/login"
-          className="rounded-[28px] bg-black px-7 py-3 text-sm font-medium text-white transition hover:opacity-90"
-        >
-          Log in
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/connect"
+            className="inline-flex items-center gap-2 rounded-[28px] border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-950 transition hover:bg-gray-50"
+          >
+            <span className="text-lg leading-none text-[#214c8f]">↓</span>
+            <span>Import data</span>
+          </Link>
+
+          <Link
+            href="/login"
+            className="rounded-[28px] bg-black px-7 py-3 text-sm font-medium text-white transition hover:opacity-90"
+          >
+            Log in
+          </Link>
+        </div>
       </div>
     </div>
   );
