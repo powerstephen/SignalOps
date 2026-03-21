@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageContainer from "@/components/page-container";
 import WorkspaceSourceBanner from "@/components/workspace-source-banner";
-import { recoverLeads } from "@/lib/recover-leads";
+import { recoverLeads, RecoverTimelineItem } from "@/lib/recover-leads";
+import { accounts } from "@/lib/accounts";
 
 function Badge({
   label,
@@ -45,6 +47,19 @@ function NextStepBadge({ nextStep }: { nextStep: string }) {
   return <Badge label="Re-qualify" variant="default" />;
 }
 
+function TimelineDot({ type }: { type: RecoverTimelineItem["type"] }) {
+  const className =
+    type === "email"
+      ? "bg-blue-500"
+      : type === "meeting"
+        ? "bg-violet-500"
+        : type === "activity"
+          ? "bg-green-500"
+          : "bg-gray-400";
+
+  return <span className={`mt-1 inline-flex h-3 w-3 rounded-full ${className}`} />;
+}
+
 type ContactPageProps = {
   params: {
     id: string;
@@ -59,6 +74,9 @@ export default function ContactPage({ params }: ContactPageProps) {
   }
 
   const firstName = lead.name.split(" ")[0];
+  const linkedAccount = accounts.find(
+    (account) => account.name.toLowerCase() === lead.company.toLowerCase()
+  );
 
   return (
     <PageContainer
@@ -80,37 +98,32 @@ export default function ContactPage({ params }: ContactPageProps) {
 
           <div className="rounded-2xl border border-gray-200 bg-white p-6">
             <div className="text-xs uppercase tracking-wide text-gray-500">
-              Interaction history
+              Interaction timeline
             </div>
 
-            <div className="mt-5 space-y-5">
-              <div className="border-l-2 border-gray-200 pl-4">
-                <div className="text-sm font-medium text-gray-900">
-                  Last interaction
-                </div>
-                <div className="mt-1 text-sm text-gray-600">
-                  {lead.lastInteraction}
-                </div>
-              </div>
+            <div className="mt-6 space-y-6">
+              {lead.timeline.map((item) => (
+                <div key={item.id} className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <TimelineDot type={item.type} />
+                    <span className="mt-2 h-full w-px bg-gray-200" />
+                  </div>
 
-              <div className="border-l-2 border-gray-200 pl-4">
-                <div className="text-sm font-medium text-gray-900">
-                  Prior context
+                  <div className="pb-1">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="text-sm font-medium text-gray-950">
+                        {item.title}
+                      </p>
+                      <span className="text-xs uppercase tracking-wide text-gray-400">
+                        {item.time}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm leading-6 text-gray-600">
+                      {item.detail}
+                    </p>
+                  </div>
                 </div>
-                <div className="mt-1 text-sm leading-6 text-gray-600">
-                  {lead.interactionSummary}
-                </div>
-              </div>
-
-              <div className="border-l-2 border-gray-200 pl-4">
-                <div className="text-sm font-medium text-gray-900">
-                  SignalOps recommendation
-                </div>
-                <div className="mt-1 text-sm leading-6 text-gray-600">
-                  Re-engage this contact with a fresh angle tied to current
-                  signals and previous interaction history.
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -123,18 +136,19 @@ export default function ContactPage({ params }: ContactPageProps) {
               <p>Hi {firstName},</p>
 
               <p className="mt-4">
-                Noticed a few fresh signals from {lead.company}, and given our
-                previous interaction thought it might be a good time to reconnect.
+                Noticed {lead.whyNow.toLowerCase()} and, given we previously{" "}
+                {lead.interactionSummary.toLowerCase()}, thought it might be a
+                good time to reconnect.
               </p>
 
               <p className="mt-4">
-                Last time around there was clear interest, but it looks like it
-                never turned into a next step.
+                There looked to be real interest before, but it never turned into
+                a clear next step.
               </p>
 
               <p className="mt-4">
-                Based on what we are seeing now, there could be a good
-                opportunity to pick this back up.
+                Based on what we are seeing now, there may be a good opportunity
+                to pick this back up.
               </p>
 
               <p className="mt-4">Open to a quick chat?</p>
@@ -147,9 +161,9 @@ export default function ContactPage({ params }: ContactPageProps) {
             </div>
 
             <p className="mt-4 text-sm leading-7 text-gray-900">
-              Hi {firstName} — we spoke previously and I noticed some renewed
-              activity from {lead.company}. Thought it might be worth
-              reconnecting. Are you still the right person for this area?
+              Hi {firstName} — we spoke previously and I noticed {lead.whyNow.toLowerCase()}.
+              Thought it might be worth reconnecting. Are you still the right
+              person for this area?
             </p>
           </div>
         </div>
@@ -184,6 +198,24 @@ export default function ContactPage({ params }: ContactPageProps) {
               <NextStepBadge nextStep={lead.nextStep} />
             </div>
           </div>
+
+          {linkedAccount ? (
+            <div className="rounded-2xl border border-gray-200 bg-white p-6">
+              <div className="text-xs uppercase tracking-wide text-gray-500">
+                Account signals
+              </div>
+              <p className="mt-3 text-sm leading-6 text-gray-600">
+                View the broader account context, active signals and additional
+                contacts at {lead.company}.
+              </p>
+              <Link
+                href={`/account/${linkedAccount.id}`}
+                className="mt-4 inline-flex rounded-2xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-950 transition hover:bg-gray-50"
+              >
+                View account signals
+              </Link>
+            </div>
+          ) : null}
 
           <div className="rounded-2xl border border-gray-200 bg-white p-6">
             <button className="w-full rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90">
