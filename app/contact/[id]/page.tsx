@@ -101,6 +101,7 @@ type EmailStep = {
   subject: string;
   intro: string;
   paragraphs: string[];
+  signature: string[];
   signals: EmailSignal[];
 };
 
@@ -108,6 +109,7 @@ type EmailDraft = {
   subject: string;
   intro: string;
   paragraphs: string[];
+  signature: string[];
 };
 
 type DraftMode = "default" | "shorter" | "warmer" | "direct" | "stronger-cta";
@@ -164,9 +166,11 @@ function renderParagraph(
 function buildEmailSteps(
   firstName: string,
   company: string,
-  whyNow: string,
-  interactionSummary: string
+  _whyNow: string,
+  _interactionSummary: string
 ): EmailStep[] {
+  const signature = ["Best,", "Stephen", "SignalOps"];
+
   return [
     {
       id: 1,
@@ -179,6 +183,7 @@ function buildEmailSteps(
         `The latest signals suggest renewed timing, so it felt worth reaching out with a fresh angle.`,
         `Open to a quick chat?`,
       ],
+      signature,
       signals: [
         {
           id: "pricing",
@@ -207,6 +212,7 @@ function buildEmailSteps(
         `Usually when we see signals like renewed activity from ${company}, it means the timing may be better now than when we first spoke.`,
         `Happy to share a few ideas if useful.`,
       ],
+      signature,
       signals: [
         {
           id: "renewed-activity",
@@ -230,6 +236,7 @@ function buildEmailSteps(
         `Given the renewed activity we are seeing from ${company}, I thought it was worth one final follow up in case this is back on the agenda.`,
         `If not relevant, no problem at all.`,
       ],
+      signature,
       signals: [
         {
           id: "final-renewed",
@@ -269,7 +276,7 @@ function getReasoning(
     ],
     personalization:
       interactionSummary ||
-      `The draft references prior engagement and current activity to make the message feel timely and specific.`,
+      "The draft references prior engagement and current activity to make the message feel timely and specific.",
   };
 
   if (emailId === 1) {
@@ -306,11 +313,14 @@ function buildDraftForMode(
   firstName: string,
   company: string
 ): EmailDraft {
+  const baseSignature = email.signature;
+
   if (mode === "default") {
     return {
       subject: email.subject,
       intro: email.intro,
       paragraphs: email.paragraphs,
+      signature: baseSignature,
     };
   }
 
@@ -324,6 +334,7 @@ function buildDraftForMode(
           `Given the earlier interest, felt it was worth reaching out again.`,
           `Open to a quick chat?`,
         ],
+        signature: baseSignature,
       };
     }
 
@@ -337,6 +348,7 @@ function buildDraftForMode(
           `Happy to pick things back up if useful.`,
           `Would a quick chat next week suit?`,
         ],
+        signature: baseSignature,
       };
     }
 
@@ -350,6 +362,7 @@ function buildDraftForMode(
           `The current signals suggest better timing now.`,
           `Are you open to a quick conversation this week?`,
         ],
+        signature: baseSignature,
       };
     }
 
@@ -363,6 +376,7 @@ function buildDraftForMode(
           `The latest signals suggest this may be back on the agenda.`,
           `Would Tuesday or Wednesday suit for a 15 minute call?`,
         ],
+        signature: baseSignature,
       };
     }
   }
@@ -377,6 +391,7 @@ function buildDraftForMode(
           `The latest signals from ${company} suggest the timing may be better now.`,
           `Happy to share a few ideas if helpful.`,
         ],
+        signature: baseSignature,
       };
     }
 
@@ -389,6 +404,7 @@ function buildDraftForMode(
           `We often see this kind of renewed activity from ${company} when priorities are shifting and timing improves.`,
           `Happy to share a few thoughts if that would be useful.`,
         ],
+        signature: baseSignature,
       };
     }
 
@@ -401,6 +417,7 @@ function buildDraftForMode(
           `We are seeing renewed activity from ${company}, which usually points to better timing.`,
           `Is it worth reopening the conversation?`,
         ],
+        signature: baseSignature,
       };
     }
 
@@ -413,6 +430,7 @@ function buildDraftForMode(
           `Usually when we see signals like this from ${company}, it means the timing may be better now than when we first spoke.`,
           `Would it make sense to lock 15 minutes next week?`,
         ],
+        signature: baseSignature,
       };
     }
   }
@@ -427,6 +445,7 @@ function buildDraftForMode(
           `We are seeing renewed activity from ${company}, so I wanted to check if this is back on the agenda.`,
           `If not, no problem at all.`,
         ],
+        signature: baseSignature,
       };
     }
 
@@ -439,6 +458,7 @@ function buildDraftForMode(
           `I noticed renewed activity from ${company} and thought it was worth one final follow up in case this has become more relevant again.`,
           `If the timing is not right, no problem at all.`,
         ],
+        signature: baseSignature,
       };
     }
 
@@ -451,6 +471,7 @@ function buildDraftForMode(
           `The current signals suggest this may be back on the agenda at ${company}.`,
           `Should I close this out, or is it worth a quick conversation?`,
         ],
+        signature: baseSignature,
       };
     }
 
@@ -463,6 +484,7 @@ function buildDraftForMode(
           `Given the renewed activity we are seeing from ${company}, I thought it was worth one final follow up in case this is back on the agenda.`,
           `If useful, I can hold 15 minutes on Thursday or Friday.`,
         ],
+        signature: baseSignature,
       };
     }
   }
@@ -471,6 +493,7 @@ function buildDraftForMode(
     subject: email.subject,
     intro: email.intro,
     paragraphs: email.paragraphs,
+    signature: baseSignature,
   };
 }
 
@@ -482,6 +505,10 @@ function getModeLabel(mode: DraftMode) {
   return "Original";
 }
 
+function buildEmailAddress(firstName: string, company: string) {
+  return `${firstName.toLowerCase()}@${company.toLowerCase().replace(/\s+/g, "")}.com`;
+}
+
 export default function ContactPage({ params }: Props) {
   const lead = recoverLeads.find((l) => l.id === params.id);
 
@@ -490,6 +517,7 @@ export default function ContactPage({ params }: Props) {
   }
 
   const firstName = lead.name.split(" ")[0];
+  const emailAddress = buildEmailAddress(firstName, lead.company);
 
   const emails = useMemo(
     () =>
@@ -784,7 +812,7 @@ export default function ContactPage({ params }: Props) {
             </div>
           </div>
 
-          <div className="relative min-h-[640px] overflow-hidden">
+          <div className="relative min-h-[760px] overflow-hidden">
             {prevEmail ? (
               <button
                 type="button"
@@ -801,105 +829,130 @@ export default function ContactPage({ params }: Props) {
               </button>
             ) : null}
 
-            <div className="absolute left-1/2 top-0 z-10 w-[72%] -translate-x-1/2 rounded-3xl border border-gray-200 bg-white px-8 py-8 shadow-[0_18px_40px_rgba(17,24,39,0.08)]">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-xs uppercase tracking-wide text-gray-400">
-                      {activeEmail.label}
+            <div className="absolute left-1/2 top-0 z-10 w-[72%] -translate-x-1/2 rounded-3xl border border-gray-200 bg-white shadow-[0_18px_40px_rgba(17,24,39,0.08)]">
+              <div className="border-b border-gray-100 px-8 py-6">
+                <div className="flex items-start justify-between gap-6">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-xs uppercase tracking-wide text-gray-400">
+                        {activeEmail.label}
+                      </div>
+
+                      {draftMode !== "default" ? (
+                        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-700">
+                          {getModeLabel(draftMode)}
+                        </span>
+                      ) : null}
+
+                      {showUpdatedBadge ? (
+                        <span className="rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-medium text-green-700">
+                          AI updated draft
+                        </span>
+                      ) : null}
                     </div>
 
-                    {draftMode !== "default" ? (
-                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-700">
-                        {getModeLabel(draftMode)}
-                      </span>
-                    ) : null}
-
-                    {showUpdatedBadge ? (
-                      <span className="rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-medium text-green-700">
-                        AI updated draft
-                      </span>
-                    ) : null}
+                    <div className="mt-2 text-xl font-semibold text-gray-950">
+                      {activeDraft.subject}
+                    </div>
                   </div>
 
-                  <div className="mt-2 text-xl font-semibold text-gray-950">
-                    {activeDraft.subject}
+                  <div className="flex items-center gap-2">
+                    {emails.map((email) => (
+                      <button
+                        key={email.id}
+                        type="button"
+                        onClick={() => handleSelectEmail(email.id)}
+                        className={`h-2.5 w-2.5 rounded-full transition ${
+                          email.id === activeEmail.id
+                            ? "bg-gray-900"
+                            : canOpen(email.id)
+                              ? "bg-gray-300 hover:bg-gray-400"
+                              : "bg-gray-200"
+                        }`}
+                      />
+                    ))}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  {emails.map((email) => (
+                <div className="mt-5 flex items-start justify-between gap-6">
+                  <div>
+                    <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                      AI used these signals
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {activeEmail.signals.map((signal) => (
+                        <Pill
+                          key={signal.id}
+                          label={signal.label}
+                          active={activeSignalId === signal.id}
+                          onClick={() => handleSignalClick(signal.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="min-w-0 text-right">
+                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                      To
+                    </div>
+                    <div className="mt-1 text-sm font-medium text-gray-700">
+                      {emailAddress}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-[420px] overflow-y-auto px-8 py-8">
+                <div className="max-w-3xl text-sm leading-7 text-gray-900">
+                  <p className="whitespace-pre-wrap">{activeDraft.intro}</p>
+
+                  {activeDraft.paragraphs.map((paragraph, index) => (
+                    <p key={index} className="mt-6">
+                      {renderParagraph(
+                        paragraph,
+                        activeEmail.signals,
+                        activeSignalId
+                      )}
+                    </p>
+                  ))}
+
+                  <div className="mt-8 space-y-1 text-sm leading-7 text-gray-900">
+                    {activeDraft.signature.map((line) => (
+                      <div key={line}>{line}</div>
+                    ))}
+                  </div>
+
+                  <div className="h-6" />
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 rounded-b-3xl border-t border-gray-200 bg-white/95 px-8 py-5 backdrop-blur">
+                <div className="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4">
+                  <div className="text-sm text-gray-500">
+                    {draftMode !== "default"
+                      ? "AI updated draft ready for review"
+                      : "Draft ready for review"}
+                  </div>
+
+                  <div className="flex items-center gap-2">
                     <button
-                      key={email.id}
                       type="button"
-                      onClick={() => handleSelectEmail(email.id)}
-                      className={`h-2.5 w-2.5 rounded-full transition ${
-                        email.id === activeEmail.id
-                          ? "bg-gray-900"
-                          : canOpen(email.id)
-                            ? "bg-gray-300 hover:bg-gray-400"
-                            : "bg-gray-200"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-5">
-                <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
-                  AI used these signals
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {activeEmail.signals.map((signal) => (
-                    <Pill
-                      key={signal.id}
-                      label={signal.label}
-                      active={activeSignalId === signal.id}
-                      onClick={() => handleSignalClick(signal.id)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-8 max-w-3xl text-sm leading-7 text-gray-900">
-                <p className="whitespace-pre-wrap">{activeDraft.intro}</p>
-
-                {activeDraft.paragraphs.map((paragraph, index) => (
-                  <p key={index} className="mt-6">
-                    {renderParagraph(
-                      paragraph,
-                      activeEmail.signals,
-                      activeSignalId
-                    )}
-                  </p>
-                ))}
-              </div>
-
-              <div className="mt-8 flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4">
-                <div className="text-sm text-gray-500">
-                  {draftMode !== "default"
-                    ? "AI updated draft ready for review"
-                    : "Draft ready for review"}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleResetDraft}
-                    className="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                  >
-                    Reset draft
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleApprove}
-                    className="rounded-2xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
-                  >
-                    {approvedUpTo < emails.length
-                      ? "Approve & continue"
-                      : "Approved"}
-                  </button>
+                      onClick={handleResetDraft}
+                      className="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                    >
+                      Reset draft
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleApprove}
+                      className="rounded-2xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+                    >
+                      {approvedUpTo < emails.length
+                        ? "Approve & continue"
+                        : "Approved"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
