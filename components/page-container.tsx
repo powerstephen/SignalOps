@@ -1,11 +1,11 @@
-import { ReactNode } from "react"
+import { ReactNode } from "react";
 
 type PageContainerProps = {
-  title: string
-  subtitle?: string
-  action?: ReactNode
-  children: ReactNode
-}
+  title: string;
+  subtitle?: string;
+  action?: ReactNode;
+  children: ReactNode;
+};
 
 export default function PageContainer({
   title,
@@ -14,14 +14,14 @@ export default function PageContainer({
   children,
 }: PageContainerProps) {
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 py-8">
-      <div className="mb-8 flex items-start justify-between gap-4">
+    <div className="mx-auto w-full max-w-7xl px-6 py-12 md:px-10">
+      <div className="mb-10 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-950">
+          <h1 className="text-4xl font-semibold tracking-tight text-gray-950">
             {title}
           </h1>
           {subtitle ? (
-            <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
+            <p className="mt-3 text-sm text-gray-600 md:text-base">{subtitle}</p>
           ) : null}
         </div>
 
@@ -30,5 +30,5 @@ export default function PageContainer({
 
       {children}
     </div>
-  )
+  );
 }
