@@ -112,14 +112,17 @@ export default function ContactPage({ params }: Props) {
 
   const activeIndex = emails.findIndex((email) => email.id === activeEmail.id);
   const prevEmail = activeIndex > 0 ? emails[activeIndex - 1] : null;
-  const nextEmail = activeIndex < emails.length - 1 ? emails[activeIndex + 1] : null;
+  const nextEmail =
+    activeIndex < emails.length - 1 ? emails[activeIndex + 1] : null;
 
   function canOpen(emailId: number) {
     return emailId <= approvedUpTo;
   }
 
   function handleApprove() {
-    setApprovedUpTo((current) => Math.min(current + 1, emails.length));
+    const nextApproved = Math.min(approvedUpTo + 1, emails.length);
+    setApprovedUpTo(nextApproved);
+
     if (activeEmailId < emails.length) {
       setActiveEmailId(activeEmailId + 1);
     }
@@ -132,50 +135,46 @@ export default function ContactPage({ params }: Props) {
   return (
     <div className="mx-auto w-full max-w-7xl px-8 py-8 md:px-10">
       <div className="space-y-10">
-        {/* TOP */}
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="flex items-start gap-6">
-            <div className="text-6xl font-semibold leading-none text-green-600">
-              {lead.score}
-            </div>
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-8">
+            <div className="flex items-start gap-6">
+              <div className="text-6xl font-semibold leading-none text-green-600">
+                {lead.score}
+              </div>
 
-            <div className="space-y-3">
-              <div>
+              <div className="min-w-0">
                 <div className="text-2xl font-semibold tracking-tight text-gray-950">
                   {lead.name}
                 </div>
                 <div className="mt-1 text-gray-600">
                   {lead.role} at {lead.company}
                 </div>
-              </div>
 
-              <div className="flex max-w-[560px] flex-wrap gap-2">
-                <Pill label="Recent Engagement" />
-                <Pill label="Dormant Opportunity" />
-                <Pill label="High ICP Match" />
-                <Pill label="Senior Persona" />
+                <div className="mt-5 flex max-w-[620px] flex-wrap gap-2">
+                  <Pill label="Recent Engagement" />
+                  <Pill label="Dormant Opportunity" />
+                  <Pill label="High ICP Match" />
+                  <Pill label="Senior Persona" />
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* ABOVE THE FOLD SUMMARY */}
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1fr]">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-gray-400">
-              Signals
+            <div>
+              <div className="text-xs uppercase tracking-wide text-gray-400">
+                Signals
+              </div>
+
+              <p className="mt-4 text-base leading-7 text-gray-900">
+                {lead.whyNow}
+              </p>
+
+              <ul className="mt-6 space-y-3 text-sm leading-7 text-gray-600">
+                <li>• Prior interaction showed clear interest</li>
+                <li>• Lead matches a strong ICP persona</li>
+                <li>• Recent activity suggests renewed timing</li>
+                <li>• Worth re-engaging with a fresh angle now</li>
+              </ul>
             </div>
-
-            <p className="mt-4 text-base leading-7 text-gray-900">
-              {lead.whyNow}
-            </p>
-
-            <ul className="mt-6 space-y-3 text-sm leading-7 text-gray-600">
-              <li>• Prior interaction showed clear interest</li>
-              <li>• Lead matches a strong ICP persona</li>
-              <li>• Recent activity suggests renewed timing</li>
-              <li>• Worth re-engaging with a fresh angle now</li>
-            </ul>
           </div>
 
           <div>
@@ -203,12 +202,9 @@ export default function ContactPage({ params }: Props) {
           </div>
         </div>
 
-        {/* EMAIL CAROUSEL */}
         <div className="pt-2">
           <div className="mb-4 flex items-center justify-between">
-            <div className="text-sm font-medium text-gray-400">
-              Sequence
-            </div>
+            <div className="text-sm font-medium text-gray-400">Sequence</div>
 
             <div className="flex items-center gap-2">
               <button
@@ -230,9 +226,13 @@ export default function ContactPage({ params }: Props) {
             {prevEmail ? (
               <button
                 type="button"
-                onClick={() => canOpen(prevEmail.id) && setActiveEmailId(prevEmail.id)}
+                onClick={() =>
+                  canOpen(prevEmail.id) && setActiveEmailId(prevEmail.id)
+                }
                 className={`absolute left-0 top-10 z-0 h-[320px] w-[18%] rounded-3xl border border-gray-200 bg-white px-4 py-6 text-left shadow-[0_0_0_1px_rgba(17,24,39,0.04)] transition ${
-                  canOpen(prevEmail.id) ? "hover:-translate-y-0.5" : "cursor-not-allowed opacity-50"
+                  canOpen(prevEmail.id)
+                    ? "hover:-translate-y-0.5"
+                    : "cursor-not-allowed opacity-50"
                 }`}
               >
                 <div className="mt-24 text-center text-5xl font-semibold tracking-tight text-gray-900">
@@ -278,9 +278,13 @@ export default function ContactPage({ params }: Props) {
             {nextEmail ? (
               <button
                 type="button"
-                onClick={() => canOpen(nextEmail.id) && setActiveEmailId(nextEmail.id)}
+                onClick={() =>
+                  canOpen(nextEmail.id) && setActiveEmailId(nextEmail.id)
+                }
                 className={`absolute right-0 top-10 z-0 h-[320px] w-[18%] rounded-3xl border border-gray-200 bg-white px-4 py-6 text-left shadow-[0_0_0_1px_rgba(17,24,39,0.04)] transition ${
-                  canOpen(nextEmail.id) ? "hover:-translate-y-0.5" : "cursor-not-allowed opacity-50"
+                  canOpen(nextEmail.id)
+                    ? "hover:-translate-y-0.5"
+                    : "cursor-not-allowed opacity-50"
                 }`}
               >
                 <div className="mt-24 text-center text-5xl font-semibold tracking-tight text-gray-900">
