@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/", label: "Recover" },
-  { href: "/generate", label: "Generate" }, // FIXED
+  { href: "/generate", label: "Generate" },
   { href: "/opportunities", label: "Opportunities" },
   { href: "/calculator", label: "Calculator" },
 ];
@@ -16,26 +16,26 @@ export default function TopNav() {
   return (
     <header className="sticky top-0 z-30 border-b border-[#e7e9f0] bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 md:px-10">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="text-base font-semibold text-gray-900">
-            Revenue Agent
+        <div className="flex items-center gap-8">
+          <Link href="/" className="text-2xl font-semibold tracking-tight text-gray-950">
+            SignalOps
           </Link>
 
-          <nav className="flex flex-wrap items-center gap-5 text-sm text-gray-500">
+          <nav className="flex flex-wrap items-center gap-8 text-sm">
             {items.map((item) => {
-              const isActive =
+              const active =
                 item.href === "/"
                   ? pathname === "/"
-                  : pathname.startsWith(item.href);
+                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
               return (
                 <Link
                   key={item.label}
                   href={item.href}
                   className={
-                    isActive
-                      ? "font-medium text-gray-900"
-                      : "hover:text-gray-900"
+                    active
+                      ? "font-medium text-gray-950"
+                      : "text-gray-500 transition hover:text-gray-950"
                   }
                 >
                   {item.label}
@@ -47,7 +47,7 @@ export default function TopNav() {
 
         <Link
           href="/connect"
-          className="rounded-lg border border-gray-900 bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black"
+          className="rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
         >
           Import
         </Link>
