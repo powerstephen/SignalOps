@@ -1,8 +1,18 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import {
+  WORKSPACE_SOURCE_STORAGE_KEY,
+  type WorkspaceSourceId,
+} from "@/lib/workspace-source";
+
 type SourceTileProps = {
   brand: string;
   brandBg: string;
   buttonLabel: string;
   connected?: boolean;
+  sourceId: WorkspaceSourceId;
+  onConnect: (sourceId: WorkspaceSourceId) => void;
 };
 
 function ConnectedBadge() {
@@ -23,19 +33,27 @@ function SourceTile({
   brandBg,
   buttonLabel,
   connected = false,
+  sourceId,
+  onConnect,
 }: SourceTileProps) {
   return (
     <div className="w-full max-w-[248px]">
-      <div
+      <button
+        type="button"
+        onClick={() => onConnect(sourceId)}
         className={`flex h-[112px] w-full items-center justify-center rounded-[20px] ${brandBg}`}
       >
         <span className="text-[32px] font-semibold tracking-tight text-white">
           {brand}
         </span>
-      </div>
+      </button>
 
       <div className="mt-5">
-        <button className="inline-flex items-center gap-3 text-[16px] font-semibold text-gray-950 transition hover:opacity-70">
+        <button
+          type="button"
+          onClick={() => onConnect(sourceId)}
+          className="inline-flex items-center gap-3 text-[16px] font-semibold text-gray-950 transition hover:opacity-70"
+        >
           <span className="text-[24px] leading-none">→</span>
           <span>{buttonLabel}</span>
         </button>
@@ -47,6 +65,13 @@ function SourceTile({
 }
 
 export default function ConnectPage() {
+  const router = useRouter();
+
+  function handleConnect(sourceId: WorkspaceSourceId) {
+    window.localStorage.setItem(WORKSPACE_SOURCE_STORAGE_KEY, sourceId);
+    router.push("/generate");
+  }
+
   return (
     <div className="mx-auto w-full max-w-7xl px-8 py-12 md:px-10">
       <div className="mb-12 flex items-center gap-6">
@@ -70,24 +95,32 @@ export default function ConnectPage() {
           brandBg="bg-[#ff5a0a]"
           buttonLabel="Connect HubSpot CRM"
           connected={true}
+          sourceId="hubspot"
+          onConnect={handleConnect}
         />
 
         <SourceTile
           brand="Sheets"
           brandBg="bg-[#16a34a]"
           buttonLabel="Connect Google Sheet"
+          sourceId="google_sheets"
+          onConnect={handleConnect}
         />
 
         <SourceTile
           brand="CSV"
           brandBg="bg-[#2563eb]"
           buttonLabel="Upload CSV"
+          sourceId="csv"
+          onConnect={handleConnect}
         />
 
         <SourceTile
           brand="Demo"
           brandBg="bg-[#312e81]"
           buttonLabel="Connect demo data"
+          sourceId="sample"
+          onConnect={handleConnect}
         />
       </div>
     </div>
