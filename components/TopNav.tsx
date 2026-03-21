@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
-const items = [
+const navItems = [
   { href: "/", label: "Recover" },
   { href: "/generate", label: "Generate" },
   { href: "/opportunities", label: "Opportunities" },
@@ -14,16 +15,22 @@ export default function TopNav() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[#e7e9f0] bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 md:px-10">
+    <div className="border-b border-gray-200 bg-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-2xl font-semibold tracking-tight text-gray-950">
-            SignalOps
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="SignalOps"
+              width={180}
+              height={40}
+              priority
+            />
           </Link>
 
-          <nav className="flex flex-wrap items-center gap-8 text-sm">
-            {items.map((item) => {
-              const active =
+          <nav className="flex items-center gap-6 text-sm">
+            {navItems.map((item) => {
+              const isActive =
                 item.href === "/"
                   ? pathname === "/"
                   : pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -32,13 +39,21 @@ export default function TopNav() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={
-                    active
-                      ? "font-medium text-gray-950"
-                      : "text-gray-500 transition hover:text-gray-950"
-                  }
+                  className="relative pb-2"
                 >
-                  {item.label}
+                  <span
+                    className={
+                      isActive
+                        ? "font-medium text-gray-950"
+                        : "text-gray-500 transition hover:text-gray-950"
+                    }
+                  >
+                    {item.label}
+                  </span>
+
+                  {isActive ? (
+                    <span className="absolute inset-x-0 -bottom-[17px] h-[2px] bg-[#0b1f3a]" />
+                  ) : null}
                 </Link>
               );
             })}
@@ -52,6 +67,6 @@ export default function TopNav() {
           Import
         </Link>
       </div>
-    </header>
+    </div>
   );
 }
