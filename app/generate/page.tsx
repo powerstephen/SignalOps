@@ -412,7 +412,7 @@ export default function GeneratePage() {
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] text-[#111827]">
-      <div className="mx-auto max-w-[1680px] px-5 py-5">
+      <div className="mx-auto max-w-7xl px-6 py-6">
         <div className="mb-4">
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#3157e0]">
             <SparklesIcon className="h-3.5 w-3.5" />
@@ -428,11 +428,11 @@ export default function GeneratePage() {
 
         <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_10px_25px_rgba(15,23,42,0.04)]">
           <div className="grid grid-cols-12 border-b border-slate-200 px-5 py-3 text-[11px] uppercase tracking-[0.16em] text-slate-500">
-            <div className="col-span-4">Account</div>
+            <div className="col-span-5">Account</div>
             <div className="col-span-2">Segment</div>
             <div className="col-span-2">Fit</div>
             <div className="col-span-2">Trigger</div>
-            <div className="col-span-2 text-right">Action</div>
+            <div className="col-span-1 text-right">Action</div>
           </div>
 
           {accounts.map((account) => {
@@ -444,16 +444,18 @@ export default function GeneratePage() {
                   onClick={() =>
                     setExpandedAccountId((prev) => (prev === account.id ? null : account.id))
                   }
-                  className="grid w-full grid-cols-12 items-center px-5 py-3.5 text-left transition hover:bg-slate-50"
+                  className="grid w-full grid-cols-12 items-center px-5 py-3 text-left transition hover:bg-slate-50"
                 >
-                  <div className="col-span-4 pr-4">
+                  <div className="col-span-5 pr-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50">
-                        <BuildingIcon className="h-4.5 w-4.5 text-slate-500" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50">
+                        <BuildingIcon className="h-4 w-4 text-slate-500" />
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate font-medium text-slate-900">{account.name}</div>
-                        <div className="truncate text-sm text-slate-500">{account.whyNow}</div>
+                        <div className="truncate text-[15px] font-medium text-slate-900">
+                          {account.name}
+                        </div>
+                        <div className="truncate text-[13px] text-slate-500">{account.whyNow}</div>
                       </div>
                     </div>
                   </div>
@@ -472,9 +474,9 @@ export default function GeneratePage() {
                     {account.triggerScore}/100
                   </div>
 
-                  <div className="col-span-2 flex justify-end">
+                  <div className="col-span-1 flex justify-end">
                     <span className="inline-flex items-center gap-2 rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1.5 text-xs font-medium text-[#3157e0]">
-                      {isExpanded ? "Collapse" : "Open"}
+                      {isExpanded ? "Hide" : "Open"}
                       {isExpanded ? (
                         <ChevronUpIcon className="h-4 w-4" />
                       ) : (
@@ -487,8 +489,8 @@ export default function GeneratePage() {
                 {isExpanded && expandedAccount && (
                   <div className="border-t border-slate-200 bg-[#fcfcfd] p-4">
                     <div className="grid gap-4">
-                      <div className="grid gap-4 xl:grid-cols-12">
-                        <div className="xl:col-span-5">
+                      <div className="grid gap-4 lg:grid-cols-12">
+                        <div className="lg:col-span-5">
                           <div className="rounded-[18px] border border-slate-200 bg-white p-4">
                             <div className="mb-3 flex items-center justify-between">
                               <div>
@@ -505,20 +507,14 @@ export default function GeneratePage() {
                               </div>
                             </div>
 
-                            <div className="rounded-[16px] border border-slate-200 bg-slate-50 p-4">
-                              <div className="text-[11px] uppercase tracking-[0.16em] text-slate-400">
-                                Why now
-                              </div>
-                              <p className="mt-2 text-sm leading-6 text-slate-600">
-                                {expandedAccount.whyNow}
-                              </p>
-                            </div>
-
-                            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                            <div className="grid gap-3 sm:grid-cols-2">
                               {expandedAccount.signals.map((signal) => (
                                 <div
                                   key={`${expandedAccount.id}-${signal.label}`}
-                                  className="rounded-[16px] border border-slate-200 bg-white p-3"
+                                  className={cx(
+                                    "rounded-[16px] border border-slate-200 p-3",
+                                    signal.label === "Why now" ? "sm:col-span-2" : "bg-white"
+                                  )}
                                 >
                                   <div className="text-[11px] uppercase tracking-[0.14em] text-slate-400">
                                     {signal.label}
@@ -526,11 +522,20 @@ export default function GeneratePage() {
                                   <div className="mt-1 text-sm text-slate-700">{signal.value}</div>
                                 </div>
                               ))}
+
+                              <div className="sm:col-span-2 rounded-[16px] border border-slate-200 bg-slate-50 p-3">
+                                <div className="text-[11px] uppercase tracking-[0.14em] text-slate-400">
+                                  Why now
+                                </div>
+                                <div className="mt-1 text-sm text-slate-700">
+                                  {expandedAccount.whyNow}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="xl:col-span-7">
+                        <div className="lg:col-span-7">
                           <div className="rounded-[18px] border border-slate-200 bg-white p-4">
                             <div className="mb-3 flex items-center justify-between">
                               <div>
@@ -561,21 +566,21 @@ export default function GeneratePage() {
                                       isSelected ? "bg-[#f5f8ff]" : "bg-white hover:bg-slate-50"
                                     )}
                                   >
-                                    <div className="col-span-3 min-w-0">
-                                      <div className="truncate text-[15px] font-medium text-slate-900">
+                                    <div className="col-span-4 min-w-0">
+                                      <div className="truncate text-[14px] font-medium text-slate-900">
                                         {contact.name}
                                       </div>
-                                      <div className="truncate text-[13px] text-slate-500">
+                                      <div className="truncate text-[12px] text-slate-500">
                                         {contact.title}
                                       </div>
                                     </div>
 
-                                    <div className="col-span-6 min-w-0">
-                                      <div className="truncate text-[13px] text-slate-600">
+                                    <div className="col-span-5 min-w-0">
+                                      <div className="truncate text-[12px] text-slate-600">
                                         {contact.reason}
                                       </div>
                                       {contact.channelHint && (
-                                        <div className="mt-0.5 truncate text-[12px] text-slate-400">
+                                        <div className="mt-0.5 truncate text-[11px] text-slate-400">
                                           {contact.channelHint}
                                         </div>
                                       )}
