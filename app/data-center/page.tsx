@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type State = "disconnected" | "analyzing" | "connected";
@@ -105,7 +106,7 @@ export default function Page() {
           </div>
 
           <div className="mt-10 flex justify-center">
-            <div className="w-full max-w-[360px] space-y-3">
+            <div className="w-full max-w-[340px] space-y-4">
               {steps.map((step, index) => {
                 const isDone = index < completedSteps;
                 const isActive =
@@ -114,14 +115,14 @@ export default function Page() {
                 return (
                   <div
                     key={step}
-                    className="grid grid-cols-[24px_1fr] items-center gap-3"
+                    className="grid grid-cols-[28px_1fr] items-center gap-3"
                   >
-                    <div className="flex h-6 w-6 items-center justify-center rounded-md border border-gray-200 bg-white text-sm text-gray-900">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-base text-gray-900">
                       {isDone ? "✓" : ""}
                     </div>
 
                     <div
-                      className={`text-left text-sm leading-6 ${
+                      className={`text-left text-lg leading-6 ${
                         isDone
                           ? "font-medium text-gray-900"
                           : isActive
@@ -147,11 +148,7 @@ export default function Page() {
             subtitle="Assess completeness and readiness"
           >
             <Grid cols="4">
-              <Card
-                label="Quality Score"
-                value="78%"
-                sub="Moderate quality"
-              />
+              <Card label="Quality Score" value="78%" sub="Moderate quality" />
               <Card
                 label="Accounts needing enrichment"
                 value="1,241"
@@ -222,19 +219,22 @@ export default function Page() {
             subtitle="Where to focus next"
           >
             <Grid cols="3">
-              <Action
+              <ActionLink
+                href="/generate?segment=uncovered_icp"
                 title="Uncovered ICP"
                 value="684"
                 sub="High-fit not targeted"
                 cta="Send to Generate"
               />
-              <Action
+              <ActionLink
+                href="/recover?segment=dormant_accounts"
                 title="Dormant accounts"
                 value="291"
                 sub="Warm but inactive"
                 cta="Send to Recover"
               />
-              <Action
+              <ActionLink
+                href="/generate?segment=coverage_gaps"
                 title="Coverage gaps"
                 value="UK + US"
                 sub="Low outreach areas"
@@ -323,12 +323,14 @@ function Insight({
   );
 }
 
-function Action({
+function ActionLink({
+  href,
   title,
   value,
   sub,
   cta,
 }: {
+  href: string;
   title: string;
   value: string;
   sub: string;
@@ -339,9 +341,12 @@ function Action({
       <div className="font-semibold text-gray-950">{title}</div>
       <div className="mt-2 text-2xl font-semibold text-gray-950">{value}</div>
       <div className="mt-1 text-sm text-gray-600">{sub}</div>
-      <button className="mt-4 rounded-xl bg-black px-4 py-2 text-sm text-white">
+      <Link
+        href={href}
+        className="mt-4 inline-flex rounded-xl bg-black px-4 py-2 text-sm text-white"
+      >
         {cta}
-      </button>
+      </Link>
     </div>
   );
 }
