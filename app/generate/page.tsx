@@ -43,8 +43,6 @@ type SequenceStep = {
   sendLabel: string;
   subject: string;
   body: string;
-  openRate: string;
-  replyRate: string;
 };
 
 type SequenceBundle = {
@@ -182,17 +180,17 @@ const AGENT_STEPS: Record<string, string[]> = {
     "Analyzing RevScale signals",
     "Detected revenue hiring surge across SDR and AE roles",
     "Mapping likely pipeline pressure across team structure",
-    "Pulling and ranking relevant decision makers",
-    "Scoring personas by urgency and operational fit",
-    "Preparing outreach angles for best entry points",
+    "Pulling relevant decision makers",
+    "Scoring personas by urgency and fit",
+    "Preparing best entry points",
   ],
   acc_2: [
     "Analyzing stale outreach and new trigger signals",
     "Detected recent product launch and renewed engagement",
     "Reviewing best reopening path by persona",
-    "Ranking contacts by strategic vs tactical influence",
+    "Ranking contacts by strategic relevance",
     "Preparing reactivation angle",
-    "Drafting next best outreach path",
+    "Finalising contact recommendations",
   ],
   acc_3: [
     "Analyzing expansion signals",
@@ -215,13 +213,13 @@ function cx(...classes: Array<string | false | null | undefined>) {
 function scoreBadgeClasses(score: ContactScore) {
   switch (score) {
     case "High Intent":
-      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
+      return "border-emerald-200 bg-emerald-50 text-emerald-700";
     case "Warm":
-      return "border-amber-500/30 bg-amber-500/10 text-amber-300";
+      return "border-amber-200 bg-amber-50 text-amber-700";
     case "Monitor":
-      return "border-zinc-500/30 bg-zinc-500/10 text-zinc-300";
+      return "border-slate-200 bg-slate-50 text-slate-600";
     default:
-      return "border-zinc-500/30 bg-zinc-500/10 text-zinc-300";
+      return "border-slate-200 bg-slate-50 text-slate-600";
   }
 }
 
@@ -237,15 +235,12 @@ function getApproach(contact: Contact) {
   if (title.includes("revenue operations") || title.includes("operations")) {
     return "Operational ROI and workflow efficiency";
   }
-
   if (title.includes("sales")) {
     return "Pipeline pressure and prioritisation support";
   }
-
   if (title.includes("revenue")) {
     return "Top-line urgency and GTM coordination";
   }
-
   if (title.includes("growth")) {
     return "Signal-led activation and conversion efficiency";
   }
@@ -260,7 +255,7 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
   const signalA = account.signals[0]?.value ?? "recent trigger event";
   const signalB = account.signals[1]?.value ?? "new engagement activity";
 
-  const baseSubject =
+  const subject1 =
     tone === "Direct"
       ? `Quick question about ${account.name}'s growth plans`
       : tone === "Consultative"
@@ -404,10 +399,8 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
         stepNumber: 1,
         label: "Initial Outreach",
         sendLabel: "Send Day 0",
-        subject: baseSubject,
+        subject: subject1,
         body: body1,
-        openRate: "62%",
-        replyRate: "8.4%",
       },
       {
         id: "step_2",
@@ -416,8 +409,6 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
         sendLabel: "Send Day 3",
         subject: `Re: ${account.name}'s outbound — a thought`,
         body: body2,
-        openRate: "54%",
-        replyRate: "12.1%",
       },
       {
         id: "step_3",
@@ -426,8 +417,6 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
         sendLabel: "Send Day 7",
         subject: "Closing the loop",
         body: body3,
-        openRate: "48%",
-        replyRate: "14.7%",
       },
     ],
   };
@@ -464,34 +453,23 @@ export default function GeneratePage() {
     streamedContacts.find((contact) => contact.id === selectedContactId) ?? null;
 
   return (
-    <div className="min-h-screen bg-[#0a0d12] text-white">
-      <div className="mx-auto max-w-[1500px] px-6 py-8">
-        <div className="mb-8 flex items-start justify-between gap-4">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
-              <SparklesIcon className="h-3.5 w-3.5" />
-              Generate
-            </div>
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Target accounts and let SignalOps work them
-            </h1>
-            <p className="mt-2 max-w-3xl text-sm text-zinc-400">
-              Use agent activity once at the account layer, then move straight into a usable outreach
-              sequence without extra waiting states.
-            </p>
+    <div className="min-h-screen bg-[#f7f8fa] text-[#111827]">
+      <div className="mx-auto max-w-[1600px] px-6 py-8">
+        <div className="mb-6">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#3157e0]">
+            <SparklesIcon className="h-3.5 w-3.5" />
+            Generate
           </div>
-
-          <div className="hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 lg:block">
-            <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Mode</div>
-            <div className="mt-1 flex items-center gap-2 text-sm text-zinc-200">
-              <WandIcon className="h-4 w-4 text-emerald-300" />
-              Agent-assisted targeting
-            </div>
-          </div>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Target accounts and move directly into outreach
+          </h1>
+          <p className="mt-2 max-w-4xl text-sm text-slate-500">
+            One agent moment at the account layer, then a clean, wide sequence workspace.
+          </p>
         </div>
 
-        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-black/20">
-          <div className="grid grid-cols-12 gap-0 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.16em] text-zinc-500">
+        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
+          <div className="grid grid-cols-12 gap-0 border-b border-slate-200 px-5 py-4 text-xs uppercase tracking-[0.16em] text-slate-500">
             <div className="col-span-4">Account</div>
             <div className="col-span-2">Segment</div>
             <div className="col-span-2">Fit</div>
@@ -504,41 +482,41 @@ export default function GeneratePage() {
               const isExpanded = expandedAccountId === account.id;
 
               return (
-                <div key={account.id} className="border-b border-white/10 last:border-b-0">
+                <div key={account.id} className="border-b border-slate-200 last:border-b-0">
                   <button
                     onClick={() =>
                       setExpandedAccountId((prev) => (prev === account.id ? null : account.id))
                     }
-                    className="grid w-full grid-cols-12 items-center gap-0 px-5 py-4 text-left transition hover:bg-white/[0.03]"
+                    className="grid w-full grid-cols-12 items-center gap-0 px-5 py-4 text-left transition hover:bg-slate-50"
                   >
                     <div className="col-span-4 pr-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-                          <BuildingIcon className="h-5 w-5 text-zinc-300" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50">
+                          <BuildingIcon className="h-5 w-5 text-slate-500" />
                         </div>
                         <div>
-                          <div className="font-medium text-white">{account.name}</div>
-                          <div className="mt-0.5 text-sm text-zinc-400">{account.whyNow}</div>
+                          <div className="font-medium text-slate-900">{account.name}</div>
+                          <div className="mt-0.5 text-sm text-slate-500">{account.whyNow}</div>
                         </div>
                       </div>
                     </div>
 
                     <div className="col-span-2">
-                      <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-300">
+                      <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600">
                         {account.segment}
                       </span>
                     </div>
 
-                    <div className="col-span-2">
-                      <div className="text-sm font-medium text-white">{account.fitScore}/100</div>
+                    <div className="col-span-2 text-sm font-medium text-slate-900">
+                      {account.fitScore}/100
                     </div>
 
-                    <div className="col-span-2">
-                      <div className="text-sm font-medium text-white">{account.triggerScore}/100</div>
+                    <div className="col-span-2 text-sm font-medium text-slate-900">
+                      {account.triggerScore}/100
                     </div>
 
                     <div className="col-span-2 flex justify-end">
-                      <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1.5 text-xs font-medium text-[#3157e0]">
                         {isExpanded ? "Collapse" : "Activate account"}
                         {isExpanded ? (
                           <ChevronUpIcon className="h-4 w-4" />
@@ -550,156 +528,146 @@ export default function GeneratePage() {
                   </button>
 
                   {isExpanded && expandedAccount && (
-                    <div className="border-t border-white/10 bg-[#0d1117]">
-                      <div className="grid grid-cols-1 gap-5 p-5 xl:grid-cols-12">
-                        <aside className="xl:col-span-3">
-                          <div className="grid gap-5">
-                            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-                              <div className="mb-5 flex items-center justify-between">
+                    <div className="border-t border-slate-200 bg-[#fcfcfd] p-5">
+                      <div className="grid gap-5">
+                        <div className="grid gap-5 xl:grid-cols-12">
+                          <div className="xl:col-span-4">
+                            <div className="rounded-[24px] border border-slate-200 bg-white p-5">
+                              <div className="mb-4 flex items-center justify-between">
                                 <div>
-                                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                                  <div className="text-xs uppercase tracking-[0.18em] text-slate-400">
                                     Account context
                                   </div>
-                                  <div className="mt-1 text-lg font-semibold text-white">
+                                  <div className="mt-1 text-lg font-semibold text-slate-900">
                                     {expandedAccount.name}
                                   </div>
                                 </div>
-
-                                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                                <div className="rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#3157e0]">
                                   Live
                                 </div>
                               </div>
 
-                              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                                <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">
+                              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <div className="text-xs uppercase tracking-[0.16em] text-slate-400">
                                   Why now
                                 </div>
-                                <p className="mt-2 text-sm leading-6 text-zinc-300">
+                                <p className="mt-2 text-sm leading-6 text-slate-600">
                                   {expandedAccount.whyNow}
                                 </p>
                               </div>
 
-                              <div className="mt-4">
-                                <div className="mb-3 text-xs uppercase tracking-[0.16em] text-zinc-500">
-                                  Signals
-                                </div>
-                                <div className="grid gap-3">
-                                  {expandedAccount.signals.map((signal) => (
-                                    <div
-                                      key={`${expandedAccount.id}-${signal.label}`}
-                                      className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                                    >
-                                      <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">
-                                        {signal.label}
-                                      </div>
-                                      <div className="mt-1 text-sm text-zinc-200">{signal.value}</div>
+                              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                {expandedAccount.signals.map((signal) => (
+                                  <div
+                                    key={`${expandedAccount.id}-${signal.label}`}
+                                    className="rounded-2xl border border-slate-200 bg-white p-4"
+                                  >
+                                    <div className="text-xs uppercase tracking-[0.14em] text-slate-400">
+                                      {signal.label}
                                     </div>
-                                  ))}
-                                </div>
+                                    <div className="mt-1 text-sm text-slate-700">{signal.value}</div>
+                                  </div>
+                                ))}
                               </div>
                             </div>
+                          </div>
 
-                            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+                          <div className="xl:col-span-4">
+                            <div className="rounded-[24px] border border-slate-200 bg-white p-5">
+                              <div className="mb-4">
+                                <div className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                                  Agent activity
+                                </div>
+                                <div className="mt-1 text-lg font-semibold text-slate-900">
+                                  SignalOps is working this account
+                                </div>
+                              </div>
+
+                              <AgentActivityFeed activity={activity} />
+                            </div>
+                          </div>
+
+                          <div className="xl:col-span-4">
+                            <div className="rounded-[24px] border border-slate-200 bg-white p-5">
                               <div className="mb-4 flex items-center justify-between">
                                 <div>
-                                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">
-                                    Agent activity
+                                  <div className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                                    Prioritised contacts
                                   </div>
-                                  <div className="mt-1 text-base font-semibold text-white">
-                                    SignalOps is working this account
+                                  <div className="mt-1 text-lg font-semibold text-slate-900">
+                                    Best entry points
                                   </div>
+                                </div>
+
+                                <div className="inline-flex items-center gap-2 text-sm text-slate-500">
+                                  <UsersIcon className="h-4 w-4" />
+                                  {streamedContacts.length}/{expandedAccount.contacts.length}
                                 </div>
                               </div>
 
-                              <AgentActivityFeed activity={activity} compact />
-                            </div>
-                          </div>
-                        </aside>
+                              <div className="space-y-3">
+                                {streamedContacts.map((contact) => {
+                                  const isSelected = selectedContactId === contact.id;
 
-                        <section className="xl:col-span-9">
-                          <div className="grid gap-5 lg:grid-cols-12">
-                            <div className="lg:col-span-4">
-                              <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-                                <div className="mb-4 flex items-center justify-between">
-                                  <div>
-                                    <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">
-                                      Prioritised contacts
-                                    </div>
-                                    <div className="mt-1 text-lg font-semibold text-white">
-                                      Best entry points
-                                    </div>
-                                  </div>
-
-                                  <div className="inline-flex items-center gap-2 text-sm text-zinc-400">
-                                    <UsersIcon className="h-4 w-4" />
-                                    {streamedContacts.length}/{expandedAccount.contacts.length}
-                                  </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                  {streamedContacts.map((contact) => {
-                                    const isSelected = selectedContactId === contact.id;
-
-                                    return (
-                                      <button
-                                        key={contact.id}
-                                        onClick={() => setSelectedContactId(contact.id)}
-                                        className={cx(
-                                          "w-full rounded-2xl border p-4 text-left transition",
-                                          isSelected
-                                            ? "border-emerald-500/30 bg-emerald-500/10"
-                                            : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
-                                        )}
-                                      >
-                                        <div className="flex items-start justify-between gap-3">
-                                          <div>
-                                            <div className="font-medium text-white">{contact.name}</div>
-                                            <div className="mt-0.5 text-sm text-zinc-400">
-                                              {contact.title}
-                                            </div>
+                                  return (
+                                    <button
+                                      key={contact.id}
+                                      onClick={() => setSelectedContactId(contact.id)}
+                                      className={cx(
+                                        "w-full rounded-2xl border p-4 text-left transition",
+                                        isSelected
+                                          ? "border-[#bfd0ff] bg-[#f5f8ff]"
+                                          : "border-slate-200 bg-white hover:bg-slate-50"
+                                      )}
+                                    >
+                                      <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                          <div className="font-medium text-slate-900">{contact.name}</div>
+                                          <div className="mt-0.5 text-sm text-slate-500">
+                                            {contact.title}
                                           </div>
-
-                                          <span
-                                            className={cx(
-                                              "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium",
-                                              scoreBadgeClasses(contact.score)
-                                            )}
-                                          >
-                                            {contact.score}
-                                          </span>
                                         </div>
 
-                                        <p className="mt-3 text-sm leading-6 text-zinc-300">
-                                          {contact.reason}
-                                        </p>
-
-                                        {contact.channelHint && (
-                                          <div className="mt-3 inline-flex items-center gap-2 text-xs text-zinc-500">
-                                            <ArrowRightIcon className="h-3.5 w-3.5" />
-                                            {contact.channelHint}
-                                          </div>
-                                        )}
-                                      </button>
-                                    );
-                                  })}
-
-                                  {streamedContacts.length < expandedAccount.contacts.length && (
-                                    <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-4">
-                                      <div className="flex items-center gap-2 text-sm text-zinc-400">
-                                        <SpinnerIcon className="h-4 w-4 text-emerald-300" />
-                                        Identifying high-probability contacts
+                                        <span
+                                          className={cx(
+                                            "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium",
+                                            scoreBadgeClasses(contact.score)
+                                          )}
+                                        >
+                                          {contact.score}
+                                        </span>
                                       </div>
+
+                                      <p className="mt-3 text-sm leading-6 text-slate-600">
+                                        {contact.reason}
+                                      </p>
+
+                                      {contact.channelHint && (
+                                        <div className="mt-3 inline-flex items-center gap-2 text-xs text-slate-400">
+                                          <ArrowRightIcon className="h-3.5 w-3.5" />
+                                          {contact.channelHint}
+                                        </div>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+
+                                {streamedContacts.length < expandedAccount.contacts.length && (
+                                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4">
+                                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                                      <SpinnerIcon className="h-4 w-4 text-[#3157e0]" />
+                                      Identifying high-probability contacts
                                     </div>
-                                  )}
-                                </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
-
-                            <div className="lg:col-span-8">
-                              <SequenceWorkspace account={expandedAccount} contact={selectedContact} />
-                            </div>
                           </div>
-                        </section>
+                        </div>
+
+                        <div>
+                          <SequenceWorkspace account={expandedAccount} contact={selectedContact} />
+                        </div>
                       </div>
                     </div>
                   )}
@@ -713,41 +681,28 @@ export default function GeneratePage() {
   );
 }
 
-function AgentActivityFeed({
-  activity,
-  compact = false,
-}: {
-  activity: ActivityItem[];
-  compact?: boolean;
-}) {
+function AgentActivityFeed({ activity }: { activity: ActivityItem[] }) {
   return (
-    <div className={compact ? "space-y-2" : "space-y-3"}>
+    <div className="space-y-2.5">
       {activity.map((item) => (
         <div
           key={item.id}
-          className={cx(
-            "flex items-start gap-3 rounded-2xl border border-white/10 bg-black/20",
-            compact ? "px-3 py-2.5" : "px-4 py-3"
-          )}
+          className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
         >
           <div className="mt-0.5">
             {item.status === "done" ? (
-              <CheckCircleIcon className="h-4 w-4 text-emerald-300" />
+              <CheckCircleIcon className="h-4 w-4 text-emerald-600" />
             ) : (
-              <SpinnerIcon className="h-4 w-4 text-emerald-300" />
+              <SpinnerIcon className="h-4 w-4 text-[#3157e0]" />
             )}
           </div>
 
-          <div className="flex-1">
-            <div className={compact ? "text-xs text-zinc-200" : "text-sm text-zinc-200"}>
-              {item.text}
-            </div>
-          </div>
+          <div className="text-sm text-slate-700">{item.text}</div>
         </div>
       ))}
 
       {activity.length === 0 && (
-        <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-400">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
           Starting account analysis
         </div>
       )}
@@ -815,10 +770,10 @@ function SequenceWorkspace({
 
   if (!contact) {
     return (
-      <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-        <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Outreach</div>
-        <div className="mt-1 text-lg font-semibold text-white">Sequence workspace</div>
-        <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-5 text-sm text-zinc-400">
+      <div className="rounded-[24px] border border-slate-200 bg-white p-5">
+        <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Outreach</div>
+        <div className="mt-1 text-lg font-semibold text-slate-900">Sequence workspace</div>
+        <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
           Select a surfaced contact to open the outreach sequence.
         </div>
       </div>
@@ -827,9 +782,9 @@ function SequenceWorkspace({
 
   if (!sequence) {
     return (
-      <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-        <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Outreach</div>
-        <div className="mt-1 text-lg font-semibold text-white">Sequence workspace</div>
+      <div className="rounded-[24px] border border-slate-200 bg-white p-5">
+        <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Outreach</div>
+        <div className="mt-1 text-lg font-semibold text-slate-900">Sequence workspace</div>
       </div>
     );
   }
@@ -837,12 +792,12 @@ function SequenceWorkspace({
   const activeStep = sequence.steps[activeStepIndex];
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-      <div className="mb-4 flex items-start justify-between gap-4">
+    <div className="rounded-[24px] border border-slate-200 bg-white p-5">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Outreach</div>
-          <div className="mt-1 text-lg font-semibold text-white">Sequence workspace</div>
-          <div className="mt-1 text-sm text-zinc-400">
+          <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Outreach</div>
+          <div className="mt-1 text-lg font-semibold text-slate-900">Sequence workspace</div>
+          <div className="mt-1 text-sm text-slate-500">
             {contact.name} · {contact.title}
           </div>
         </div>
@@ -855,8 +810,8 @@ function SequenceWorkspace({
               className={cx(
                 "rounded-full border px-3 py-1.5 text-xs font-medium transition",
                 tone === option
-                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-                  : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+                  ? "border-[#bfd0ff] bg-[#eef2ff] text-[#3157e0]"
+                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
               )}
             >
               {option}
@@ -865,7 +820,7 @@ function SequenceWorkspace({
 
           <button
             onClick={copyFullSequence}
-            className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-3 py-1.5 text-xs font-medium text-black transition hover:bg-emerald-300"
+            className="inline-flex items-center gap-2 rounded-full bg-[#3157e0] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-[#2949bd]"
           >
             <CopyIcon className="h-3.5 w-3.5" />
             {copyState === "copied" ? "Copied" : "Copy"}
@@ -873,15 +828,13 @@ function SequenceWorkspace({
         </div>
       </div>
 
-      <div className="mb-5 rounded-2xl border border-white/10 bg-black/20 p-4">
-        <div className="grid gap-3 md:grid-cols-3">
-          <MetaPill label="Target" value={`${contact.name}, ${contact.title}`} />
-          <MetaPill label="Angle" value={getAngle(contact)} />
-          <MetaPill label="Approach" value={getApproach(contact)} />
-        </div>
+      <div className="mb-5 grid gap-3 md:grid-cols-3">
+        <MetaPill label="Target" value={`${contact.name}, ${contact.title}`} />
+        <MetaPill label="Angle" value={getAngle(contact)} />
+        <MetaPill label="Approach" value={getApproach(contact)} />
       </div>
 
-      <div className="mb-5 flex flex-wrap items-center gap-3">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
         {sequence.steps.map((step, index) => {
           const active = index === activeStepIndex;
 
@@ -894,9 +847,7 @@ function SequenceWorkspace({
                 <span
                   className={cx(
                     "flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition",
-                    active
-                      ? "bg-[#3157e0] text-white shadow-lg shadow-[#3157e0]/30"
-                      : "bg-[#dfe5ff] text-[#3157e0]"
+                    active ? "bg-[#3157e0] text-white shadow-sm" : "bg-[#dfe5ff] text-[#3157e0]"
                   )}
                 >
                   {step.stepNumber}
@@ -905,7 +856,7 @@ function SequenceWorkspace({
                 <span
                   className={cx(
                     "text-base font-medium transition",
-                    active ? "text-white" : "text-zinc-400"
+                    active ? "text-slate-900" : "text-slate-500"
                   )}
                 >
                   {step.label}
@@ -913,7 +864,7 @@ function SequenceWorkspace({
               </button>
 
               {index < sequence.steps.length - 1 && (
-                <ArrowRightIcon className="h-4 w-4 text-zinc-600" />
+                <ArrowRightIcon className="h-4 w-4 text-slate-300" />
               )}
             </div>
           );
@@ -921,65 +872,48 @@ function SequenceWorkspace({
       </div>
 
       <div className="relative">
-        <div className="rounded-[28px] border border-[#d7dbe3] bg-[#f5f6f8] shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
-          <div className="flex items-center justify-between rounded-t-[28px] border-b border-[#d7dbe3] px-7 py-4">
+        <div className="rounded-[28px] border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+          <div className="flex items-center justify-between rounded-t-[28px] border-b border-slate-200 px-7 py-4">
             <div className="flex items-center gap-3">
               <span className="h-3.5 w-3.5 rounded-full bg-[#ec8d86]" />
               <span className="h-3.5 w-3.5 rounded-full bg-[#8bd2b6]" />
-              <div className="ml-3 text-[15px] font-semibold text-[#6b7280]">
+              <div className="ml-3 text-[15px] font-semibold text-slate-500">
                 Step {activeStep.stepNumber} · Day{" "}
                 {activeStep.stepNumber === 1 ? "0" : activeStep.stepNumber === 2 ? "3" : "7"}
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-[15px] font-medium text-[#6b7280]">
+            <div className="flex items-center gap-2 text-[15px] font-medium text-slate-500">
               <ClockIcon className="h-4 w-4" />
               {activeStep.sendLabel}
             </div>
           </div>
 
-          <div className="border-b border-[#d7dbe3] px-7 py-6">
-            <div className="mb-4 flex items-center gap-3 text-[15px] text-[#6b7280]">
+          <div className="border-b border-slate-200 px-7 py-5">
+            <div className="mb-4 flex items-center gap-3 text-[15px] text-slate-500">
               <UserIcon className="h-4 w-4" />
               <span>
-                To: <span className="font-semibold text-[#111827]">{contact.name}</span>{" "}
-                <span className="text-[#9ca3af]">&lt;email&gt;</span>
+                To: <span className="font-semibold text-slate-900">{contact.name}</span>{" "}
+                <span className="text-slate-400">&lt;email&gt;</span>
               </span>
             </div>
 
-            <div className="flex items-center gap-3 text-[15px] font-semibold text-[#111827]">
+            <div className="flex items-center gap-3 text-[15px] font-semibold text-slate-900">
               <MailIcon className="h-5 w-5 text-[#3157e0]" />
               {activeStep.subject}
             </div>
           </div>
 
           <div className="px-7 py-8">
-            <div className="whitespace-pre-wrap text-[17px] leading-[1.9] text-[#303542]">
+            <div className="whitespace-pre-wrap text-[17px] leading-[1.9] text-slate-700">
               {activeStep.body}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-10 border-t border-[#d7dbe3] px-7 py-4 text-[15px] text-[#6b7280]">
-            <div className="flex items-center gap-3">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#3157e0]" />
-              <span>
-                Open rate: <span className="font-semibold text-[#111827]">{activeStep.openRate}</span>
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#58c89d]" />
-              <span>
-                Reply rate:{" "}
-                <span className="font-semibold text-[#111827]">{activeStep.replyRate}</span>
-              </span>
             </div>
           </div>
         </div>
 
         <button
           onClick={prevStep}
-          className="absolute left-0 top-1/2 z-10 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#e5e7eb] bg-white text-[#111827] shadow-lg transition hover:scale-[1.03]"
+          className="absolute left-0 top-1/2 z-10 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-lg transition hover:scale-[1.03]"
           aria-label="Previous step"
         >
           <ChevronLeftIcon className="h-6 w-6" />
@@ -987,15 +921,15 @@ function SequenceWorkspace({
 
         <button
           onClick={nextStep}
-          className="absolute right-0 top-1/2 z-10 flex h-14 w-14 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#e5e7eb] bg-white text-[#111827] shadow-lg transition hover:scale-[1.03]"
+          className="absolute right-0 top-1/2 z-10 flex h-14 w-14 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-lg transition hover:scale-[1.03]"
           aria-label="Next step"
         >
           <ChevronRightIcon className="h-6 w-6" />
         </button>
       </div>
 
-      <div className="mt-5 text-center text-sm text-zinc-500">
-        Swipe or use arrows to navigate the sequence
+      <div className="mt-5 text-center text-sm text-slate-400">
+        Use the arrows to navigate the sequence
       </div>
     </div>
   );
@@ -1003,9 +937,9 @@ function SequenceWorkspace({
 
 function MetaPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
-      <div className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">{label}</div>
-      <div className="mt-1 text-sm text-zinc-200">{value}</div>
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <div className="text-[11px] uppercase tracking-[0.14em] text-slate-400">{label}</div>
+      <div className="mt-1 text-sm text-slate-700">{value}</div>
     </div>
   );
 }
@@ -1038,7 +972,7 @@ function useAgentActivity(account: Account | null) {
         const itemId = `${account.id}_${i}`;
         setActivity((prev) => [...prev, { id: itemId, text: steps[i], status: "running" }]);
 
-        await delay(500);
+        await delay(450);
 
         if (cancelled || runIdRef.current !== currentRunId) return;
 
@@ -1046,7 +980,7 @@ function useAgentActivity(account: Account | null) {
           prev.map((item) => (item.id === itemId ? { ...item, status: "done" } : item))
         );
 
-        await delay(120);
+        await delay(100);
       }
     }
 
@@ -1078,7 +1012,7 @@ function useStreamedContacts(account: Account | null) {
 
       for (let i = 0; i < account.contacts.length; i++) {
         if (cancelled || runIdRef.current !== currentRunId) return;
-        await delay(380);
+        await delay(320);
         if (cancelled || runIdRef.current !== currentRunId) return;
 
         setVisibleContacts((prev) => [...prev, account.contacts[i]]);
@@ -1130,17 +1064,6 @@ function SparklesIcon({ className }: { className?: string }) {
   );
 }
 
-function WandIcon({ className }: { className?: string }) {
-  return (
-    <BaseIcon className={className}>
-      <path d="M4 20L20 4" />
-      <path d="M14 4l1-2 1 2 2 1-2 1-1 2-1-2-2-1 2-1z" />
-      <path d="M18 10l.7-1.4L20 8l-1.3-.6L18 6l-.7 1.4L16 8l1.3.6L18 10z" />
-      <path d="M7 17l-3 3" />
-    </BaseIcon>
-  );
-}
-
 function BuildingIcon({ className }: { className?: string }) {
   return (
     <BaseIcon className={className}>
@@ -1152,6 +1075,28 @@ function BuildingIcon({ className }: { className?: string }) {
       <path d="M12 11h.01" />
       <path d="M16 11h.01" />
       <path d="M10 21v-4h4v4" />
+    </BaseIcon>
+  );
+}
+
+function UsersIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+      <circle cx="9.5" cy="7" r="3.5" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 4.13A3.5 3.5 0 0 1 16 9.87" />
+    </BaseIcon>
+  );
+}
+
+function WandIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <path d="M4 20L20 4" />
+      <path d="M14 4l1-2 1 2 2 1-2 1-1 2-1-2-2-1 2-1z" />
+      <path d="M18 10l.7-1.4L20 8l-1.3-.6L18 6l-.7 1.4L16 8l1.3.6L18 10z" />
+      <path d="M7 17l-3 3" />
     </BaseIcon>
   );
 }
@@ -1193,17 +1138,6 @@ function ArrowRightIcon({ className }: { className?: string }) {
     <BaseIcon className={className}>
       <path d="M5 12h14" />
       <path d="M13 6l6 6-6 6" />
-    </BaseIcon>
-  );
-}
-
-function UsersIcon({ className }: { className?: string }) {
-  return (
-    <BaseIcon className={className}>
-      <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
-      <circle cx="9.5" cy="7" r="3.5" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 4.13A3.5 3.5 0 0 1 16 9.87" />
     </BaseIcon>
   );
 }
