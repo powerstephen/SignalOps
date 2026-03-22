@@ -412,21 +412,21 @@ export default function GeneratePage() {
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] text-[#111827]">
-      <div className="mx-auto max-w-[1680px] px-5 py-6">
-        <div className="mb-5">
+      <div className="mx-auto max-w-[1680px] px-5 py-5">
+        <div className="mb-4">
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#3157e0]">
             <SparklesIcon className="h-3.5 w-3.5" />
             Generate
           </div>
-          <h1 className="text-[30px] font-semibold tracking-tight">
+          <h1 className="text-[28px] font-semibold tracking-tight">
             Target accounts and move directly into outreach
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Compact account context, practical contact selection, and a clean sequence workspace.
+            Compact company context, clean contact selection, practical sequence view.
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+        <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_10px_25px_rgba(15,23,42,0.04)]">
           <div className="grid grid-cols-12 border-b border-slate-200 px-5 py-3 text-[11px] uppercase tracking-[0.16em] text-slate-500">
             <div className="col-span-4">Account</div>
             <div className="col-span-2">Segment</div>
@@ -489,7 +489,7 @@ export default function GeneratePage() {
                     <div className="grid gap-4">
                       <div className="grid gap-4 xl:grid-cols-12">
                         <div className="xl:col-span-5">
-                          <div className="rounded-[20px] border border-slate-200 bg-white p-4">
+                          <div className="rounded-[18px] border border-slate-200 bg-white p-4">
                             <div className="mb-3 flex items-center justify-between">
                               <div>
                                 <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
@@ -505,7 +505,7 @@ export default function GeneratePage() {
                               </div>
                             </div>
 
-                            <div className="rounded-[18px] border border-slate-200 bg-slate-50 p-4">
+                            <div className="rounded-[16px] border border-slate-200 bg-slate-50 p-4">
                               <div className="text-[11px] uppercase tracking-[0.16em] text-slate-400">
                                 Why now
                               </div>
@@ -518,7 +518,7 @@ export default function GeneratePage() {
                               {expandedAccount.signals.map((signal) => (
                                 <div
                                   key={`${expandedAccount.id}-${signal.label}`}
-                                  className="rounded-[18px] border border-slate-200 bg-white p-3.5"
+                                  className="rounded-[16px] border border-slate-200 bg-white p-3"
                                 >
                                   <div className="text-[11px] uppercase tracking-[0.14em] text-slate-400">
                                     {signal.label}
@@ -531,7 +531,7 @@ export default function GeneratePage() {
                         </div>
 
                         <div className="xl:col-span-7">
-                          <div className="rounded-[20px] border border-slate-200 bg-white p-4">
+                          <div className="rounded-[18px] border border-slate-200 bg-white p-4">
                             <div className="mb-3 flex items-center justify-between">
                               <div>
                                 <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
@@ -548,7 +548,7 @@ export default function GeneratePage() {
                               </div>
                             </div>
 
-                            <div className="divide-y divide-slate-200 overflow-hidden rounded-[18px] border border-slate-200">
+                            <div className="divide-y divide-slate-200 overflow-hidden rounded-[16px] border border-slate-200">
                               {expandedAccount.contacts.map((contact) => {
                                 const isSelected = selectedContactId === contact.id;
 
@@ -557,25 +557,25 @@ export default function GeneratePage() {
                                     key={contact.id}
                                     onClick={() => setSelectedContactId(contact.id)}
                                     className={cx(
-                                      "grid w-full grid-cols-12 items-center gap-3 px-4 py-3 text-left transition",
+                                      "grid w-full grid-cols-12 items-center gap-3 px-4 py-2.5 text-left transition",
                                       isSelected ? "bg-[#f5f8ff]" : "bg-white hover:bg-slate-50"
                                     )}
                                   >
-                                    <div className="col-span-4 min-w-0">
-                                      <div className="truncate text-[16px] font-medium text-slate-900">
+                                    <div className="col-span-3 min-w-0">
+                                      <div className="truncate text-[15px] font-medium text-slate-900">
                                         {contact.name}
                                       </div>
-                                      <div className="truncate text-sm text-slate-500">
+                                      <div className="truncate text-[13px] text-slate-500">
                                         {contact.title}
                                       </div>
                                     </div>
 
-                                    <div className="col-span-5 min-w-0">
-                                      <div className="truncate text-sm text-slate-600">
+                                    <div className="col-span-6 min-w-0">
+                                      <div className="truncate text-[13px] text-slate-600">
                                         {contact.reason}
                                       </div>
                                       {contact.channelHint && (
-                                        <div className="mt-1 truncate text-xs text-slate-400">
+                                        <div className="mt-0.5 truncate text-[12px] text-slate-400">
                                           {contact.channelHint}
                                         </div>
                                       )}
@@ -584,7 +584,7 @@ export default function GeneratePage() {
                                     <div className="col-span-2 flex justify-start">
                                       <span
                                         className={cx(
-                                          "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium",
+                                          "inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium",
                                           scoreBadgeClasses(contact.score)
                                         )}
                                       >
@@ -676,10 +676,10 @@ function SequenceWorkspace({
 
   if (!contact) {
     return (
-      <div className="rounded-[20px] border border-slate-200 bg-white p-4">
+      <div className="rounded-[18px] border border-slate-200 bg-white p-4">
         <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Outreach</div>
         <div className="mt-1 text-[18px] font-semibold text-slate-900">Sequence workspace</div>
-        <div className="mt-3 rounded-[18px] border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+        <div className="mt-3 rounded-[16px] border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
           Select a contact to open the outreach sequence.
         </div>
       </div>
@@ -688,7 +688,7 @@ function SequenceWorkspace({
 
   if (!sequence) {
     return (
-      <div className="rounded-[20px] border border-slate-200 bg-white p-4">
+      <div className="rounded-[18px] border border-slate-200 bg-white p-4">
         <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Outreach</div>
         <div className="mt-1 text-[18px] font-semibold text-slate-900">Sequence workspace</div>
       </div>
@@ -698,7 +698,7 @@ function SequenceWorkspace({
   const activeStep = sequence.steps[activeStepIndex];
 
   return (
-    <div className="rounded-[20px] border border-slate-200 bg-white p-4">
+    <div className="rounded-[18px] border border-slate-200 bg-white p-4">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Outreach</div>
@@ -734,13 +734,13 @@ function SequenceWorkspace({
         </div>
       </div>
 
-      <div className="mb-4 grid gap-3 md:grid-cols-3">
+      <div className="mb-3 grid gap-3 md:grid-cols-3">
         <MetaPill label="Target" value={`${contact.name}, ${contact.title}`} />
         <MetaPill label="Angle" value={getAngle(contact)} />
         <MetaPill label="Approach" value={getApproach(contact)} />
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-3">
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         {sequence.steps.map((step, index) => {
           const active = index === activeStepIndex;
 
@@ -752,7 +752,7 @@ function SequenceWorkspace({
               >
                 <span
                   className={cx(
-                    "flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition",
+                    "flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition",
                     active ? "bg-[#3157e0] text-white shadow-sm" : "bg-[#dfe5ff] text-[#3157e0]"
                   )}
                 >
@@ -761,7 +761,7 @@ function SequenceWorkspace({
 
                 <span
                   className={cx(
-                    "text-[15px] font-medium transition",
+                    "text-[14px] font-medium transition",
                     active ? "text-slate-900" : "text-slate-500"
                   )}
                 >
@@ -778,25 +778,25 @@ function SequenceWorkspace({
       </div>
 
       <div className="relative">
-        <div className="rounded-[24px] border border-slate-200 bg-white shadow-[0_6px_18px_rgba(15,23,42,0.05)]">
-          <div className="flex items-center justify-between rounded-t-[24px] border-b border-slate-200 px-5 py-3">
+        <div className="rounded-[20px] border border-slate-200 bg-white shadow-[0_4px_14px_rgba(15,23,42,0.04)]">
+          <div className="flex items-center justify-between rounded-t-[20px] border-b border-slate-200 px-4 py-3">
             <div className="flex items-center gap-3">
-              <span className="h-3 w-3 rounded-full bg-[#ec8d86]" />
-              <span className="h-3 w-3 rounded-full bg-[#8bd2b6]" />
-              <div className="ml-2 text-sm font-semibold text-slate-500">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#ec8d86]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#8bd2b6]" />
+              <div className="ml-1 text-[13px] font-semibold text-slate-500">
                 Step {activeStep.stepNumber} · Day{" "}
                 {activeStep.stepNumber === 1 ? "0" : activeStep.stepNumber === 2 ? "3" : "7"}
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+            <div className="flex items-center gap-2 text-[13px] font-medium text-slate-500">
               <ClockIcon className="h-4 w-4" />
               {activeStep.sendLabel}
             </div>
           </div>
 
-          <div className="border-b border-slate-200 px-5 py-4">
-            <div className="mb-3 flex items-center gap-3 text-sm text-slate-500">
+          <div className="border-b border-slate-200 px-4 py-3">
+            <div className="mb-2 flex items-center gap-3 text-[13px] text-slate-500">
               <UserIcon className="h-4 w-4" />
               <span>
                 To: <span className="font-semibold text-slate-900">{contact.name}</span>{" "}
@@ -804,14 +804,14 @@ function SequenceWorkspace({
               </span>
             </div>
 
-            <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
-              <MailIcon className="h-4.5 w-4.5 text-[#3157e0]" />
+            <div className="flex items-center gap-3 text-[14px] font-semibold text-slate-900">
+              <MailIcon className="h-4 w-4 text-[#3157e0]" />
               {activeStep.subject}
             </div>
           </div>
 
-          <div className="px-5 py-5">
-            <div className="whitespace-pre-wrap text-[15px] leading-[1.75] text-slate-700">
+          <div className="px-4 py-4">
+            <div className="max-h-[260px] overflow-y-auto whitespace-pre-wrap pr-2 text-[14px] leading-[1.7] text-slate-700">
               {activeStep.body}
             </div>
           </div>
@@ -819,18 +819,18 @@ function SequenceWorkspace({
 
         <button
           onClick={prevStep}
-          className="absolute left-0 top-1/2 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-md transition hover:scale-[1.02]"
+          className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-sm transition hover:scale-[1.02]"
           aria-label="Previous step"
         >
-          <ChevronLeftIcon className="h-5 w-5" />
+          <ChevronLeftIcon className="h-4.5 w-4.5" />
         </button>
 
         <button
           onClick={nextStep}
-          className="absolute right-0 top-1/2 z-10 flex h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-md transition hover:scale-[1.02]"
+          className="absolute right-0 top-1/2 z-10 flex h-10 w-10 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-sm transition hover:scale-[1.02]"
           aria-label="Next step"
         >
-          <ChevronRightIcon className="h-5 w-5" />
+          <ChevronRightIcon className="h-4.5 w-4.5" />
         </button>
       </div>
     </div>
@@ -839,8 +839,8 @@ function SequenceWorkspace({
 
 function MetaPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3">
-      <div className="text-[11px] uppercase tracking-[0.14em] text-slate-400">{label}</div>
+    <div className="rounded-[14px] border border-slate-200 bg-slate-50 px-4 py-2.5">
+      <div className="text-[10px] uppercase tracking-[0.14em] text-slate-400">{label}</div>
       <div className="mt-1 text-sm text-slate-700">{value}</div>
     </div>
   );
