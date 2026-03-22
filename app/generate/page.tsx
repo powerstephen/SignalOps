@@ -437,10 +437,7 @@ export default function GeneratePage() {
                         <div className="lg:col-span-4">
                           <div className="rounded-[18px] border border-slate-200 bg-white p-4">
                             <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
-                              Why now
-                            </div>
-                            <div className="mt-3 text-[16px] leading-9 text-slate-900">
-                              {expandedAccount.whyNow}
+                              Signals
                             </div>
 
                             <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -480,20 +477,29 @@ export default function GeneratePage() {
                                   <button
                                     key={contact.id}
                                     onClick={() => setSelectedContactId(contact.id)}
-                                    className="grid w-full grid-cols-12 items-center gap-3 py-3 text-left"
+                                    className={cx(
+                                      "grid w-full grid-cols-12 items-center gap-3 py-3 text-left transition",
+                                      isSelected ? "bg-[#f5f8ff]" : "bg-white"
+                                    )}
                                   >
-                                    <div className="col-span-5 min-w-0">
-                                      <div className="truncate text-[15px] font-semibold text-slate-900">
+                                    <div className="col-span-4 min-w-0 pl-1">
+                                      <div
+                                        className={cx(
+                                          "truncate text-[15px] font-semibold",
+                                          isSelected ? "text-[#3157e0]" : "text-slate-900"
+                                        )}
+                                      >
                                         {contact.name}
                                       </div>
+                                    </div>
+
+                                    <div className="col-span-4 min-w-0">
                                       <div className="truncate text-[13px] text-slate-500">
                                         {contact.title}
                                       </div>
                                     </div>
 
-                                    <div className="col-span-5" />
-
-                                    <div className="col-span-1 flex justify-end">
+                                    <div className="col-span-3 flex justify-end">
                                       <span
                                         className={cx(
                                           "inline-flex rounded-full border px-3 py-1 text-[11px] font-medium",
@@ -504,7 +510,7 @@ export default function GeneratePage() {
                                       </span>
                                     </div>
 
-                                    <div className="col-span-1 flex justify-end">
+                                    <div className="col-span-1 flex justify-end pr-1">
                                       <ArrowRightIcon
                                         className={cx(
                                           "h-4 w-4",
