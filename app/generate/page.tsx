@@ -1,17 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ArrowRight,
-  Building2,
-  CheckCircle2,
-  ChevronDown,
-  ChevronUp,
-  Loader2,
-  Sparkles,
-  Users,
-  Wand2,
-} from "lucide-react";
 
 type Signal = {
   label: string;
@@ -214,6 +203,10 @@ function scoreBadgeClasses(score: Contact["score"]) {
   }
 }
 
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
+}
+
 export default function GeneratePage() {
   const [accounts] = useState<Account[]>(MOCK_ACCOUNTS);
   const [expandedAccountId, setExpandedAccountId] = useState<string | null>(null);
@@ -244,7 +237,7 @@ export default function GeneratePage() {
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
-              <Sparkles className="h-3.5 w-3.5" />
+              <SparklesIcon className="h-3.5 w-3.5" />
               Generate
             </div>
             <h1 className="text-3xl font-semibold tracking-tight">
@@ -259,7 +252,7 @@ export default function GeneratePage() {
           <div className="hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 lg:block">
             <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Mode</div>
             <div className="mt-1 flex items-center gap-2 text-sm text-zinc-200">
-              <Wand2 className="h-4 w-4 text-emerald-300" />
+              <WandIcon className="h-4 w-4 text-emerald-300" />
               Agent-assisted targeting
             </div>
           </div>
@@ -289,7 +282,7 @@ export default function GeneratePage() {
                     <div className="col-span-4 pr-4">
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-                          <Building2 className="h-5 w-5 text-zinc-300" />
+                          <BuildingIcon className="h-5 w-5 text-zinc-300" />
                         </div>
                         <div>
                           <div className="font-medium text-white">{account.name}</div>
@@ -316,9 +309,9 @@ export default function GeneratePage() {
                       <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300">
                         {isExpanded ? "Collapse" : "Activate account"}
                         {isExpanded ? (
-                          <ChevronUp className="h-4 w-4" />
+                          <ChevronUpIcon className="h-4 w-4" />
                         ) : (
-                          <ChevronDown className="h-4 w-4" />
+                          <ChevronDownIcon className="h-4 w-4" />
                         )}
                       </span>
                     </div>
@@ -388,7 +381,7 @@ export default function GeneratePage() {
                                 </div>
 
                                 <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-zinc-300">
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-300" />
+                                  <SpinnerIcon className="h-3.5 w-3.5 text-emerald-300" />
                                   Live analysis
                                 </div>
                               </div>
@@ -410,7 +403,7 @@ export default function GeneratePage() {
                                     </div>
 
                                     <div className="inline-flex items-center gap-2 text-sm text-zinc-400">
-                                      <Users className="h-4 w-4" />
+                                      <UsersIcon className="h-4 w-4" />
                                       {streamedContacts.length}/{expandedAccount.contacts.length} surfaced
                                     </div>
                                   </div>
@@ -423,12 +416,16 @@ export default function GeneratePage() {
                                         <button
                                           key={contact.id}
                                           onClick={() => setSelectedContactId(contact.id)}
-                                          className={`w-full rounded-2xl border p-4 text-left transition ${
+                                          className={cx(
+                                            "w-full rounded-2xl border p-4 text-left transition",
+                                            "opacity-100 translate-y-0",
                                             isSelected
                                               ? "border-emerald-500/30 bg-emerald-500/10"
                                               : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
-                                          } animate-in fade-in slide-in-from-bottom-2 duration-500`}
-                                          style={{ animationDelay: `${index * 80}ms` }}
+                                          )}
+                                          style={{
+                                            transitionDelay: `${index * 60}ms`,
+                                          }}
                                         >
                                           <div className="flex items-start justify-between gap-3">
                                             <div>
@@ -451,7 +448,7 @@ export default function GeneratePage() {
 
                                           {contact.channelHint && (
                                             <div className="mt-3 inline-flex items-center gap-2 text-xs text-zinc-500">
-                                              <ArrowRight className="h-3.5 w-3.5" />
+                                              <ArrowRightIcon className="h-3.5 w-3.5" />
                                               {contact.channelHint}
                                             </div>
                                           )}
@@ -462,7 +459,7 @@ export default function GeneratePage() {
                                     {streamedContacts.length < expandedAccount.contacts.length && (
                                       <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-4">
                                         <div className="flex items-center gap-2 text-sm text-zinc-400">
-                                          <Loader2 className="h-4 w-4 animate-spin text-emerald-300" />
+                                          <SpinnerIcon className="h-4 w-4 text-emerald-300" />
                                           Identifying high-probability contacts
                                         </div>
                                       </div>
@@ -499,17 +496,16 @@ export default function GeneratePage() {
 function AgentActivityFeed({ activity }: { activity: ActivityItem[] }) {
   return (
     <div className="space-y-3">
-      {activity.map((item, index) => (
+      {activity.map((item) => (
         <div
           key={item.id}
-          className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 animate-in fade-in slide-in-from-bottom-2 duration-500"
-          style={{ animationDelay: `${index * 60}ms` }}
+          className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3"
         >
           <div className="mt-0.5">
             {item.status === "done" ? (
-              <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+              <CheckCircleIcon className="h-4 w-4 text-emerald-300" />
             ) : (
-              <Loader2 className="h-4 w-4 animate-spin text-emerald-300" />
+              <SpinnerIcon className="h-4 w-4 text-emerald-300" />
             )}
           </div>
 
@@ -580,11 +576,12 @@ function SequencePrepPanel({
         </div>
 
         <div
-          className={`rounded-full px-3 py-1 text-xs font-medium ${
+          className={cx(
+            "rounded-full px-3 py-1 text-xs font-medium border",
             ready
-              ? "border border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
-              : "border border-white/10 bg-white/[0.04] text-zinc-400"
-          }`}
+              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+              : "border-white/10 bg-white/[0.04] text-zinc-400"
+          )}
         >
           {ready ? "Ready to prepare" : "Preparing"}
         </div>
@@ -608,21 +605,22 @@ function SequencePrepPanel({
       </div>
 
       <button
-        className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium transition ${
+        className={cx(
+          "mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium transition",
           ready
             ? "bg-emerald-400 text-black hover:bg-emerald-300"
             : "cursor-not-allowed border border-white/10 bg-white/[0.04] text-zinc-500"
-        }`}
+        )}
         disabled={!ready}
       >
         {ready ? (
           <>
-            <Wand2 className="h-4 w-4" />
+            <WandIcon className="h-4 w-4" />
             Prepare outreach
           </>
         ) : (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <SpinnerIcon className="h-4 w-4" />
             Agent still working
           </>
         )}
@@ -723,4 +721,129 @@ function useStreamedContacts(account: Account | null) {
   }, [account]);
 
   return visibleContacts;
+}
+
+function BaseIcon({
+  className,
+  children,
+  viewBox = "0 0 24 24",
+}: {
+  className?: string;
+  children: React.ReactNode;
+  viewBox?: string;
+}) {
+  return (
+    <svg
+      viewBox={viewBox}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function SparklesIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <path d="M12 3l1.2 3.3L16.5 7.5l-3.3 1.2L12 12l-1.2-3.3L7.5 7.5l3.3-1.2L12 3z" />
+      <path d="M18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z" />
+      <path d="M5.5 14.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7.7-1.8z" />
+    </BaseIcon>
+  );
+}
+
+function WandIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <path d="M4 20L20 4" />
+      <path d="M14 4l1-2 1 2 2 1-2 1-1 2-1-2-2-1 2-1z" />
+      <path d="M18 10l.7-1.4L20 8l-1.3-.6L18 6l-.7 1.4L16 8l1.3.6L18 10z" />
+      <path d="M7 17l-3 3" />
+    </BaseIcon>
+  );
+}
+
+function BuildingIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <rect x="4" y="3" width="16" height="18" rx="2" />
+      <path d="M8 7h.01" />
+      <path d="M12 7h.01" />
+      <path d="M16 7h.01" />
+      <path d="M8 11h.01" />
+      <path d="M12 11h.01" />
+      <path d="M16 11h.01" />
+      <path d="M10 21v-4h4v4" />
+    </BaseIcon>
+  );
+}
+
+function ChevronDownIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <path d="M6 9l6 6 6-6" />
+    </BaseIcon>
+  );
+}
+
+function ChevronUpIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <path d="M18 15l-6-6-6 6" />
+    </BaseIcon>
+  );
+}
+
+function ArrowRightIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </BaseIcon>
+  );
+}
+
+function UsersIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+      <circle cx="9.5" cy="7" r="3.5" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 4.13A3.5 3.5 0 0 1 16 9.87" />
+    </BaseIcon>
+  );
+}
+
+function CheckCircleIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.5 12.5l2.2 2.2 4.8-5.2" />
+    </BaseIcon>
+  );
+}
+
+function SpinnerIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={cx("animate-spin", className)}
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.2" strokeWidth="2" />
+      <path
+        d="M21 12a9 9 0 0 0-9-9"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 }
