@@ -5,32 +5,34 @@ import { useEffect, useState } from "react";
 type State = "disconnected" | "analyzing" | "connected";
 
 const steps = [
-  "Normalising Source Data",
-  "Mapping Accounts and Contacts",
+  "Normalising source data",
+  "Mapping accounts and contacts",
   "Scoring ICP fit",
   "Identifying whitespace",
-  "Generating Opportunities",
-  "Generating Results",
+  "Generating opportunities",
+  "Generating results",
 ];
 
 export default function Page() {
   const [state, setState] = useState<State>("disconnected");
+  const [completedSteps, setCompletedSteps] = useState(0);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     if (state !== "analyzing") return;
 
+    setCompletedSteps(0);
     setProgress(0);
 
-    const stepDuration = 1700; // extended by ~1 second total
-    let currentStep = 0;
+    let stepIndex = 0;
+    const stepDuration = 1800;
 
     const interval = setInterval(() => {
-      currentStep += 1;
-      const next = Math.min((currentStep / steps.length) * 100, 100);
-      setProgress(next);
+      stepIndex += 1;
+      setCompletedSteps(stepIndex);
+      setProgress((stepIndex / steps.length) * 100);
 
-      if (currentStep >= steps.length) {
+      if (stepIndex >= steps.length) {
         clearInterval(interval);
         setTimeout(() => setState("connected"), 1000);
       }
@@ -90,55 +92,46 @@ export default function Page() {
       )}
 
       {state === "analyzing" && (
-        <div className="mx-auto max-w-3xl px-2 py-8">
+        <div className="mx-auto max-w-2xl px-2 py-6">
           <div className="text-center">
-            <h2 className="text-5xl font-semibold tracking-tight text-gray-950">
-              Analyzing ...
+            <h2 className="text-3xl font-semibold tracking-tight text-gray-950">
+              Analyzing...
             </h2>
 
-            <div className="mx-auto mt-8 w-full max-w-[620px] rounded-full bg-gray-100">
+            <div className="mx-auto mt-5 w-full max-w-[260px] rounded-full bg-gray-100">
               <div
-                className="h-4 rounded-full bg-[#0b1f3a] transition-all duration-700"
+                className="h-2 rounded-full bg-[#0b1f3a] transition-all duration-700"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
 
-          <div className="mx-auto mt-14 max-w-[720px] space-y-5">
-            {steps.map((step, i) => {
-              const stepProgress = ((i + 1) / steps.length) * 100;
-              const isDone = progress > stepProgress - 0.1;
-              const isActive =
-                progress < stepProgress &&
-                progress >= (i / steps.length) * 100;
-              const showPending = !isDone && !isActive && i > 3;
+          <div className="mx-auto mt-8 max-w-[560px] space-y-3">
+            {steps.map((step, index) => {
+              const isDone = index < completedSteps;
+              const isActive = index === completedSteps && completedSteps < steps.length;
 
               return (
                 <div
                   key={step}
-                  className="flex items-center gap-5 text-[30px] font-semibold leading-none tracking-tight text-gray-950"
+                  className="flex items-center gap-3 rounded-xl px-2 py-1"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center">
-                    {isDone ? (
-                      <div className="flex h-11 w-11 items-center justify-center rounded-md border border-gray-200 bg-white text-[28px] font-medium text-black">
-                        ✓
-                      </div>
-                    ) : isActive ? (
-                      <div className="text-[30px] font-semibold text-gray-950">
-                        {step} .....
-                      </div>
-                    ) : showPending ? (
-                      <div className="pl-[68px] text-[30px] font-semibold text-gray-950">
-                        {step}
-                      </div>
-                    ) : (
-                      <div className="h-11 w-11" />
-                    )}
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-white text-sm leading-none text-gray-900">
+                    {isDone ? "✓" : ""}
                   </div>
 
-                  {!isActive && !showPending ? (
-                    <div>{step}</div>
-                  ) : null}
+                  <div
+                    className={`text-base leading-6 ${
+                      isDone
+                        ? "font-medium text-gray-900"
+                        : isActive
+                          ? "font-medium text-gray-900"
+                          : "text-gray-500"
+                    }`}
+                  >
+                    {step}
+                    {isActive ? " ....." : ""}
+                  </div>
                 </div>
               );
             })}
