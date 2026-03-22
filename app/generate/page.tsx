@@ -1,339 +1,726 @@
-import Link from "next/link";
+"use client";
 
-type GenerateSegment =
-  | "uncovered_icp"
-  | "coverage_gaps"
-  | "default";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  ArrowRight,
+  Building2,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  Sparkles,
+  Users,
+  Wand2,
+} from "lucide-react";
+
+type Signal = {
+  label: string;
+  value: string;
+};
+
+type Contact = {
+  id: string;
+  name: string;
+  title: string;
+  score: "High Intent" | "Warm" | "Monitor";
+  reason: string;
+  channelHint?: string;
+};
 
 type Account = {
   id: string;
-  company: string;
-  contact: string;
-  title: string;
-  geography: string;
-  industry: string;
-  employees: string;
+  name: string;
+  segment: string;
   fitScore: number;
+  triggerScore: number;
   whyNow: string;
-  signal: string;
+  signals: Signal[];
+  contacts: Contact[];
 };
 
-type GeneratePageProps = {
-  searchParams?: {
-    segment?: string;
-  };
+type ActivityItem = {
+  id: string;
+  text: string;
+  status: "running" | "done";
 };
 
-const uncoveredIcpAccounts: Account[] = [
+const MOCK_ACCOUNTS: Account[] = [
   {
-    id: "1",
-    company: "RevScale",
-    contact: "Maya Collins",
-    title: "Head of Revenue Operations",
-    geography: "London, UK",
-    industry: "B2B SaaS",
-    employees: "120 employees",
+    id: "acc_1",
+    name: "RevScale",
+    segment: "Pipeline Expansion",
     fitScore: 94,
-    whyNow: "Strong ICP match with no active sequence and recent pricing page activity.",
-    signal: "Uncovered ICP",
+    triggerScore: 91,
+    whyNow:
+      "Hiring across revenue roles suggests active pipeline build and pressure to improve conversion efficiency.",
+    signals: [
+      { label: "Hiring", value: "5 SDRs + 2 AEs" },
+      { label: "Intent", value: "Visited pricing pages" },
+      { label: "Funding", value: "Series A in last 8 months" },
+      { label: "Tech", value: "HubSpot + Salesforce" },
+    ],
+    contacts: [
+      {
+        id: "c_1",
+        name: "Sarah Chen",
+        title: "Head of Sales",
+        score: "High Intent",
+        reason: "Revenue hiring suggests immediate pipeline management pressure.",
+        channelHint: "Best for direct value-led outreach",
+      },
+      {
+        id: "c_2",
+        name: "Marcus Lee",
+        title: "VP Revenue Operations",
+        score: "High Intent",
+        reason: "Likely owner of process efficiency, tooling and signal orchestration.",
+        channelHint: "Good for operational ROI angle",
+      },
+      {
+        id: "c_3",
+        name: "Elena Park",
+        title: "Director of Growth",
+        score: "Warm",
+        reason: "Could be involved in campaign coordination and outbound programs.",
+        channelHint: "Good secondary entry point",
+      },
+    ],
   },
   {
-    id: "2",
-    company: "Northbeam Commerce",
-    contact: "Chris Patel",
-    title: "VP Sales",
-    geography: "Manchester, UK",
-    industry: "Commerce Tech",
-    employees: "210 employees",
-    fitScore: 91,
-    whyNow: "Operator-led buying team, healthy engagement density, not currently targeted.",
-    signal: "Uncovered ICP",
-  },
-  {
-    id: "3",
-    company: "Portlane",
-    contact: "Sophie Turner",
-    title: "Head of Commercial Ops",
-    geography: "Dublin, Ireland",
-    industry: "Logistics Tech",
-    employees: "84 employees",
+    id: "acc_2",
+    name: "SignalForge",
+    segment: "Reactivation Opportunity",
     fitScore: 89,
-    whyNow: "High-fit segment with no recent outreach and strong industry overlap.",
-    signal: "Uncovered ICP",
+    triggerScore: 83,
+    whyNow:
+      "Strong ICP fit, recent product launch and stale outreach history create a good reopening window.",
+    signals: [
+      { label: "Product", value: "New AI workflow launch" },
+      { label: "Engagement", value: "Site return visits" },
+      { label: "Last Touch", value: "74 days ago" },
+      { label: "Region", value: "EMEA expansion" },
+    ],
+    contacts: [
+      {
+        id: "c_4",
+        name: "Nina Patel",
+        title: "Chief Revenue Officer",
+        score: "High Intent",
+        reason: "Likely owns top-line urgency around new launch performance.",
+        channelHint: "Best for strategic narrative",
+      },
+      {
+        id: "c_5",
+        name: "Tom Alvarez",
+        title: "Director of Sales Development",
+        score: "Warm",
+        reason: "May care about list quality and prioritisation efficiency.",
+        channelHint: "Good tactical opener",
+      },
+      {
+        id: "c_6",
+        name: "Holly Reed",
+        title: "VP Marketing",
+        score: "Monitor",
+        reason: "Useful stakeholder but less direct operational owner for this motion.",
+        channelHint: "Better as supporting path",
+      },
+    ],
   },
   {
-    id: "4",
-    company: "LedgerFox",
-    contact: "Ben Harris",
-    title: "Revenue Operations Manager",
-    geography: "Austin, US",
-    industry: "Fintech SaaS",
-    employees: "160 employees",
-    fitScore: 87,
-    whyNow: "Fits target title and company size band with whitespace in current coverage.",
-    signal: "Uncovered ICP",
-  },
-  {
-    id: "5",
-    company: "CargoPilot",
-    contact: "Anna Reed",
-    title: "Head of Sales",
-    geography: "New York, US",
-    industry: "Logistics Tech",
-    employees: "260 employees",
-    fitScore: 92,
-    whyNow: "High-fit account in a strong vertical with no assigned outbound motion.",
-    signal: "Uncovered ICP",
-  },
-  {
-    id: "6",
-    company: "ScaleGrid",
-    contact: "Liam Walsh",
-    title: "VP Revenue",
-    geography: "Bristol, UK",
-    industry: "SaaS",
-    employees: "310 employees",
-    fitScore: 90,
-    whyNow: "Top-tier ICP profile with no active owner and clear whitespace in UK coverage.",
-    signal: "Uncovered ICP",
+    id: "acc_3",
+    name: "NorthBeam AI",
+    segment: "Expansion Signal",
+    fitScore: 91,
+    triggerScore: 87,
+    whyNow:
+      "Scaling motion appears underway and buying committee likely forming around growth execution and sales efficiency.",
+    signals: [
+      { label: "Hiring", value: "Growth + Sales roles open" },
+      { label: "News", value: "New market entry" },
+      { label: "Intent", value: "High content engagement" },
+      { label: "Stack", value: "Apollo + HubSpot" },
+    ],
+    contacts: [
+      {
+        id: "c_7",
+        name: "James Walker",
+        title: "VP Growth",
+        score: "High Intent",
+        reason: "Likely under pressure to turn expansion activity into pipeline quickly.",
+        channelHint: "Strong messaging candidate",
+      },
+      {
+        id: "c_8",
+        name: "Priya Nair",
+        title: "Head of Revenue Operations",
+        score: "Warm",
+        reason: "Important if outreach angle leans into efficiency and workflow orchestration.",
+        channelHint: "Good second sequence",
+      },
+      {
+        id: "c_9",
+        name: "Adam Brooks",
+        title: "CEO",
+        score: "Monitor",
+        reason: "Can work for escalation later but not ideal as first touch.",
+        channelHint: "Hold for later step",
+      },
+    ],
   },
 ];
 
-const coverageGapAccounts: Account[] = [
-  {
-    id: "7",
-    company: "OperatorCloud",
-    contact: "Nina Brooks",
-    title: "Head of Operations",
-    geography: "London, UK",
-    industry: "SaaS",
-    employees: "140 employees",
-    fitScore: 90,
-    whyNow: "Strong UK fit but limited outreach coverage in this persona cluster.",
-    signal: "Coverage Gap",
-  },
-  {
-    id: "8",
-    company: "FulfillIQ",
-    contact: "Jacob Smith",
-    title: "VP Operations",
-    geography: "Chicago, US",
-    industry: "Commerce Infrastructure",
-    employees: "230 employees",
-    fitScore: 88,
-    whyNow: "High-fit US operator segment with low pipeline penetration.",
-    signal: "Coverage Gap",
-  },
-  {
-    id: "9",
-    company: "GridHarbor",
-    contact: "Emily Green",
-    title: "Director of Revenue Operations",
-    geography: "Toronto, Canada",
-    industry: "B2B SaaS",
-    employees: "190 employees",
-    fitScore: 86,
-    whyNow: "Under-covered RevOps cluster aligned with ICP and historical wins.",
-    signal: "Coverage Gap",
-  },
-];
+const AGENT_STEPS: Record<string, string[]> = {
+  acc_1: [
+    "Analyzing RevScale signals",
+    "Detected revenue hiring surge across SDR and AE roles",
+    "Mapping likely pipeline pressure across team structure",
+    "Pulling and ranking relevant decision makers",
+    "Scoring personas by urgency and operational fit",
+    "Preparing outreach angles for best entry points",
+  ],
+  acc_2: [
+    "Analyzing stale outreach and new trigger signals",
+    "Detected recent product launch and renewed engagement",
+    "Reviewing best reopening path by persona",
+    "Ranking contacts by strategic vs tactical influence",
+    "Preparing reactivation angle",
+    "Drafting next best outreach path",
+  ],
+  acc_3: [
+    "Analyzing expansion signals",
+    "Detected new market activity and role growth",
+    "Estimating likely GTM coordination pain points",
+    "Identifying buying committee entry points",
+    "Scoring contacts by responsiveness potential",
+    "Preparing outreach routes",
+  ],
+};
 
-const defaultAccounts = uncoveredIcpAccounts;
-
-function getSegmentFromQuery(value: string | undefined): GenerateSegment {
-  if (value === "uncovered_icp") return "uncovered_icp";
-  if (value === "coverage_gaps") return "coverage_gaps";
-  return "default";
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function getPageContent(segment: GenerateSegment) {
-  if (segment === "uncovered_icp") {
-    return {
-      eyebrow: "Generate",
-      title: "Uncovered ICP accounts ready for outbound",
-      subtitle:
-        "These accounts match your strongest ICP profile but are not currently being targeted. SignalOps has prioritized the best-fit accounts to start generating pipeline.",
-      stat1: "684",
-      stat1Label: "Uncovered ICP accounts",
-      stat2: "91%",
-      stat2Label: "Average fit score",
-      stat3: "UK + US",
-      stat3Label: "Top whitespace markets",
-      accounts: uncoveredIcpAccounts,
-      banner: "Loaded from Data Center: Uncovered ICP segment",
-    };
+function scoreBadgeClasses(score: Contact["score"]) {
+  switch (score) {
+    case "High Intent":
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
+    case "Warm":
+      return "border-amber-500/30 bg-amber-500/10 text-amber-300";
+    case "Monitor":
+      return "border-zinc-500/30 bg-zinc-500/10 text-zinc-300";
+    default:
+      return "border-zinc-500/30 bg-zinc-500/10 text-zinc-300";
   }
-
-  if (segment === "coverage_gaps") {
-    return {
-      eyebrow: "Generate",
-      title: "Coverage gaps with strong commercial potential",
-      subtitle:
-        "These accounts sit inside under-covered segments where ICP fit is high but current sales and marketing coverage is low.",
-      stat1: "237",
-      stat1Label: "Accounts in gap clusters",
-      stat2: "88%",
-      stat2Label: "Average fit score",
-      stat3: "3",
-      stat3Label: "Priority segments",
-      accounts: coverageGapAccounts,
-      banner: "Loaded from Data Center: Coverage gap segment",
-    };
-  }
-
-  return {
-    eyebrow: "Generate",
-    title: "Build pipeline from high-fit target accounts",
-    subtitle:
-      "Generate helps you prioritize net-new accounts based on ICP fit, whitespace, and buying signals so you can focus outreach where it is most likely to convert.",
-    stat1: "684",
-    stat1Label: "Suggested accounts",
-    stat2: "91%",
-    stat2Label: "Average fit score",
-    stat3: "12",
-    stat3Label: "Active segments",
-    accounts: defaultAccounts,
-    banner: "Showing default Generate view",
-  };
 }
 
-function StatCard({
-  value,
-  label,
-}: {
-  value: string;
-  label: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5">
-      <div className="text-3xl font-semibold tracking-tight text-gray-950">
-        {value}
-      </div>
-      <div className="mt-2 text-sm text-gray-600">{label}</div>
-    </div>
+export default function GeneratePage() {
+  const [accounts] = useState<Account[]>(MOCK_ACCOUNTS);
+  const [expandedAccountId, setExpandedAccountId] = useState<string | null>(null);
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
+
+  const expandedAccount = useMemo(
+    () => accounts.find((a) => a.id === expandedAccountId) ?? null,
+    [accounts, expandedAccountId]
   );
-}
 
-function AccountRow({ account }: { account: Account }) {
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 transition hover:shadow-[0_8px_24px_rgba(17,24,39,0.06)]">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="text-lg font-semibold text-gray-950">
-              {account.company}
-            </div>
-            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-              {account.signal}
-            </span>
-            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-              Fit {account.fitScore}
-            </span>
-          </div>
+  const streamedContacts = useStreamedContacts(expandedAccount);
+  const activity = useAgentActivity(expandedAccount);
 
-          <div className="mt-2 text-sm text-gray-700">
-            {account.contact} • {account.title}
-          </div>
+  useEffect(() => {
+    if (!expandedAccount) {
+      setSelectedContactId(null);
+      return;
+    }
 
-          <div className="mt-1 text-sm text-gray-500">
-            {account.geography} • {account.industry} • {account.employees}
-          </div>
-
-          <p className="mt-4 max-w-3xl text-sm leading-6 text-gray-600">
-            {account.whyNow}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-2">
-          <Link
-            href={`/contact/${account.id}`}
-            className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-          >
-            Review
-          </Link>
-          <button className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90">
-            Generate sequence
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function GeneratePage({ searchParams }: GeneratePageProps) {
-  const segment = getSegmentFromQuery(searchParams?.segment);
-  const content = getPageContent(segment);
+    if (streamedContacts.length > 0 && !selectedContactId) {
+      setSelectedContactId(streamedContacts[0].id);
+    }
+  }, [expandedAccount, streamedContacts, selectedContactId]);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
-      <div className="rounded-2xl border border-gray-200 bg-white px-5 py-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div className="min-h-screen bg-[#0a0d12] text-white">
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mb-8 flex items-start justify-between gap-4">
           <div>
-            <div className="text-xs uppercase tracking-[0.18em] text-gray-400">
-              Data handoff
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+              <Sparkles className="h-3.5 w-3.5" />
+              Generate
             </div>
-            <div className="mt-1 text-sm font-medium text-gray-900">
-              {content.banner}
-            </div>
+            <h1 className="text-3xl font-semibold tracking-tight">
+              Target accounts and let SignalOps work them
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm text-zinc-400">
+              Select an account to activate the agent. Contacts are prioritised in real time and prepared
+              for outreach based on fit, trigger strength and likely buying urgency.
+            </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Link
-              href="/data-center"
-              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-            >
-              Back to Data Center
-            </Link>
+          <div className="hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 lg:block">
+            <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Mode</div>
+            <div className="mt-1 flex items-center gap-2 text-sm text-zinc-200">
+              <Wand2 className="h-4 w-4 text-emerald-300" />
+              Agent-assisted targeting
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-black/20">
+          <div className="grid grid-cols-12 gap-0 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.16em] text-zinc-500">
+            <div className="col-span-4">Account</div>
+            <div className="col-span-2">Segment</div>
+            <div className="col-span-2">Fit</div>
+            <div className="col-span-2">Trigger</div>
+            <div className="col-span-2 text-right">Action</div>
+          </div>
+
+          <div>
+            {accounts.map((account) => {
+              const isExpanded = expandedAccountId === account.id;
+
+              return (
+                <div key={account.id} className="border-b border-white/10 last:border-b-0">
+                  <button
+                    onClick={() =>
+                      setExpandedAccountId((prev) => (prev === account.id ? null : account.id))
+                    }
+                    className="grid w-full grid-cols-12 items-center gap-0 px-5 py-4 text-left transition hover:bg-white/[0.03]"
+                  >
+                    <div className="col-span-4 pr-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+                          <Building2 className="h-5 w-5 text-zinc-300" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-white">{account.name}</div>
+                          <div className="mt-0.5 text-sm text-zinc-400">{account.whyNow}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-2">
+                      <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-300">
+                        {account.segment}
+                      </span>
+                    </div>
+
+                    <div className="col-span-2">
+                      <div className="text-sm font-medium text-white">{account.fitScore}/100</div>
+                    </div>
+
+                    <div className="col-span-2">
+                      <div className="text-sm font-medium text-white">{account.triggerScore}/100</div>
+                    </div>
+
+                    <div className="col-span-2 flex justify-end">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300">
+                        {isExpanded ? "Collapse" : "Activate account"}
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </span>
+                    </div>
+                  </button>
+
+                  {isExpanded && expandedAccount && (
+                    <div className="border-t border-white/10 bg-[#0d1117]">
+                      <div className="grid grid-cols-1 gap-6 p-5 xl:grid-cols-12">
+                        <aside className="xl:col-span-4">
+                          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+                            <div className="mb-5 flex items-center justify-between">
+                              <div>
+                                <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                                  Account context
+                                </div>
+                                <div className="mt-1 text-lg font-semibold text-white">
+                                  {expandedAccount.name}
+                                </div>
+                              </div>
+
+                              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                                Live
+                              </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                              <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">
+                                Why now
+                              </div>
+                              <p className="mt-2 text-sm leading-6 text-zinc-300">
+                                {expandedAccount.whyNow}
+                              </p>
+                            </div>
+
+                            <div className="mt-4">
+                              <div className="mb-3 text-xs uppercase tracking-[0.16em] text-zinc-500">
+                                Signals
+                              </div>
+                              <div className="grid gap-3">
+                                {expandedAccount.signals.map((signal) => (
+                                  <div
+                                    key={`${expandedAccount.id}-${signal.label}`}
+                                    className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+                                  >
+                                    <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">
+                                      {signal.label}
+                                    </div>
+                                    <div className="mt-1 text-sm text-zinc-200">{signal.value}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </aside>
+
+                        <section className="xl:col-span-8">
+                          <div className="grid gap-6">
+                            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+                              <div className="mb-4 flex items-center justify-between">
+                                <div>
+                                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                                    Agent activity
+                                  </div>
+                                  <div className="mt-1 text-lg font-semibold text-white">
+                                    SignalOps is working this account
+                                  </div>
+                                </div>
+
+                                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-zinc-300">
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-300" />
+                                  Live analysis
+                                </div>
+                              </div>
+
+                              <AgentActivityFeed activity={activity} />
+                            </div>
+
+                            <div className="grid gap-6 lg:grid-cols-12">
+                              <div className="lg:col-span-7">
+                                <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+                                  <div className="mb-4 flex items-center justify-between">
+                                    <div>
+                                      <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                                        Prioritised contacts
+                                      </div>
+                                      <div className="mt-1 text-lg font-semibold text-white">
+                                        Best entry points
+                                      </div>
+                                    </div>
+
+                                    <div className="inline-flex items-center gap-2 text-sm text-zinc-400">
+                                      <Users className="h-4 w-4" />
+                                      {streamedContacts.length}/{expandedAccount.contacts.length} surfaced
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-3">
+                                    {streamedContacts.map((contact, index) => {
+                                      const isSelected = selectedContactId === contact.id;
+
+                                      return (
+                                        <button
+                                          key={contact.id}
+                                          onClick={() => setSelectedContactId(contact.id)}
+                                          className={`w-full rounded-2xl border p-4 text-left transition ${
+                                            isSelected
+                                              ? "border-emerald-500/30 bg-emerald-500/10"
+                                              : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
+                                          } animate-in fade-in slide-in-from-bottom-2 duration-500`}
+                                          style={{ animationDelay: `${index * 80}ms` }}
+                                        >
+                                          <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                              <div className="font-medium text-white">{contact.name}</div>
+                                              <div className="mt-0.5 text-sm text-zinc-400">{contact.title}</div>
+                                            </div>
+
+                                            <span
+                                              className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${scoreBadgeClasses(
+                                                contact.score
+                                              )}`}
+                                            >
+                                              {contact.score}
+                                            </span>
+                                          </div>
+
+                                          <p className="mt-3 text-sm leading-6 text-zinc-300">
+                                            {contact.reason}
+                                          </p>
+
+                                          {contact.channelHint && (
+                                            <div className="mt-3 inline-flex items-center gap-2 text-xs text-zinc-500">
+                                              <ArrowRight className="h-3.5 w-3.5" />
+                                              {contact.channelHint}
+                                            </div>
+                                          )}
+                                        </button>
+                                      );
+                                    })}
+
+                                    {streamedContacts.length < expandedAccount.contacts.length && (
+                                      <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-4">
+                                        <div className="flex items-center gap-2 text-sm text-zinc-400">
+                                          <Loader2 className="h-4 w-4 animate-spin text-emerald-300" />
+                                          Identifying high-probability contacts
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="lg:col-span-5">
+                                <SequencePrepPanel
+                                  account={expandedAccount}
+                                  contact={
+                                    streamedContacts.find((c) => c.id === selectedContactId) ?? null
+                                  }
+                                  ready={activity.length >= 4}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
+    </div>
+  );
+}
 
-      <div>
-        <div className="text-sm font-medium text-green-700">
-          {content.eyebrow}
+function AgentActivityFeed({ activity }: { activity: ActivityItem[] }) {
+  return (
+    <div className="space-y-3">
+      {activity.map((item, index) => (
+        <div
+          key={item.id}
+          className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: `${index * 60}ms` }}
+        >
+          <div className="mt-0.5">
+            {item.status === "done" ? (
+              <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+            ) : (
+              <Loader2 className="h-4 w-4 animate-spin text-emerald-300" />
+            )}
+          </div>
+
+          <div className="flex-1">
+            <div className="text-sm text-zinc-200">{item.text}</div>
+          </div>
+
+          <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">
+            {item.status === "done" ? "Done" : "Running"}
+          </div>
         </div>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-gray-950">
-          {content.title}
-        </h1>
-        <p className="mt-3 max-w-4xl text-base leading-7 text-gray-600">
-          {content.subtitle}
+      ))}
+
+      {activity.length === 0 && (
+        <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-400">
+          Starting account analysis
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SequencePrepPanel({
+  account,
+  contact,
+  ready,
+}: {
+  account: Account;
+  contact: Contact | null;
+  ready: boolean;
+}) {
+  if (!contact) {
+    return (
+      <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+        <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Outreach</div>
+        <div className="mt-1 text-lg font-semibold text-white">Sequence preparation</div>
+        <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-4 text-sm text-zinc-400">
+          Select a surfaced contact to prepare outreach.
+        </div>
+      </div>
+    );
+  }
+
+  const angle =
+    contact.score === "High Intent"
+      ? "Urgent pipeline efficiency angle"
+      : contact.score === "Warm"
+      ? "Context-led relevance angle"
+      : "Light-touch awareness angle";
+
+  const approach =
+    contact.title.toLowerCase().includes("revenue operations") ||
+    contact.title.toLowerCase().includes("operations")
+      ? "Operational ROI and workflow efficiency"
+      : contact.title.toLowerCase().includes("sales")
+      ? "Pipeline pressure and prioritisation support"
+      : "Strategic relevance with supporting proof points";
+
+  const tone =
+    contact.score === "High Intent" ? "Direct and insight-led" : "Measured and relevant";
+
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Outreach</div>
+          <div className="mt-1 text-lg font-semibold text-white">SignalOps plan</div>
+        </div>
+
+        <div
+          className={`rounded-full px-3 py-1 text-xs font-medium ${
+            ready
+              ? "border border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+              : "border border-white/10 bg-white/[0.04] text-zinc-400"
+          }`}
+        >
+          {ready ? "Ready to prepare" : "Preparing"}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <PlanRow label="Target" value={`${contact.name}, ${contact.title}`} />
+        <PlanRow label="Account" value={account.name} />
+        <PlanRow label="Angle" value={angle} />
+        <PlanRow label="Approach" value={approach} />
+        <PlanRow label="Tone" value={tone} />
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+        <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">Draft direction</div>
+        <p className="mt-2 text-sm leading-6 text-zinc-300">
+          Lead with a signal tied to current urgency, connect that signal to a likely revenue or workflow
+          problem, then position SignalOps as the system that turns account-level intelligence into fast,
+          relevant contact activation.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard value={content.stat1} label={content.stat1Label} />
-        <StatCard value={content.stat2} label={content.stat2Label} />
-        <StatCard value={content.stat3} label={content.stat3Label} />
-      </div>
-
-      <div className="rounded-2xl border border-gray-200 bg-white p-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="text-lg font-semibold text-gray-950">
-              Priority account list
-            </div>
-            <div className="mt-1 text-sm text-gray-600">
-              Accounts are ranked by ICP fit, whitespace relevance, and
-              commercial potential.
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
-              Sort by fit
-            </button>
-            <button className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
-              Filter segment
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {content.accounts.map((account) => (
-          <AccountRow key={account.id} account={account} />
-        ))}
-      </div>
+      <button
+        className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium transition ${
+          ready
+            ? "bg-emerald-400 text-black hover:bg-emerald-300"
+            : "cursor-not-allowed border border-white/10 bg-white/[0.04] text-zinc-500"
+        }`}
+        disabled={!ready}
+      >
+        {ready ? (
+          <>
+            <Wand2 className="h-4 w-4" />
+            Prepare outreach
+          </>
+        ) : (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Agent still working
+          </>
+        )}
+      </button>
     </div>
   );
+}
+
+function PlanRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+      <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">{label}</div>
+      <div className="mt-1 text-sm text-zinc-200">{value}</div>
+    </div>
+  );
+}
+
+function useAgentActivity(account: Account | null) {
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const runIdRef = useRef(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const currentRunId = ++runIdRef.current;
+
+    async function run() {
+      if (!account) {
+        setActivity([]);
+        return;
+      }
+
+      setActivity([]);
+      const steps = AGENT_STEPS[account.id] ?? [
+        "Analyzing account",
+        "Pulling contacts",
+        "Scoring personas",
+        "Preparing outreach",
+      ];
+
+      for (let i = 0; i < steps.length; i++) {
+        if (cancelled || runIdRef.current !== currentRunId) return;
+
+        const itemId = `${account.id}_${i}`;
+        setActivity((prev) => [...prev, { id: itemId, text: steps[i], status: "running" }]);
+
+        await delay(650);
+
+        if (cancelled || runIdRef.current !== currentRunId) return;
+
+        setActivity((prev) =>
+          prev.map((item) => (item.id === itemId ? { ...item, status: "done" } : item))
+        );
+
+        await delay(220);
+      }
+    }
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [account]);
+
+  return activity;
+}
+
+function useStreamedContacts(account: Account | null) {
+  const [visibleContacts, setVisibleContacts] = useState<Contact[]>([]);
+  const runIdRef = useRef(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const currentRunId = ++runIdRef.current;
+
+    async function stream() {
+      if (!account) {
+        setVisibleContacts([]);
+        return;
+      }
+
+      setVisibleContacts([]);
+
+      for (let i = 0; i < account.contacts.length; i++) {
+        if (cancelled || runIdRef.current !== currentRunId) return;
+        await delay(500);
+        if (cancelled || runIdRef.current !== currentRunId) return;
+
+        setVisibleContacts((prev) => [...prev, account.contacts[i]]);
+      }
+    }
+
+    stream();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [account]);
+
+  return visibleContacts;
 }
