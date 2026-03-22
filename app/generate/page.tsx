@@ -15,8 +15,6 @@ type Contact = {
   name: string;
   title: string;
   score: ContactScore;
-  reason: string;
-  channelHint?: string;
 };
 
 type Account = {
@@ -54,9 +52,9 @@ const MOCK_ACCOUNTS: Account[] = [
       "Hiring across revenue roles suggests active pipeline build and pressure to improve conversion efficiency.",
     signals: [
       { label: "Hiring", value: "5 SDRs + 2 AEs" },
-      { label: "Intent", value: "Visited pricing pages" },
-      { label: "Funding", value: "Series A in last 8 months" },
-      { label: "Tech", value: "HubSpot + Salesforce" },
+      { label: "Intent", value: "Pricing pages" },
+      { label: "Funding", value: "Series A" },
+      { label: "Tech", value: "HubSpot + SF" },
     ],
     contacts: [
       {
@@ -64,24 +62,18 @@ const MOCK_ACCOUNTS: Account[] = [
         name: "Sarah Chen",
         title: "Head of Sales",
         score: "High Intent",
-        reason: "Revenue hiring suggests immediate pipeline management pressure.",
-        channelHint: "Best for direct value-led outreach",
       },
       {
         id: "c_2",
         name: "Marcus Lee",
-        title: "VP Revenue Operations",
+        title: "VP Revenue Ops",
         score: "High Intent",
-        reason: "Likely owner of process efficiency, tooling and signal orchestration.",
-        channelHint: "Good for operational ROI angle",
       },
       {
         id: "c_3",
         name: "Elena Park",
         title: "Director of Growth",
         score: "Warm",
-        reason: "Could be involved in campaign coordination and outbound programs.",
-        channelHint: "Good secondary entry point",
       },
     ],
   },
@@ -94,7 +86,7 @@ const MOCK_ACCOUNTS: Account[] = [
     whyNow:
       "Strong ICP fit, recent product launch and stale outreach history create a good reopening window.",
     signals: [
-      { label: "Product", value: "New AI workflow launch" },
+      { label: "Product", value: "New AI workflow" },
       { label: "Engagement", value: "Site return visits" },
       { label: "Last Touch", value: "74 days ago" },
       { label: "Region", value: "EMEA expansion" },
@@ -105,24 +97,18 @@ const MOCK_ACCOUNTS: Account[] = [
         name: "Nina Patel",
         title: "Chief Revenue Officer",
         score: "High Intent",
-        reason: "Likely owns top-line urgency around new launch performance.",
-        channelHint: "Best for strategic narrative",
       },
       {
         id: "c_5",
         name: "Tom Alvarez",
         title: "Director of Sales Development",
         score: "Warm",
-        reason: "May care about list quality and prioritisation efficiency.",
-        channelHint: "Good tactical opener",
       },
       {
         id: "c_6",
         name: "Holly Reed",
         title: "VP Marketing",
         score: "Monitor",
-        reason: "Useful stakeholder but less direct operational owner for this motion.",
-        channelHint: "Better as supporting path",
       },
     ],
   },
@@ -135,9 +121,9 @@ const MOCK_ACCOUNTS: Account[] = [
     whyNow:
       "Scaling motion appears underway and buying committee likely forming around growth execution and sales efficiency.",
     signals: [
-      { label: "Hiring", value: "Growth + Sales roles open" },
+      { label: "Hiring", value: "Growth + Sales" },
       { label: "News", value: "New market entry" },
-      { label: "Intent", value: "High content engagement" },
+      { label: "Intent", value: "High engagement" },
       { label: "Stack", value: "Apollo + HubSpot" },
     ],
     contacts: [
@@ -146,24 +132,18 @@ const MOCK_ACCOUNTS: Account[] = [
         name: "James Walker",
         title: "VP Growth",
         score: "High Intent",
-        reason: "Likely under pressure to turn expansion activity into pipeline quickly.",
-        channelHint: "Strong messaging candidate",
       },
       {
         id: "c_8",
         name: "Priya Nair",
         title: "Head of Revenue Operations",
         score: "Warm",
-        reason: "Important if outreach angle leans into efficiency and workflow orchestration.",
-        channelHint: "Good second sequence",
       },
       {
         id: "c_9",
         name: "Adam Brooks",
         title: "CEO",
         score: "Monitor",
-        reason: "Can work for escalation later but not ideal as first touch.",
-        channelHint: "Hold for later step",
       },
     ],
   },
@@ -176,9 +156,9 @@ function cx(...classes: Array<string | false | null | undefined>) {
 function scoreBadgeClasses(score: ContactScore) {
   switch (score) {
     case "High Intent":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+      return "border-[#c7d2fe] bg-[#3157e0] text-white";
     case "Warm":
-      return "border-amber-200 bg-amber-50 text-amber-700";
+      return "border-[#f6d28b] bg-[#fff6df] text-[#c97700]";
     case "Monitor":
       return "border-slate-200 bg-slate-50 text-slate-600";
     default:
@@ -186,37 +166,9 @@ function scoreBadgeClasses(score: ContactScore) {
   }
 }
 
-function getAngle(contact: Contact) {
-  if (contact.score === "High Intent") return "Urgent pipeline efficiency angle";
-  if (contact.score === "Warm") return "Context-led relevance angle";
-  return "Light-touch awareness angle";
-}
-
-function getApproach(contact: Contact) {
-  const title = contact.title.toLowerCase();
-
-  if (title.includes("revenue operations") || title.includes("operations")) {
-    return "Operational ROI and workflow efficiency";
-  }
-  if (title.includes("sales")) {
-    return "Pipeline pressure and prioritisation support";
-  }
-  if (title.includes("revenue")) {
-    return "Top-line urgency and GTM coordination";
-  }
-  if (title.includes("growth")) {
-    return "Signal-led activation and conversion efficiency";
-  }
-
-  return "Strategic relevance with supporting proof points";
-}
-
 function buildSequence(account: Account, contact: Contact, tone: Tone): SequenceBundle {
   const firstName = contact.name.split(" ")[0];
-  const angle = getAngle(contact);
-  const approach = getApproach(contact);
   const signalA = account.signals[0]?.value ?? "recent trigger event";
-  const signalB = account.signals[1]?.value ?? "new engagement activity";
 
   const subject1 =
     tone === "Direct"
@@ -234,8 +186,6 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
           ``,
           `We help revenue teams turn account-level signals into immediate contact-level action, so reps are not guessing who to work, why now, or what angle to use.`,
           ``,
-          `For ${account.name}, the immediate angle I would test is ${angle.toLowerCase()}.`,
-          ``,
           `Would it make sense to connect for 15 minutes this week?`,
           ``,
           `Best,`,
@@ -247,9 +197,7 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
           ``,
           `I was looking at ${account.name} and noticed a few signals, including ${signalA}. That combination often creates a window where account selection and contact prioritisation become much more important.`,
           ``,
-          `SignalOps is designed to convert account intelligence into clear contact prioritisation and usable outreach paths, without adding manual research overhead.`,
-          ``,
-          `Given your role, my guess is the challenge is ${approach.toLowerCase()}.`,
+          `SignalOps helps convert account intelligence into clearer contact prioritisation and usable outreach paths, without adding manual research overhead.`,
           ``,
           `Happy to share a few examples if useful.`,
           ``,
@@ -262,8 +210,6 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
           `I noticed ${account.name} is showing signals such as ${signalA}. In many teams, that is the point where execution quality across targeting, contact selection and timing starts to materially affect pipeline outcomes.`,
           ``,
           `SignalOps turns account-level intelligence into a usable operating layer for teams, helping convert signals into prioritised contacts, outreach angles and next-best actions.`,
-          ``,
-          `From your side, the likely focus is ${approach.toLowerCase()}.`,
           ``,
           `If helpful, I can send a concise example of how teams are using this to improve execution speed and relevance.`,
           ``,
@@ -278,9 +224,9 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
           ``,
           `Following up in case this is a current focus.`,
           ``,
-          `Given signals like ${signalB}, I would guess the challenge is not a lack of accounts but deciding which people inside those accounts are worth acting on first.`,
+          `Usually the challenge is not a lack of accounts but deciding which people inside those accounts are worth acting on first.`,
           ``,
-          `That is usually where we see the biggest value: less manual digging, faster prioritisation, and more confidence in why a specific contact should be worked now.`,
+          `That is where we typically see the biggest value: less manual digging, faster prioritisation, and more confidence in why a specific contact should be worked now.`,
           ``,
           `Happy to send a simple example if useful.`,
           ``,
@@ -293,9 +239,9 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
           ``,
           `Wanted to follow up, mainly because the timing looks interesting.`,
           ``,
-          `When signals like ${signalB} show up alongside role growth or product activity, teams often need a faster way to go from account insight to contact action.`,
+          `Teams often need a faster way to go from account insight to contact action, especially when growth or buying signals start to cluster.`,
           ``,
-          `I can send over a short example of how others have handled this if that would be useful.`,
+          `I can send over a short example if that would be useful.`,
           ``,
           `Cheers,`,
           `Stephen`,
@@ -305,9 +251,7 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
           ``,
           `A quick follow-up.`,
           ``,
-          `Where teams often lose time here is in the gap between account intelligence and contact execution. That delay tends to reduce relevance and response rates.`,
-          ``,
-          `SignalOps is built to reduce that gap and make prioritisation more usable for reps and GTM leaders.`,
+          `Where teams often lose time is in the gap between account intelligence and contact execution. That delay tends to reduce relevance and response rates.`,
           ``,
           `Happy to send a concise overview if helpful.`,
           ``,
@@ -370,7 +314,7 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
         stepNumber: 2,
         label: "Value Add Follow-up",
         sendLabel: "Send Day 3",
-        subject: `Re: ${account.name}'s outbound — a thought`,
+        subject: `Re: ${account.name}'s outbound`,
         body: body2,
       },
       {
@@ -490,70 +434,45 @@ export default function GeneratePage() {
                   <div className="border-t border-slate-200 bg-[#fcfcfd] p-4">
                     <div className="grid gap-4">
                       <div className="grid gap-4 lg:grid-cols-12">
-                        <div className="lg:col-span-5">
+                        <div className="lg:col-span-4">
                           <div className="rounded-[18px] border border-slate-200 bg-white p-4">
-                            <div className="mb-3 flex items-center justify-between">
-                              <div>
-                                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
-                                  Account context
-                                </div>
-                                <div className="mt-1 text-[18px] font-semibold text-slate-900">
-                                  {expandedAccount.name}
-                                </div>
-                              </div>
-
-                              <div className="rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#3157e0]">
-                                Live
-                              </div>
+                            <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                              Why now
+                            </div>
+                            <div className="mt-3 text-[16px] leading-9 text-slate-900">
+                              {expandedAccount.whyNow}
                             </div>
 
-                            <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="mt-4 grid gap-2 sm:grid-cols-2">
                               {expandedAccount.signals.map((signal) => (
                                 <div
                                   key={`${expandedAccount.id}-${signal.label}`}
-                                  className={cx(
-                                    "rounded-[16px] border border-slate-200 p-3",
-                                    signal.label === "Why now" ? "sm:col-span-2" : "bg-white"
-                                  )}
+                                  className="rounded-[14px] bg-slate-50 px-4 py-3"
                                 >
-                                  <div className="text-[11px] uppercase tracking-[0.14em] text-slate-400">
+                                  <div className="text-[10px] uppercase tracking-[0.14em] text-slate-400">
                                     {signal.label}
                                   </div>
-                                  <div className="mt-1 text-sm text-slate-700">{signal.value}</div>
+                                  <div className="mt-1 text-[13px] font-medium text-slate-900">
+                                    {signal.value}
+                                  </div>
                                 </div>
                               ))}
-
-                              <div className="sm:col-span-2 rounded-[16px] border border-slate-200 bg-slate-50 p-3">
-                                <div className="text-[11px] uppercase tracking-[0.14em] text-slate-400">
-                                  Why now
-                                </div>
-                                <div className="mt-1 text-sm text-slate-700">
-                                  {expandedAccount.whyNow}
-                                </div>
-                              </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="lg:col-span-7">
+                        <div className="lg:col-span-8">
                           <div className="rounded-[18px] border border-slate-200 bg-white p-4">
-                            <div className="mb-3 flex items-center justify-between">
-                              <div>
-                                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
-                                  Prioritised contacts
-                                </div>
-                                <div className="mt-1 text-[18px] font-semibold text-slate-900">
-                                  Best entry points
-                                </div>
+                            <div className="mb-2 flex items-center justify-between">
+                              <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                                Best entry points
                               </div>
-
-                              <div className="inline-flex items-center gap-2 text-sm text-slate-500">
-                                <UsersIcon className="h-4 w-4" />
+                              <div className="text-sm font-medium text-slate-500">
                                 {expandedAccount.contacts.length}/{expandedAccount.contacts.length}
                               </div>
                             </div>
 
-                            <div className="divide-y divide-slate-200 overflow-hidden rounded-[16px] border border-slate-200">
+                            <div className="divide-y divide-slate-200">
                               {expandedAccount.contacts.map((contact) => {
                                 const isSelected = selectedContactId === contact.id;
 
@@ -561,35 +480,23 @@ export default function GeneratePage() {
                                   <button
                                     key={contact.id}
                                     onClick={() => setSelectedContactId(contact.id)}
-                                    className={cx(
-                                      "grid w-full grid-cols-12 items-center gap-3 px-4 py-2.5 text-left transition",
-                                      isSelected ? "bg-[#f5f8ff]" : "bg-white hover:bg-slate-50"
-                                    )}
+                                    className="grid w-full grid-cols-12 items-center gap-3 py-3 text-left"
                                   >
-                                    <div className="col-span-4 min-w-0">
-                                      <div className="truncate text-[14px] font-medium text-slate-900">
+                                    <div className="col-span-5 min-w-0">
+                                      <div className="truncate text-[15px] font-semibold text-slate-900">
                                         {contact.name}
                                       </div>
-                                      <div className="truncate text-[12px] text-slate-500">
+                                      <div className="truncate text-[13px] text-slate-500">
                                         {contact.title}
                                       </div>
                                     </div>
 
-                                    <div className="col-span-5 min-w-0">
-                                      <div className="truncate text-[12px] text-slate-600">
-                                        {contact.reason}
-                                      </div>
-                                      {contact.channelHint && (
-                                        <div className="mt-0.5 truncate text-[11px] text-slate-400">
-                                          {contact.channelHint}
-                                        </div>
-                                      )}
-                                    </div>
+                                    <div className="col-span-5" />
 
-                                    <div className="col-span-2 flex justify-start">
+                                    <div className="col-span-1 flex justify-end">
                                       <span
                                         className={cx(
-                                          "inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium",
+                                          "inline-flex rounded-full border px-3 py-1 text-[11px] font-medium",
                                           scoreBadgeClasses(contact.score)
                                         )}
                                       >
@@ -636,38 +543,17 @@ function SequenceWorkspace({
   const [tone, setTone] = useState<Tone>("Direct");
   const [sequence, setSequence] = useState<SequenceBundle | null>(null);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
 
   useEffect(() => {
     setSequence(null);
     setActiveStepIndex(0);
-    setCopyState("idle");
   }, [account.id, contact?.id]);
 
   useEffect(() => {
     if (!contact) return;
     setSequence(buildSequence(account, contact, tone));
     setActiveStepIndex(0);
-    setCopyState("idle");
   }, [account, contact, tone]);
-
-  async function copyFullSequence() {
-    if (!sequence) return;
-
-    const text = sequence.steps
-      .map((step) =>
-        [`${step.label} (${step.sendLabel})`, `Subject: ${step.subject}`, ``, step.body].join("\n")
-      )
-      .join("\n\n--------------------\n\n");
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopyState("copied");
-      window.setTimeout(() => setCopyState("idle"), 1800);
-    } catch {
-      setCopyState("idle");
-    }
-  }
 
   function prevStep() {
     if (!sequence) return;
@@ -682,8 +568,7 @@ function SequenceWorkspace({
   if (!contact) {
     return (
       <div className="rounded-[18px] border border-slate-200 bg-white p-4">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Outreach</div>
-        <div className="mt-1 text-[18px] font-semibold text-slate-900">Sequence workspace</div>
+        <div className="text-[18px] font-semibold text-slate-900">Sequence workspace</div>
         <div className="mt-3 rounded-[16px] border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
           Select a contact to open the outreach sequence.
         </div>
@@ -694,8 +579,7 @@ function SequenceWorkspace({
   if (!sequence) {
     return (
       <div className="rounded-[18px] border border-slate-200 bg-white p-4">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Outreach</div>
-        <div className="mt-1 text-[18px] font-semibold text-slate-900">Sequence workspace</div>
+        <div className="text-[18px] font-semibold text-slate-900">Sequence workspace</div>
       </div>
     );
   }
@@ -704,14 +588,8 @@ function SequenceWorkspace({
 
   return (
     <div className="rounded-[18px] border border-slate-200 bg-white p-4">
-      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Outreach</div>
-          <div className="mt-1 text-[18px] font-semibold text-slate-900">Sequence workspace</div>
-          <div className="mt-1 text-sm text-slate-500">
-            {contact.name} · {contact.title}
-          </div>
-        </div>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="text-[18px] font-semibold text-slate-900">Sequence workspace</div>
 
         <div className="flex flex-wrap items-center gap-2">
           {(["Direct", "Consultative", "Executive"] as Tone[]).map((option) => (
@@ -728,70 +606,58 @@ function SequenceWorkspace({
               {option}
             </button>
           ))}
-
-          <button
-            onClick={copyFullSequence}
-            className="inline-flex items-center gap-2 rounded-full bg-[#3157e0] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-[#2949bd]"
-          >
-            <CopyIcon className="h-3.5 w-3.5" />
-            {copyState === "copied" ? "Copied" : "Copy"}
-          </button>
         </div>
       </div>
 
-      <div className="mb-3 grid gap-3 md:grid-cols-3">
-        <MetaPill label="Target" value={`${contact.name}, ${contact.title}`} />
-        <MetaPill label="Angle" value={getAngle(contact)} />
-        <MetaPill label="Approach" value={getApproach(contact)} />
-      </div>
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex flex-wrap items-center gap-3">
+          {sequence.steps.map((step, index) => {
+            const active = index === activeStepIndex;
 
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        {sequence.steps.map((step, index) => {
-          const active = index === activeStepIndex;
-
-          return (
-            <div key={step.id} className="flex items-center gap-3">
-              <button
-                onClick={() => setActiveStepIndex(index)}
-                className="inline-flex items-center gap-3 text-left"
-              >
-                <span
-                  className={cx(
-                    "flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition",
-                    active ? "bg-[#3157e0] text-white shadow-sm" : "bg-[#dfe5ff] text-[#3157e0]"
-                  )}
+            return (
+              <div key={step.id} className="flex items-center gap-3">
+                <button
+                  onClick={() => setActiveStepIndex(index)}
+                  className="inline-flex items-center gap-3 text-left"
                 >
-                  {step.stepNumber}
-                </span>
+                  <span
+                    className={cx(
+                      "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition",
+                      active ? "bg-[#3157e0] text-white" : "bg-[#dfe5ff] text-[#3157e0]"
+                    )}
+                  >
+                    {step.stepNumber}
+                  </span>
 
-                <span
-                  className={cx(
-                    "text-[14px] font-medium transition",
-                    active ? "text-slate-900" : "text-slate-500"
-                  )}
-                >
-                  {step.label}
-                </span>
-              </button>
+                  <span
+                    className={cx(
+                      "text-[14px] font-medium",
+                      active ? "text-slate-900" : "text-slate-500"
+                    )}
+                  >
+                    {step.label}
+                  </span>
+                </button>
 
-              {index < sequence.steps.length - 1 && (
-                <ArrowRightIcon className="h-4 w-4 text-slate-300" />
-              )}
-            </div>
-          );
-        })}
+                {index < sequence.steps.length - 1 && (
+                  <ArrowRightIcon className="h-4 w-4 text-slate-300" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="text-sm text-slate-500">
+          Email {activeStep.stepNumber} of {sequence.steps.length}
+        </div>
       </div>
 
       <div className="relative">
-        <div className="rounded-[20px] border border-slate-200 bg-white shadow-[0_4px_14px_rgba(15,23,42,0.04)]">
-          <div className="flex items-center justify-between rounded-t-[20px] border-b border-slate-200 px-4 py-3">
-            <div className="flex items-center gap-3">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#ec8d86]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#8bd2b6]" />
-              <div className="ml-1 text-[13px] font-semibold text-slate-500">
-                Step {activeStep.stepNumber} · Day{" "}
-                {activeStep.stepNumber === 1 ? "0" : activeStep.stepNumber === 2 ? "3" : "7"}
-              </div>
+        <div className="rounded-[18px] border border-slate-200 bg-white">
+          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+            <div className="text-[13px] font-semibold text-slate-500">
+              Step {activeStep.stepNumber} · Day{" "}
+              {activeStep.stepNumber === 1 ? "0" : activeStep.stepNumber === 2 ? "3" : "7"}
             </div>
 
             <div className="flex items-center gap-2 text-[13px] font-medium text-slate-500">
@@ -804,8 +670,7 @@ function SequenceWorkspace({
             <div className="mb-2 flex items-center gap-3 text-[13px] text-slate-500">
               <UserIcon className="h-4 w-4" />
               <span>
-                To: <span className="font-semibold text-slate-900">{contact.name}</span>{" "}
-                <span className="text-slate-400">&lt;email&gt;</span>
+                To: <span className="font-semibold text-slate-900">{contact.name}</span>
               </span>
             </div>
 
@@ -816,7 +681,7 @@ function SequenceWorkspace({
           </div>
 
           <div className="px-4 py-4">
-            <div className="max-h-[260px] overflow-y-auto whitespace-pre-wrap pr-2 text-[14px] leading-[1.7] text-slate-700">
+            <div className="whitespace-pre-wrap text-[14px] leading-[1.8] text-slate-700">
               {activeStep.body}
             </div>
           </div>
@@ -838,15 +703,6 @@ function SequenceWorkspace({
           <ChevronRightIcon className="h-4.5 w-4.5" />
         </button>
       </div>
-    </div>
-  );
-}
-
-function MetaPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[14px] border border-slate-200 bg-slate-50 px-4 py-2.5">
-      <div className="text-[10px] uppercase tracking-[0.14em] text-slate-400">{label}</div>
-      <div className="mt-1 text-sm text-slate-700">{value}</div>
     </div>
   );
 }
@@ -901,17 +757,6 @@ function BuildingIcon({ className }: { className?: string }) {
   );
 }
 
-function UsersIcon({ className }: { className?: string }) {
-  return (
-    <BaseIcon className={className}>
-      <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
-      <circle cx="9.5" cy="7" r="3.5" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 4.13A3.5 3.5 0 0 1 16 9.87" />
-    </BaseIcon>
-  );
-}
-
 function ChevronDownIcon({ className }: { className?: string }) {
   return (
     <BaseIcon className={className}>
@@ -949,15 +794,6 @@ function ArrowRightIcon({ className }: { className?: string }) {
     <BaseIcon className={className}>
       <path d="M5 12h14" />
       <path d="M13 6l6 6-6 6" />
-    </BaseIcon>
-  );
-}
-
-function CopyIcon({ className }: { className?: string }) {
-  return (
-    <BaseIcon className={className}>
-      <rect x="9" y="9" width="11" height="11" rx="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
     </BaseIcon>
   );
 }
