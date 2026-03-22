@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
 type State = "disconnected" | "analyzing" | "connected";
 
 const steps = [
-  "Normalizing source data",
-  "Mapping accounts and contacts",
+  "Normalising Source Data",
+  "Mapping Accounts and Contacts",
   "Scoring ICP fit",
   "Identifying whitespace",
-  "Generating opportunities",
-  "Generating results",
+  "Generating Opportunities",
+  "Generating Results",
 ];
 
 export default function Page() {
@@ -22,17 +22,19 @@ export default function Page() {
 
     setProgress(0);
 
-    let current = 0;
+    const stepDuration = 1700; // extended by ~1 second total
+    let currentStep = 0;
+
     const interval = setInterval(() => {
-      current += 100 / steps.length;
-      const next = Math.min(current, 100);
+      currentStep += 1;
+      const next = Math.min((currentStep / steps.length) * 100, 100);
       setProgress(next);
 
-      if (next >= 100) {
+      if (currentStep >= steps.length) {
         clearInterval(interval);
-        setTimeout(() => setState("connected"), 900);
+        setTimeout(() => setState("connected"), 1000);
       }
-    }, 1500);
+    }, stepDuration);
 
     return () => clearInterval(interval);
   }, [state]);
@@ -88,38 +90,55 @@ export default function Page() {
       )}
 
       {state === "analyzing" && (
-        <div className="rounded-2xl border bg-white px-10 py-12 text-center">
-          <h2 className="text-2xl font-semibold text-gray-900">
-            Analyzing your data
-          </h2>
+        <div className="mx-auto max-w-3xl px-2 py-8">
+          <div className="text-center">
+            <h2 className="text-5xl font-semibold tracking-tight text-gray-950">
+              Analyzing ...
+            </h2>
 
-          <p className="mt-3 text-sm text-gray-500">Analyzing...</p>
-
-          <div className="mx-auto mt-6 w-full max-w-[220px] rounded-full bg-gray-100 p-1">
-            <div
-              className="h-2 rounded-full bg-[#0b1f3a] transition-all duration-700"
-              style={{ width: `${progress}%` }}
-            />
+            <div className="mx-auto mt-8 w-full max-w-[620px] rounded-full bg-gray-100">
+              <div
+                className="h-4 rounded-full bg-[#0b1f3a] transition-all duration-700"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
 
-          <div className="mx-auto mt-10 grid max-w-3xl gap-3 text-left md:grid-cols-2">
+          <div className="mx-auto mt-14 max-w-[720px] space-y-5">
             {steps.map((step, i) => {
               const stepProgress = ((i + 1) / steps.length) * 100;
-              const isDone = progress >= stepProgress;
+              const isDone = progress > stepProgress - 0.1;
+              const isActive =
+                progress < stepProgress &&
+                progress >= (i / steps.length) * 100;
+              const showPending = !isDone && !isActive && i > 3;
 
               return (
                 <div
                   key={step}
-                  className={`flex items-center gap-2 rounded-xl border p-3 text-sm transition ${
-                    isDone
-                      ? "border-green-200 bg-green-50 text-green-800"
-                      : "bg-gray-50 text-gray-500"
-                  }`}
+                  className="flex items-center gap-5 text-[30px] font-semibold leading-none tracking-tight text-gray-950"
                 >
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs">
-                    {isDone ? "✓" : ""}
-                  </span>
-                  <span>{step}</span>
+                  <div className="flex h-12 w-12 items-center justify-center">
+                    {isDone ? (
+                      <div className="flex h-11 w-11 items-center justify-center rounded-md border border-gray-200 bg-white text-[28px] font-medium text-black">
+                        ✓
+                      </div>
+                    ) : isActive ? (
+                      <div className="text-[30px] font-semibold text-gray-950">
+                        {step} .....
+                      </div>
+                    ) : showPending ? (
+                      <div className="pl-[68px] text-[30px] font-semibold text-gray-950">
+                        {step}
+                      </div>
+                    ) : (
+                      <div className="h-11 w-11" />
+                    )}
+                  </div>
+
+                  {!isActive && !showPending ? (
+                    <div>{step}</div>
+                  ) : null}
                 </div>
               );
             })}
