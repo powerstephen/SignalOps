@@ -1,17 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 type Signal = {
   label: string;
   value: string;
 };
 
+type ContactScore = "High Intent" | "Warm" | "Monitor";
+type Tone = "Direct" | "Consultative" | "Executive";
+
 type Contact = {
   id: string;
   name: string;
   title: string;
-  score: "High Intent" | "Warm" | "Monitor";
+  score: ContactScore;
   reason: string;
   channelHint?: string;
 };
@@ -30,6 +33,19 @@ type Account = {
 type ActivityItem = {
   id: string;
   text: string;
+  status: "running" | "done";
+};
+
+type SequenceDraft = {
+  subject: string;
+  email1: string;
+  followUp1: string;
+  followUp2: string;
+};
+
+type SequenceGenerationStep = {
+  id: string;
+  label: string;
   status: "running" | "done";
 };
 
@@ -190,7 +206,11 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function scoreBadgeClasses(score: Contact["score"]) {
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
+}
+
+function scoreBadgeClasses(score: ContactScore) {
   switch (score) {
     case "High Intent":
       return "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
@@ -203,8 +223,126 @@ function scoreBadgeClasses(score: Contact["score"]) {
   }
 }
 
-function cx(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ");
+function getAngle(contact: Contact) {
+  if (contact.score === "High Intent") return "Urgent pipeline efficiency angle";
+  if (contact.score === "Warm") return "Context-led relevance angle";
+  return "Light-touch awareness angle";
+}
+
+function getApproach(contact: Contact) {
+  const title = contact.title.toLowerCase();
+
+  if (title.includes("revenue operations") || title.includes("operations")) {
+    return "Operational ROI and workflow efficiency";
+  }
+
+  if (title.includes("sales")) {
+    return "Pipeline pressure and prioritisation support";
+  }
+
+  if (title.includes("revenue")) {
+    return "Top-line urgency and GTM coordination";
+  }
+
+  if (title.includes("growth")) {
+    return "Signal-led activation and conversion efficiency";
+  }
+
+  return "Strategic relevance with supporting proof points";
+}
+
+function buildSequence(account: Account, contact: Contact, tone: Tone): SequenceDraft {
+  const firstName = contact.name.split(" ")[0];
+  const angle = getAngle(contact);
+  const approach = getApproach(contact);
+  const signalA = account.signals[0]?.value ?? "recent signal activity";
+  const signalB = account.signals[1]?.value ?? "engagement activity";
+
+  const subjectByTone: Record<Tone, string> = {
+    Direct: `${account.name}: signal-led outreach for ${contact.title}`,
+    Consultative: `Thought on ${account.name}'s current GTM timing`,
+    Executive: `${account.name} growth signals and likely revenue pressure`,
+  };
+
+  const openerByTone: Record<Tone, string> = {
+    Direct: `Noticed ${account.name} is showing signals like ${signalA}. Usually that means more pressure on the team to prioritise the right accounts and contacts fast.`,
+    Consultative: `I was looking at ${account.name} and noticed a few signals, including ${signalA}. That combination often creates a window where account selection and contact prioritisation become much more important.`,
+    Executive: `I noticed ${account.name} is showing signals such as ${signalA}. In many teams, that is the point where execution quality across targeting, contact selection and timing starts to materially affect pipeline outcomes.`,
+  };
+
+  const valueByTone: Record<Tone, string> = {
+    Direct: `SignalOps helps revenue teams turn account-level signals into immediate contact-level action, so reps are not guessing who to work, why now, or what angle to use.`,
+    Consultative: `SignalOps is designed to convert account intelligence into clear contact prioritisation and usable outreach paths, so teams can move from signals to action without adding manual research overhead.`,
+    Executive: `SignalOps turns account-level intelligence into a usable operating layer for teams, helping convert signals into prioritised contacts, outreach angles and next-best actions.`,
+  };
+
+  const closeByTone: Record<Tone, string> = {
+    Direct: `Worth sharing a few examples for how this could support ${account.name}'s current motion?`,
+    Consultative: `Happy to share a few examples if useful, especially around how teams are reducing manual research and improving contact activation.`,
+    Executive: `If helpful, I can send a concise example of how teams are using this to improve execution speed and relevance.`,
+  };
+
+  const followUp1ByTone: Record<Tone, string> = {
+    Direct: `Following up in case this is a current focus. Given ${signalB}, I would guess the challenge is not a lack of accounts but deciding which people inside those accounts are worth acting on first.`,
+    Consultative: `Wanted to follow up, mainly because the timing looks interesting. When signals like ${signalB} show up alongside role growth or product activity, teams often need a faster way to go from account insight to contact action.`,
+    Executive: `A quick follow-up. Where teams often lose time here is in the gap between account intelligence and contact execution. That delay tends to reduce relevance and response rates.`,
+  };
+
+  const followUp2ByTone: Record<Tone, string> = {
+    Direct: `Last note from me. The reason I reached out is that SignalOps seems especially relevant when a team is trying to scale without letting prioritisation quality fall away.`,
+    Consultative: `Final note. The reason I thought of ${account.name} is that your current signals suggest a useful moment to tighten how targeting and contact activation work together.`,
+    Executive: `Final note. My sense is that ${account.name} is at the kind of inflection point where better signal orchestration can improve both speed and GTM precision.`,
+  };
+
+  const email1 = [
+    `Hi ${firstName},`,
+    ``,
+    openerByTone[tone],
+    ``,
+    `From your side, the likely issue is ${approach.toLowerCase()}.`,
+    ``,
+    `${valueByTone[tone]} In practice, that means your team gets a clear view of which contacts to prioritise, what makes them relevant now, and how to approach them.`,
+    ``,
+    `For ${account.name}, the immediate angle I would test is: ${angle.toLowerCase()}.`,
+    ``,
+    closeByTone[tone],
+    ``,
+    `Best,`,
+    `Stephen`,
+  ].join("\n");
+
+  const followUp1 = [
+    `Hi ${firstName},`,
+    ``,
+    followUp1ByTone[tone],
+    ``,
+    `That is usually where we see the biggest value: less manual digging, faster prioritisation, and more confidence in why a specific contact should be worked now.`,
+    ``,
+    `Happy to send over a simple example if helpful.`,
+    ``,
+    `Best,`,
+    `Stephen`,
+  ].join("\n");
+
+  const followUp2 = [
+    `Hi ${firstName},`,
+    ``,
+    followUp2ByTone[tone],
+    ``,
+    `Even a small improvement in how account signals get translated into contact-level action can have a meaningful effect on conversion efficiency.`,
+    ``,
+    `If it is useful, I can send a short breakdown tailored to ${account.name}.`,
+    ``,
+    `Best,`,
+    `Stephen`,
+  ].join("\n");
+
+  return {
+    subject: subjectByTone[tone],
+    email1,
+    followUp1,
+    followUp2,
+  };
 }
 
 export default function GeneratePage() {
@@ -226,10 +364,16 @@ export default function GeneratePage() {
       return;
     }
 
-    if (streamedContacts.length > 0 && !selectedContactId) {
-      setSelectedContactId(streamedContacts[0].id);
+    if (streamedContacts.length > 0) {
+      const stillExists = streamedContacts.some((c) => c.id === selectedContactId);
+      if (!stillExists) {
+        setSelectedContactId(streamedContacts[0].id);
+      }
     }
   }, [expandedAccount, streamedContacts, selectedContactId]);
+
+  const selectedContact =
+    streamedContacts.find((contact) => contact.id === selectedContactId) ?? null;
 
   return (
     <div className="min-h-screen bg-[#0a0d12] text-white">
@@ -244,8 +388,8 @@ export default function GeneratePage() {
               Target accounts and let SignalOps work them
             </h1>
             <p className="mt-2 max-w-3xl text-sm text-zinc-400">
-              Select an account to activate the agent. Contacts are prioritised in real time and prepared
-              for outreach based on fit, trigger strength and likely buying urgency.
+              Activate an account, surface the best entry points, then generate signal-led outreach
+              directly from the same workspace.
             </p>
           </div>
 
@@ -390,7 +534,7 @@ export default function GeneratePage() {
                             </div>
 
                             <div className="grid gap-6 lg:grid-cols-12">
-                              <div className="lg:col-span-7">
+                              <div className="lg:col-span-5">
                                 <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
                                   <div className="mb-4 flex items-center justify-between">
                                     <div>
@@ -418,7 +562,6 @@ export default function GeneratePage() {
                                           onClick={() => setSelectedContactId(contact.id)}
                                           className={cx(
                                             "w-full rounded-2xl border p-4 text-left transition",
-                                            "opacity-100 translate-y-0",
                                             isSelected
                                               ? "border-emerald-500/30 bg-emerald-500/10"
                                               : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
@@ -434,9 +577,10 @@ export default function GeneratePage() {
                                             </div>
 
                                             <span
-                                              className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${scoreBadgeClasses(
-                                                contact.score
-                                              )}`}
+                                              className={cx(
+                                                "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium",
+                                                scoreBadgeClasses(contact.score)
+                                              )}
                                             >
                                               {contact.score}
                                             </span>
@@ -468,14 +612,8 @@ export default function GeneratePage() {
                                 </div>
                               </div>
 
-                              <div className="lg:col-span-5">
-                                <SequencePrepPanel
-                                  account={expandedAccount}
-                                  contact={
-                                    streamedContacts.find((c) => c.id === selectedContactId) ?? null
-                                  }
-                                  ready={activity.length >= 4}
-                                />
+                              <div className="lg:col-span-7">
+                                <SequenceWorkspace account={expandedAccount} contact={selectedContact} />
                               </div>
                             </div>
                           </div>
@@ -528,103 +666,289 @@ function AgentActivityFeed({ activity }: { activity: ActivityItem[] }) {
   );
 }
 
-function SequencePrepPanel({
+function SequenceWorkspace({
   account,
   contact,
-  ready,
 }: {
   account: Account;
   contact: Contact | null;
-  ready: boolean;
 }) {
+  const [tone, setTone] = useState<Tone>("Direct");
+  const [mode, setMode] = useState<"plan" | "generating" | "ready">("plan");
+  const [generationSteps, setGenerationSteps] = useState<SequenceGenerationStep[]>([]);
+  const [draft, setDraft] = useState<SequenceDraft | null>(null);
+  const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
+  const runIdRef = useRef(0);
+
+  useEffect(() => {
+    setMode("plan");
+    setGenerationSteps([]);
+    setDraft(null);
+    setCopyState("idle");
+  }, [account.id, contact?.id]);
+
+  async function startGeneration() {
+    if (!contact) return;
+
+    const currentRunId = ++runIdRef.current;
+
+    const steps: string[] = [
+      "Analyzing contact context",
+      "Selecting outreach angle",
+      "Drafting opener",
+      "Writing follow-up 1",
+      "Writing follow-up 2",
+      "Finalising sequence",
+    ];
+
+    setMode("generating");
+    setGenerationSteps([]);
+    setDraft(null);
+    setCopyState("idle");
+
+    for (let i = 0; i < steps.length; i++) {
+      if (runIdRef.current !== currentRunId) return;
+
+      const id = `seq_step_${i}`;
+      setGenerationSteps((prev) => [...prev, { id, label: steps[i], status: "running" }]);
+
+      await delay(550);
+
+      if (runIdRef.current !== currentRunId) return;
+
+      setGenerationSteps((prev) =>
+        prev.map((step) => (step.id === id ? { ...step, status: "done" } : step))
+      );
+
+      await delay(180);
+    }
+
+    if (runIdRef.current !== currentRunId) return;
+
+    setDraft(buildSequence(account, contact, tone));
+    setMode("ready");
+  }
+
+  async function copyFullSequence() {
+    if (!draft || !contact) return;
+
+    const text = [
+      `Target: ${contact.name}, ${contact.title}`,
+      `Account: ${account.name}`,
+      `Tone: ${tone}`,
+      ``,
+      `Subject`,
+      draft.subject,
+      ``,
+      `Email 1`,
+      draft.email1,
+      ``,
+      `Follow-up 1`,
+      draft.followUp1,
+      ``,
+      `Follow-up 2`,
+      draft.followUp2,
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyState("copied");
+      window.setTimeout(() => setCopyState("idle"), 1800);
+    } catch {
+      setCopyState("idle");
+    }
+  }
+
   if (!contact) {
     return (
       <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
         <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Outreach</div>
-        <div className="mt-1 text-lg font-semibold text-white">Sequence preparation</div>
-        <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-4 text-sm text-zinc-400">
+        <div className="mt-1 text-lg font-semibold text-white">Sequence workspace</div>
+        <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-5 text-sm text-zinc-400">
           Select a surfaced contact to prepare outreach.
         </div>
       </div>
     );
   }
 
-  const angle =
-    contact.score === "High Intent"
-      ? "Urgent pipeline efficiency angle"
-      : contact.score === "Warm"
-      ? "Context-led relevance angle"
-      : "Light-touch awareness angle";
-
-  const approach =
-    contact.title.toLowerCase().includes("revenue operations") ||
-    contact.title.toLowerCase().includes("operations")
-      ? "Operational ROI and workflow efficiency"
-      : contact.title.toLowerCase().includes("sales")
-      ? "Pipeline pressure and prioritisation support"
-      : "Strategic relevance with supporting proof points";
-
-  const tone =
-    contact.score === "High Intent" ? "Direct and insight-led" : "Measured and relevant";
+  const angle = getAngle(contact);
+  const approach = getApproach(contact);
+  const readyToPrepare = true;
 
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-start justify-between gap-4">
         <div>
           <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">Outreach</div>
-          <div className="mt-1 text-lg font-semibold text-white">SignalOps plan</div>
+          <div className="mt-1 text-lg font-semibold text-white">Sequence workspace</div>
+          <div className="mt-1 text-sm text-zinc-400">
+            {contact.name} · {contact.title}
+          </div>
         </div>
 
         <div
           className={cx(
-            "rounded-full px-3 py-1 text-xs font-medium border",
-            ready
+            "rounded-full border px-3 py-1 text-xs font-medium",
+            mode === "ready"
               ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+              : mode === "generating"
+              ? "border-amber-500/20 bg-amber-500/10 text-amber-300"
               : "border-white/10 bg-white/[0.04] text-zinc-400"
           )}
         >
-          {ready ? "Ready to prepare" : "Preparing"}
+          {mode === "ready" ? "Sequence ready" : mode === "generating" ? "Generating" : "Plan"}
         </div>
       </div>
 
-      <div className="space-y-3">
-        <PlanRow label="Target" value={`${contact.name}, ${contact.title}`} />
-        <PlanRow label="Account" value={account.name} />
-        <PlanRow label="Angle" value={angle} />
-        <PlanRow label="Approach" value={approach} />
-        <PlanRow label="Tone" value={tone} />
+      <div className="mb-4 flex flex-wrap gap-2">
+        {(["Direct", "Consultative", "Executive"] as Tone[]).map((option) => (
+          <button
+            key={option}
+            onClick={() => setTone(option)}
+            className={cx(
+              "rounded-full border px-3 py-1.5 text-xs font-medium transition",
+              tone === option
+                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+            )}
+          >
+            {option}
+          </button>
+        ))}
       </div>
 
-      <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
-        <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">Draft direction</div>
-        <p className="mt-2 text-sm leading-6 text-zinc-300">
-          Lead with a signal tied to current urgency, connect that signal to a likely revenue or workflow
-          problem, then position SignalOps as the system that turns account-level intelligence into fast,
-          relevant contact activation.
-        </p>
-      </div>
+      {mode === "plan" && (
+        <>
+          <div className="space-y-3">
+            <PlanRow label="Target" value={`${contact.name}, ${contact.title}`} />
+            <PlanRow label="Account" value={account.name} />
+            <PlanRow label="Angle" value={angle} />
+            <PlanRow label="Approach" value={approach} />
+            <PlanRow label="Tone" value={tone} />
+          </div>
 
-      <button
-        className={cx(
-          "mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium transition",
-          ready
-            ? "bg-emerald-400 text-black hover:bg-emerald-300"
-            : "cursor-not-allowed border border-white/10 bg-white/[0.04] text-zinc-500"
-        )}
-        disabled={!ready}
-      >
-        {ready ? (
-          <>
+          <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">Draft direction</div>
+            <p className="mt-2 text-sm leading-6 text-zinc-300">
+              Lead with a signal tied to current urgency, connect that signal to a likely revenue or
+              workflow problem, then position SignalOps as the system that turns account-level
+              intelligence into fast, relevant contact activation.
+            </p>
+          </div>
+
+          <button
+            className={cx(
+              "mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium transition",
+              readyToPrepare
+                ? "bg-emerald-400 text-black hover:bg-emerald-300"
+                : "cursor-not-allowed border border-white/10 bg-white/[0.04] text-zinc-500"
+            )}
+            onClick={startGeneration}
+            disabled={!readyToPrepare}
+          >
             <WandIcon className="h-4 w-4" />
             Prepare outreach
-          </>
-        ) : (
-          <>
-            <SpinnerIcon className="h-4 w-4" />
-            Agent still working
-          </>
+          </button>
+        </>
+      )}
+
+      {mode === "generating" && (
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div className="mb-2 text-xs uppercase tracking-[0.16em] text-zinc-500">
+              Generation status
+            </div>
+            <div className="space-y-3">
+              {generationSteps.map((step) => (
+                <div
+                  key={step.id}
+                  className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3"
+                >
+                  <div className="mt-0.5">
+                    {step.status === "done" ? (
+                      <CheckCircleIcon className="h-4 w-4 text-emerald-300" />
+                    ) : (
+                      <SpinnerIcon className="h-4 w-4 text-amber-300" />
+                    )}
+                  </div>
+                  <div className="flex-1 text-sm text-zinc-200">{step.label}</div>
+                  <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">
+                    {step.status === "done" ? "Done" : "Running"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-4 text-sm text-zinc-400">
+            SignalOps is drafting a multi-step sequence based on account signals, persona fit and selected
+            tone.
+          </div>
+        </div>
+      )}
+
+      {mode === "ready" && draft && (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={startGeneration}
+              className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-zinc-200 transition hover:bg-white/[0.08]"
+            >
+              <RefreshIcon className="h-4 w-4" />
+              Regenerate
+            </button>
+
+            <button
+              onClick={() => {
+                setMode("plan");
+                setGenerationSteps([]);
+                setDraft(null);
+              }}
+              className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-zinc-200 transition hover:bg-white/[0.08]"
+            >
+              <ArrowLeftIcon className="h-4 w-4" />
+              Back to plan
+            </button>
+
+            <button
+              onClick={copyFullSequence}
+              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-400 px-3 py-2 text-sm font-medium text-black transition hover:bg-emerald-300"
+            >
+              <CopyIcon className="h-4 w-4" />
+              {copyState === "copied" ? "Copied" : "Copy sequence"}
+            </button>
+          </div>
+
+          <SequenceCard label="Subject line" content={draft.subject} compact />
+          <SequenceCard label="Email 1" content={draft.email1} />
+          <SequenceCard label="Follow-up 1" content={draft.followUp1} />
+          <SequenceCard label="Follow-up 2" content={draft.followUp2} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SequenceCard({
+  label,
+  content,
+  compact = false,
+}: {
+  label: string;
+  content: string;
+  compact?: boolean;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+      <div className="mb-2 text-xs uppercase tracking-[0.16em] text-zinc-500">{label}</div>
+      <div
+        className={cx(
+          "whitespace-pre-wrap text-sm leading-6 text-zinc-200",
+          compact ? "font-medium text-white" : ""
         )}
-      </button>
+      >
+        {content}
+      </div>
     </div>
   );
 }
@@ -729,7 +1053,7 @@ function BaseIcon({
   viewBox = "0 0 24 24",
 }: {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   viewBox?: string;
 }) {
   return (
@@ -809,6 +1133,15 @@ function ArrowRightIcon({ className }: { className?: string }) {
   );
 }
 
+function ArrowLeftIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <path d="M19 12H5" />
+      <path d="M11 18l-6-6 6-6" />
+    </BaseIcon>
+  );
+}
+
 function UsersIcon({ className }: { className?: string }) {
   return (
     <BaseIcon className={className}>
@@ -825,6 +1158,26 @@ function CheckCircleIcon({ className }: { className?: string }) {
     <BaseIcon className={className}>
       <circle cx="12" cy="12" r="9" />
       <path d="M8.5 12.5l2.2 2.2 4.8-5.2" />
+    </BaseIcon>
+  );
+}
+
+function RefreshIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <path d="M20 11a8 8 0 0 0-14.9-3" />
+      <path d="M4 4v5h5" />
+      <path d="M4 13a8 8 0 0 0 14.9 3" />
+      <path d="M20 20v-5h-5" />
+    </BaseIcon>
+  );
+}
+
+function CopyIcon({ className }: { className?: string }) {
+  return (
+    <BaseIcon className={className}>
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
     </BaseIcon>
   );
 }
