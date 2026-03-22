@@ -10,6 +10,7 @@ const steps = [
   "Scoring ICP fit",
   "Identifying whitespace",
   "Generating opportunities",
+  "Generating results",
 ];
 
 export default function Page() {
@@ -19,24 +20,25 @@ export default function Page() {
   useEffect(() => {
     if (state !== "analyzing") return;
 
+    setProgress(0);
+
     let current = 0;
-
     const interval = setInterval(() => {
-      current += 20;
-      setProgress(current);
+      current += 100 / steps.length;
+      const next = Math.min(current, 100);
+      setProgress(next);
 
-      if (current >= 100) {
+      if (next >= 100) {
         clearInterval(interval);
-        setTimeout(() => setState("connected"), 600);
+        setTimeout(() => setState("connected"), 900);
       }
-    }, 900); // slower = better UX
+    }, 1500);
 
     return () => clearInterval(interval);
   }, [state]);
 
   return (
-    <div className="mx-auto max-w-7xl px-8 py-8 space-y-10">
-      {/* HEADER */}
+    <div className="mx-auto max-w-7xl space-y-10 px-8 py-8">
       <div>
         <h1 className="text-4xl font-semibold">Data Center</h1>
         <p className="mt-2 text-gray-600">
@@ -44,41 +46,39 @@ export default function Page() {
         </p>
       </div>
 
-      {/* COLLAPSED BAR (after connect) */}
       {state !== "disconnected" && (
-        <div className="border rounded-2xl bg-white p-4 flex justify-between items-center">
+        <div className="flex items-center justify-between rounded-2xl border bg-white p-4">
           <div className="flex gap-6 text-sm">
             <div>
-              <div className="text-gray-400 text-xs">Source</div>
+              <div className="text-xs text-gray-400">Source</div>
               <div className="font-medium">HubSpot</div>
             </div>
             <div>
-              <div className="text-gray-400 text-xs">Status</div>
+              <div className="text-xs text-gray-400">Status</div>
               <div className="font-medium">
                 {state === "analyzing" ? "Analyzing..." : "Live"}
               </div>
             </div>
             <div>
-              <div className="text-gray-400 text-xs">Last Sync</div>
+              <div className="text-xs text-gray-400">Last Sync</div>
               <div className="font-medium">Just now</div>
             </div>
           </div>
 
-          <button className="text-sm border px-4 py-2 rounded-xl">
+          <button className="rounded-xl border px-4 py-2 text-sm">
             Manage
           </button>
         </div>
       )}
 
-      {/* CONNECT STATE */}
       {state === "disconnected" && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
           {["HubSpot", "Salesforce", "CSV", "Shopify"].map((s) => (
-            <div key={s} className="border rounded-2xl p-5 bg-white">
+            <div key={s} className="rounded-2xl border bg-white p-5">
               <div className="font-semibold">{s}</div>
               <button
                 onClick={() => setState("analyzing")}
-                className="mt-4 px-4 py-2 border rounded-xl text-sm"
+                className="mt-4 rounded-xl border px-4 py-2 text-sm"
               >
                 Connect
               </button>
@@ -87,36 +87,39 @@ export default function Page() {
         </div>
       )}
 
-      {/* ANALYZING STATE */}
       {state === "analyzing" && (
-        <div className="border rounded-2xl bg-white p-10 text-center">
-          <h2 className="text-2xl font-semibold">Analyzing your data</h2>
+        <div className="rounded-2xl border bg-white px-10 py-12 text-center">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            Analyzing your data
+          </h2>
 
-          {/* PROGRESS BAR */}
-          <div className="mt-6 h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+          <p className="mt-3 text-sm text-gray-500">Analyzing...</p>
+
+          <div className="mx-auto mt-6 w-full max-w-[220px] rounded-full bg-gray-100 p-1">
             <div
-              className="h-3 bg-green-600 transition-all"
+              className="h-2 rounded-full bg-[#0b1f3a] transition-all duration-700"
               style={{ width: `${progress}%` }}
             />
           </div>
 
-          <p className="mt-4 text-sm text-gray-500">Analyzing...</p>
-
-          {/* STEPS */}
-          <div className="mt-8 grid md:grid-cols-2 gap-3 text-left">
+          <div className="mx-auto mt-10 grid max-w-3xl gap-3 text-left md:grid-cols-2">
             {steps.map((step, i) => {
-              const isDone = progress >= (i + 1) * 20;
+              const stepProgress = ((i + 1) / steps.length) * 100;
+              const isDone = progress >= stepProgress;
 
               return (
                 <div
                   key={step}
-                  className={`p-3 rounded-xl border text-sm flex items-center gap-2 ${
+                  className={`flex items-center gap-2 rounded-xl border p-3 text-sm transition ${
                     isDone
-                      ? "bg-green-50 border-green-200 text-green-800"
+                      ? "border-green-200 bg-green-50 text-green-800"
                       : "bg-gray-50 text-gray-500"
                   }`}
                 >
-                  {isDone ? "✓" : "•"} {step}
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs">
+                    {isDone ? "✓" : ""}
+                  </span>
+                  <span>{step}</span>
                 </div>
               );
             })}
@@ -124,10 +127,8 @@ export default function Page() {
         </div>
       )}
 
-      {/* CONNECTED STATE */}
       {state === "connected" && (
         <div className="space-y-10">
-          {/* DATA QUALITY */}
           <Section
             title="Data Quality"
             subtitle="Assess completeness and readiness"
@@ -156,7 +157,6 @@ export default function Page() {
             </Grid>
           </Section>
 
-          {/* ICP */}
           <Section
             title="ICP Profiling"
             subtitle="Your highest-performing segments"
@@ -172,11 +172,7 @@ export default function Page() {
               />
               <Insight
                 title="Titles"
-                items={[
-                  "Head of Sales",
-                  "RevOps / Ops",
-                  "VP level",
-                ]}
+                items={["Head of Sales", "RevOps / Ops", "VP level"]}
               />
               <Insight
                 title="Industry"
@@ -185,7 +181,6 @@ export default function Page() {
             </Grid>
           </Section>
 
-          {/* OPPORTUNITY */}
           <Section
             title="Opportunity Engine"
             subtitle="Where to focus next"
@@ -217,8 +212,6 @@ export default function Page() {
   );
 }
 
-/* COMPONENTS */
-
 function Section({
   title,
   subtitle,
@@ -238,7 +231,7 @@ function Section({
 }
 
 function Grid({ children }: { children: React.ReactNode }) {
-  return <div className="grid md:grid-cols-3 gap-4">{children}</div>;
+  return <div className="grid gap-4 md:grid-cols-3">{children}</div>;
 }
 
 function Card({
@@ -251,10 +244,10 @@ function Card({
   sub: string;
 }) {
   return (
-    <div className="border rounded-2xl p-5 bg-white">
-      <div className="text-xs text-gray-400 uppercase">{label}</div>
-      <div className="text-2xl font-semibold mt-2">{value}</div>
-      <div className="text-sm text-gray-600 mt-1">{sub}</div>
+    <div className="rounded-2xl border bg-white p-5">
+      <div className="text-xs uppercase text-gray-400">{label}</div>
+      <div className="mt-2 text-2xl font-semibold">{value}</div>
+      <div className="mt-1 text-sm text-gray-600">{sub}</div>
     </div>
   );
 }
@@ -267,7 +260,7 @@ function Insight({
   items: string[];
 }) {
   return (
-    <div className="border rounded-2xl p-5 bg-white">
+    <div className="rounded-2xl border bg-white p-5">
       <div className="font-semibold">{title}</div>
       <ul className="mt-3 space-y-2 text-sm text-gray-600">
         {items.map((i) => (
@@ -290,11 +283,11 @@ function Action({
   cta: string;
 }) {
   return (
-    <div className="border rounded-2xl p-5 bg-white">
+    <div className="rounded-2xl border bg-white p-5">
       <div className="font-semibold">{title}</div>
-      <div className="text-2xl font-semibold mt-2">{value}</div>
-      <div className="text-sm text-gray-600 mt-1">{sub}</div>
-      <button className="mt-4 bg-black text-white px-4 py-2 rounded-xl text-sm">
+      <div className="mt-2 text-2xl font-semibold">{value}</div>
+      <div className="mt-1 text-sm text-gray-600">{sub}</div>
+      <button className="mt-4 rounded-xl bg-black px-4 py-2 text-sm text-white">
         {cta}
       </button>
     </div>
