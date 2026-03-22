@@ -32,7 +32,6 @@ type SequenceStep = {
   id: string;
   stepNumber: number;
   label: string;
-  sendLabel: string;
   subject: string;
   body: string;
 };
@@ -57,24 +56,9 @@ const MOCK_ACCOUNTS: Account[] = [
       { label: "Tech", value: "HubSpot + SF" },
     ],
     contacts: [
-      {
-        id: "c_1",
-        name: "Sarah Chen",
-        title: "Head of Sales",
-        score: "High Intent",
-      },
-      {
-        id: "c_2",
-        name: "Marcus Lee",
-        title: "VP Revenue Ops",
-        score: "High Intent",
-      },
-      {
-        id: "c_3",
-        name: "Elena Park",
-        title: "Director of Growth",
-        score: "Warm",
-      },
+      { id: "c_1", name: "Sarah Chen", title: "Head of Sales", score: "High Intent" },
+      { id: "c_2", name: "Marcus Lee", title: "VP Revenue Ops", score: "High Intent" },
+      { id: "c_3", name: "Elena Park", title: "Director of Growth", score: "Warm" },
     ],
   },
   {
@@ -92,24 +76,9 @@ const MOCK_ACCOUNTS: Account[] = [
       { label: "Region", value: "EMEA expansion" },
     ],
     contacts: [
-      {
-        id: "c_4",
-        name: "Nina Patel",
-        title: "Chief Revenue Officer",
-        score: "High Intent",
-      },
-      {
-        id: "c_5",
-        name: "Tom Alvarez",
-        title: "Director of Sales Development",
-        score: "Warm",
-      },
-      {
-        id: "c_6",
-        name: "Holly Reed",
-        title: "VP Marketing",
-        score: "Monitor",
-      },
+      { id: "c_4", name: "Nina Patel", title: "Chief Revenue Officer", score: "High Intent" },
+      { id: "c_5", name: "Tom Alvarez", title: "Director of Sales Development", score: "Warm" },
+      { id: "c_6", name: "Holly Reed", title: "VP Marketing", score: "Monitor" },
     ],
   },
   {
@@ -127,24 +96,9 @@ const MOCK_ACCOUNTS: Account[] = [
       { label: "Stack", value: "Apollo + HubSpot" },
     ],
     contacts: [
-      {
-        id: "c_7",
-        name: "James Walker",
-        title: "VP Growth",
-        score: "High Intent",
-      },
-      {
-        id: "c_8",
-        name: "Priya Nair",
-        title: "Head of Revenue Operations",
-        score: "Warm",
-      },
-      {
-        id: "c_9",
-        name: "Adam Brooks",
-        title: "CEO",
-        score: "Monitor",
-      },
+      { id: "c_7", name: "James Walker", title: "VP Growth", score: "High Intent" },
+      { id: "c_8", name: "Priya Nair", title: "Head of Revenue Operations", score: "Warm" },
+      { id: "c_9", name: "Adam Brooks", title: "CEO", score: "Monitor" },
     ],
   },
 ];
@@ -301,42 +255,21 @@ function buildSequence(account: Account, contact: Contact, tone: Tone): Sequence
 
   return {
     steps: [
-      {
-        id: "step_1",
-        stepNumber: 1,
-        label: "Initial Outreach",
-        sendLabel: "Send Day 0",
-        subject: subject1,
-        body: body1,
-      },
-      {
-        id: "step_2",
-        stepNumber: 2,
-        label: "Value Add Follow-up",
-        sendLabel: "Send Day 3",
-        subject: `Re: ${account.name}'s outbound`,
-        body: body2,
-      },
-      {
-        id: "step_3",
-        stepNumber: 3,
-        label: "Breakup Email",
-        sendLabel: "Send Day 7",
-        subject: "Closing the loop",
-        body: body3,
-      },
+      { id: "step_1", stepNumber: 1, label: "Initial Outreach", subject: subject1, body: body1 },
+      { id: "step_2", stepNumber: 2, label: "Value Add Follow-up", subject: `Re: ${account.name}'s outbound`, body: body2 },
+      { id: "step_3", stepNumber: 3, label: "Breakup Email", subject: "Closing the loop", body: body3 },
     ],
   };
 }
 
 export default function GeneratePage() {
-  const [accounts] = useState<Account[]>(MOCK_ACCOUNTS);
+  const [accountsState, setAccountsState] = useState<Account[]>(MOCK_ACCOUNTS);
   const [expandedAccountId, setExpandedAccountId] = useState<string | null>("acc_1");
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
 
   const expandedAccount = useMemo(
-    () => accounts.find((a) => a.id === expandedAccountId) ?? null,
-    [accounts, expandedAccountId]
+    () => accountsState.find((a) => a.id === expandedAccountId) ?? null,
+    [accountsState, expandedAccountId]
   );
 
   useEffect(() => {
@@ -346,13 +279,28 @@ export default function GeneratePage() {
     }
 
     const hasSelected = expandedAccount.contacts.some((c) => c.id === selectedContactId);
-    if (!hasSelected && expandedAccount.contacts.length > 0) {
-      setSelectedContactId(expandedAccount.contacts[0].id);
+    if (!hasSelected) {
+      setSelectedContactId(expandedAccount.contacts[0]?.id ?? null);
     }
   }, [expandedAccount, selectedContactId]);
 
   const selectedContact =
     expandedAccount?.contacts.find((contact) => contact.id === selectedContactId) ?? null;
+
+  function handleSendSequence() {
+    if (!expandedAccount || !selectedContact) return;
+
+    setAccountsState((prev) =>
+      prev.map((account) =>
+        account.id === expandedAccount.id
+          ? {
+              ...account,
+              contacts: account.contacts.filter((contact) => contact.id !== selectedContact.id),
+            }
+          : account
+      )
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] text-[#111827]">
@@ -379,7 +327,7 @@ export default function GeneratePage() {
             <div className="col-span-1 text-right">Action</div>
           </div>
 
-          {accounts.map((account) => {
+          {accountsState.map((account) => {
             const isExpanded = expandedAccountId === account.id;
 
             return (
@@ -430,7 +378,7 @@ export default function GeneratePage() {
                   </div>
                 </button>
 
-                {isExpanded && expandedAccount && (
+                {isExpanded && expandedAccount?.id === account.id && (
                   <div className="border-t border-slate-200 bg-[#fcfcfd] p-4">
                     <div className="grid gap-4">
                       <div className="grid gap-4 lg:grid-cols-12">
@@ -449,7 +397,7 @@ export default function GeneratePage() {
                                   <div className="text-[10px] uppercase tracking-[0.14em] text-slate-400">
                                     {signal.label}
                                   </div>
-                                  <div className="mt-1 text-[13px] font-medium text-slate-900">
+                                  <div className="mt-1 text-[15px] font-medium leading-6 text-slate-900">
                                     {signal.value}
                                   </div>
                                 </div>
@@ -469,64 +417,74 @@ export default function GeneratePage() {
                               </div>
                             </div>
 
-                            <div className="divide-y divide-slate-200">
-                              {expandedAccount.contacts.map((contact) => {
-                                const isSelected = selectedContactId === contact.id;
+                            {expandedAccount.contacts.length === 0 ? (
+                              <div className="py-6 text-sm text-slate-500">
+                                No contacts remaining for this account.
+                              </div>
+                            ) : (
+                              <div className="divide-y divide-slate-200">
+                                {expandedAccount.contacts.map((contact) => {
+                                  const isSelected = selectedContactId === contact.id;
 
-                                return (
-                                  <button
-                                    key={contact.id}
-                                    onClick={() => setSelectedContactId(contact.id)}
-                                    className={cx(
-                                      "grid w-full grid-cols-12 items-center gap-3 py-3 text-left transition",
-                                      isSelected ? "bg-[#f5f8ff]" : "bg-white"
-                                    )}
-                                  >
-                                    <div className="col-span-4 min-w-0 pl-1">
-                                      <div
-                                        className={cx(
-                                          "truncate text-[15px] font-semibold",
-                                          isSelected ? "text-[#3157e0]" : "text-slate-900"
-                                        )}
-                                      >
-                                        {contact.name}
+                                  return (
+                                    <button
+                                      key={contact.id}
+                                      onClick={() => setSelectedContactId(contact.id)}
+                                      className={cx(
+                                        "grid w-full grid-cols-12 items-center gap-3 py-3 text-left transition",
+                                        isSelected ? "bg-[#f5f8ff]" : "bg-white"
+                                      )}
+                                    >
+                                      <div className="col-span-4 min-w-0 pl-1">
+                                        <div
+                                          className={cx(
+                                            "truncate text-[15px] font-semibold",
+                                            isSelected ? "text-[#3157e0]" : "text-slate-900"
+                                          )}
+                                        >
+                                          {contact.name}
+                                        </div>
                                       </div>
-                                    </div>
 
-                                    <div className="col-span-4 min-w-0">
-                                      <div className="truncate text-[13px] text-slate-500">
-                                        {contact.title}
+                                      <div className="col-span-4 min-w-0">
+                                        <div className="truncate text-[15px] text-slate-600">
+                                          {contact.title}
+                                        </div>
                                       </div>
-                                    </div>
 
-                                    <div className="col-span-3 flex justify-end">
-                                      <span
-                                        className={cx(
-                                          "inline-flex rounded-full border px-3 py-1 text-[11px] font-medium",
-                                          scoreBadgeClasses(contact.score)
-                                        )}
-                                      >
-                                        {contact.score}
-                                      </span>
-                                    </div>
+                                      <div className="col-span-3 flex justify-end">
+                                        <span
+                                          className={cx(
+                                            "inline-flex rounded-full border px-3 py-1 text-[11px] font-medium",
+                                            scoreBadgeClasses(contact.score)
+                                          )}
+                                        >
+                                          {contact.score}
+                                        </span>
+                                      </div>
 
-                                    <div className="col-span-1 flex justify-end pr-1">
-                                      <ArrowRightIcon
-                                        className={cx(
-                                          "h-4 w-4",
-                                          isSelected ? "text-[#3157e0]" : "text-slate-300"
-                                        )}
-                                      />
-                                    </div>
-                                  </button>
-                                );
-                              })}
-                            </div>
+                                      <div className="col-span-1 flex justify-end pr-1">
+                                        <ArrowRightIcon
+                                          className={cx(
+                                            "h-4 w-4",
+                                            isSelected ? "text-[#3157e0]" : "text-slate-300"
+                                          )}
+                                        />
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
 
-                      <SequenceWorkspace account={expandedAccount} contact={selectedContact} />
+                      <SequenceWorkspace
+                        account={expandedAccount}
+                        contact={selectedContact}
+                        onSendSequence={handleSendSequence}
+                      />
                     </div>
                   </div>
                 )}
@@ -542,9 +500,11 @@ export default function GeneratePage() {
 function SequenceWorkspace({
   account,
   contact,
+  onSendSequence,
 }: {
   account: Account;
   contact: Contact | null;
+  onSendSequence: () => void;
 }) {
   const [tone, setTone] = useState<Tone>("Direct");
   const [sequence, setSequence] = useState<SequenceBundle | null>(null);
@@ -576,7 +536,7 @@ function SequenceWorkspace({
       <div className="rounded-[18px] border border-slate-200 bg-white p-4">
         <div className="text-[18px] font-semibold text-slate-900">Sequence workspace</div>
         <div className="mt-3 rounded-[16px] border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
-          Select a contact to open the outreach sequence.
+          No contact selected. Choose the next entry point above.
         </div>
       </div>
     );
@@ -612,6 +572,13 @@ function SequenceWorkspace({
               {option}
             </button>
           ))}
+
+          <button
+            onClick={onSendSequence}
+            className="rounded-full bg-[#3157e0] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-[#2949bd]"
+          >
+            Send sequence
+          </button>
         </div>
       </div>
 
@@ -653,33 +620,14 @@ function SequenceWorkspace({
           })}
         </div>
 
-        <div className="text-sm text-slate-500">
-          Email {activeStep.stepNumber} of {sequence.steps.length}
+        <div className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600">
+          Schedule
         </div>
       </div>
 
       <div className="relative">
         <div className="rounded-[18px] border border-slate-200 bg-white">
-          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-            <div className="text-[13px] font-semibold text-slate-500">
-              Step {activeStep.stepNumber} · Day{" "}
-              {activeStep.stepNumber === 1 ? "0" : activeStep.stepNumber === 2 ? "3" : "7"}
-            </div>
-
-            <div className="flex items-center gap-2 text-[13px] font-medium text-slate-500">
-              <ClockIcon className="h-4 w-4" />
-              {activeStep.sendLabel}
-            </div>
-          </div>
-
           <div className="border-b border-slate-200 px-4 py-3">
-            <div className="mb-2 flex items-center gap-3 text-[13px] text-slate-500">
-              <UserIcon className="h-4 w-4" />
-              <span>
-                To: <span className="font-semibold text-slate-900">{contact.name}</span>
-              </span>
-            </div>
-
             <div className="flex items-center gap-3 text-[14px] font-semibold text-slate-900">
               <MailIcon className="h-4 w-4 text-[#3157e0]" />
               {activeStep.subject}
@@ -818,15 +766,6 @@ function MailIcon({ className }: { className?: string }) {
     <BaseIcon className={className}>
       <rect x="3" y="5" width="18" height="14" rx="2" />
       <path d="M3 7l9 6 9-6" />
-    </BaseIcon>
-  );
-}
-
-function UserIcon({ className }: { className?: string }) {
-  return (
-    <BaseIcon className={className}>
-      <circle cx="12" cy="8" r="3.2" />
-      <path d="M6 19c1.4-3 4-4.5 6-4.5s4.6 1.5 6 4.5" />
     </BaseIcon>
   );
 }
