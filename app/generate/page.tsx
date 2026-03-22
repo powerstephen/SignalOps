@@ -106,7 +106,7 @@ export default function Page() {
           </div>
 
           <div className="mt-10 flex justify-center">
-            <div className="w-full max-w-[320px] space-y-3">
+            <div className="w-full max-w-[340px] space-y-4">
               {steps.map((step, index) => {
                 const isDone = index < completedSteps;
                 const isActive =
@@ -115,20 +115,19 @@ export default function Page() {
                 return (
                   <div
                     key={step}
-                    className="grid grid-cols-[24px_1fr] items-center gap-3"
+                    className="grid grid-cols-[28px_1fr] items-center gap-3"
                   >
-                    <div className="flex h-6 w-6 items-center justify-center rounded-md border border-gray-200 bg-white text-sm text-gray-900">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-base text-gray-900">
                       {isDone ? "✓" : ""}
                     </div>
 
-                    {/* 👇 ONLY CHANGE HERE (text size increased) */}
                     <div
-                      className={`text-left text-base leading-6 ${
+                      className={`text-left text-lg leading-6 ${
                         isDone
                           ? "font-medium text-gray-900"
                           : isActive
-                          ? "font-medium text-gray-900"
-                          : "text-gray-500"
+                            ? "font-medium text-gray-900"
+                            : "text-gray-500"
                       }`}
                     >
                       {step}
@@ -248,8 +247,6 @@ export default function Page() {
     </div>
   );
 }
-
-/* COMPONENTS (unchanged) */
 
 function Section({
   title,
