@@ -1,8 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useMemo } from "react";
-import { useSearchParams } from "next/navigation";
 
 type GenerateSegment =
   | "uncovered_icp"
@@ -20,6 +16,12 @@ type Account = {
   fitScore: number;
   whyNow: string;
   signal: string;
+};
+
+type GeneratePageProps = {
+  searchParams?: {
+    segment?: string;
+  };
 };
 
 const uncoveredIcpAccounts: Account[] = [
@@ -138,7 +140,7 @@ const coverageGapAccounts: Account[] = [
 
 const defaultAccounts = uncoveredIcpAccounts;
 
-function getSegmentFromQuery(value: string | null): GenerateSegment {
+function getSegmentFromQuery(value: string | undefined): GenerateSegment {
   if (value === "uncovered_icp") return "uncovered_icp";
   if (value === "coverage_gaps") return "coverage_gaps";
   return "default";
@@ -158,8 +160,7 @@ function getPageContent(segment: GenerateSegment) {
       stat3: "UK + US",
       stat3Label: "Top whitespace markets",
       accounts: uncoveredIcpAccounts,
-      banner:
-        "Loaded from Data Center: Uncovered ICP segment",
+      banner: "Loaded from Data Center: Uncovered ICP segment",
     };
   }
 
@@ -176,8 +177,7 @@ function getPageContent(segment: GenerateSegment) {
       stat3: "3",
       stat3Label: "Priority segments",
       accounts: coverageGapAccounts,
-      banner:
-        "Loaded from Data Center: Coverage gap segment",
+      banner: "Loaded from Data Center: Coverage gap segment",
     };
   }
 
@@ -193,8 +193,7 @@ function getPageContent(segment: GenerateSegment) {
     stat3: "12",
     stat3Label: "Active segments",
     accounts: defaultAccounts,
-    banner:
-      "Showing default Generate view",
+    banner: "Showing default Generate view",
   };
 }
 
@@ -261,10 +260,9 @@ function AccountRow({ account }: { account: Account }) {
   );
 }
 
-export default function GeneratePage() {
-  const searchParams = useSearchParams();
-  const segment = getSegmentFromQuery(searchParams.get("segment"));
-  const content = useMemo(() => getPageContent(segment), [segment]);
+export default function GeneratePage({ searchParams }: GeneratePageProps) {
+  const segment = getSegmentFromQuery(searchParams?.segment);
+  const content = getPageContent(segment);
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
@@ -291,7 +289,9 @@ export default function GeneratePage() {
       </div>
 
       <div>
-        <div className="text-sm font-medium text-green-700">{content.eyebrow}</div>
+        <div className="text-sm font-medium text-green-700">
+          {content.eyebrow}
+        </div>
         <h1 className="mt-2 text-4xl font-semibold tracking-tight text-gray-950">
           {content.title}
         </h1>
@@ -313,7 +313,8 @@ export default function GeneratePage() {
               Priority account list
             </div>
             <div className="mt-1 text-sm text-gray-600">
-              Accounts are ranked by ICP fit, whitespace relevance, and commercial potential.
+              Accounts are ranked by ICP fit, whitespace relevance, and
+              commercial potential.
             </div>
           </div>
 
