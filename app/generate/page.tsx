@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 type Signal = {
   label: string;
@@ -28,12 +28,6 @@ type Account = {
   whyNow: string;
   signals: Signal[];
   contacts: Contact[];
-};
-
-type ActivityItem = {
-  id: string;
-  text: string;
-  status: "running" | "done";
 };
 
 type SequenceStep = {
@@ -174,37 +168,6 @@ const MOCK_ACCOUNTS: Account[] = [
     ],
   },
 ];
-
-const AGENT_STEPS: Record<string, string[]> = {
-  acc_1: [
-    "Analyzing RevScale signals",
-    "Detected revenue hiring surge across SDR and AE roles",
-    "Mapping likely pipeline pressure across team structure",
-    "Pulling relevant decision makers",
-    "Scoring personas by urgency and fit",
-    "Preparing best entry points",
-  ],
-  acc_2: [
-    "Analyzing stale outreach and new trigger signals",
-    "Detected recent product launch and renewed engagement",
-    "Reviewing best reopening path by persona",
-    "Ranking contacts by strategic relevance",
-    "Preparing reactivation angle",
-    "Finalising contact recommendations",
-  ],
-  acc_3: [
-    "Analyzing expansion signals",
-    "Detected new market activity and role growth",
-    "Estimating likely GTM coordination pain points",
-    "Identifying buying committee entry points",
-    "Scoring contacts by responsiveness potential",
-    "Preparing outreach routes",
-  ],
-};
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -432,44 +395,39 @@ export default function GeneratePage() {
     [accounts, expandedAccountId]
   );
 
-  const streamedContacts = useStreamedContacts(expandedAccount);
-  const activity = useAgentActivity(expandedAccount);
-
   useEffect(() => {
     if (!expandedAccount) {
       setSelectedContactId(null);
       return;
     }
 
-    if (streamedContacts.length > 0) {
-      const stillExists = streamedContacts.some((c) => c.id === selectedContactId);
-      if (!stillExists) {
-        setSelectedContactId(streamedContacts[0].id);
-      }
+    const hasSelected = expandedAccount.contacts.some((c) => c.id === selectedContactId);
+    if (!hasSelected && expandedAccount.contacts.length > 0) {
+      setSelectedContactId(expandedAccount.contacts[0].id);
     }
-  }, [expandedAccount, streamedContacts, selectedContactId]);
+  }, [expandedAccount, selectedContactId]);
 
   const selectedContact =
-    streamedContacts.find((contact) => contact.id === selectedContactId) ?? null;
+    expandedAccount?.contacts.find((contact) => contact.id === selectedContactId) ?? null;
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] text-[#111827]">
-      <div className="mx-auto max-w-[1600px] px-6 py-8">
-        <div className="mb-6">
+      <div className="mx-auto max-w-[1680px] px-5 py-6">
+        <div className="mb-5">
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#3157e0]">
             <SparklesIcon className="h-3.5 w-3.5" />
             Generate
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight">
+          <h1 className="text-[30px] font-semibold tracking-tight">
             Target accounts and move directly into outreach
           </h1>
-          <p className="mt-2 max-w-4xl text-sm text-slate-500">
-            One agent moment at the account layer, then a clean, wide sequence workspace.
+          <p className="mt-1 text-sm text-slate-500">
+            Compact account context, practical contact selection, and a clean sequence workspace.
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
-          <div className="grid grid-cols-12 gap-0 border-b border-slate-200 px-5 py-4 text-xs uppercase tracking-[0.16em] text-slate-500">
+        <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+          <div className="grid grid-cols-12 border-b border-slate-200 px-5 py-3 text-[11px] uppercase tracking-[0.16em] text-slate-500">
             <div className="col-span-4">Account</div>
             <div className="col-span-2">Segment</div>
             <div className="col-span-2">Fit</div>
@@ -477,235 +435,188 @@ export default function GeneratePage() {
             <div className="col-span-2 text-right">Action</div>
           </div>
 
-          <div>
-            {accounts.map((account) => {
-              const isExpanded = expandedAccountId === account.id;
+          {accounts.map((account) => {
+            const isExpanded = expandedAccountId === account.id;
 
-              return (
-                <div key={account.id} className="border-b border-slate-200 last:border-b-0">
-                  <button
-                    onClick={() =>
-                      setExpandedAccountId((prev) => (prev === account.id ? null : account.id))
-                    }
-                    className="grid w-full grid-cols-12 items-center gap-0 px-5 py-4 text-left transition hover:bg-slate-50"
-                  >
-                    <div className="col-span-4 pr-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50">
-                          <BuildingIcon className="h-5 w-5 text-slate-500" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-slate-900">{account.name}</div>
-                          <div className="mt-0.5 text-sm text-slate-500">{account.whyNow}</div>
-                        </div>
+            return (
+              <div key={account.id} className="border-b border-slate-200 last:border-b-0">
+                <button
+                  onClick={() =>
+                    setExpandedAccountId((prev) => (prev === account.id ? null : account.id))
+                  }
+                  className="grid w-full grid-cols-12 items-center px-5 py-3.5 text-left transition hover:bg-slate-50"
+                >
+                  <div className="col-span-4 pr-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50">
+                        <BuildingIcon className="h-4.5 w-4.5 text-slate-500" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="truncate font-medium text-slate-900">{account.name}</div>
+                        <div className="truncate text-sm text-slate-500">{account.whyNow}</div>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="col-span-2">
-                      <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600">
-                        {account.segment}
-                      </span>
-                    </div>
+                  <div className="col-span-2">
+                    <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600">
+                      {account.segment}
+                    </span>
+                  </div>
 
-                    <div className="col-span-2 text-sm font-medium text-slate-900">
-                      {account.fitScore}/100
-                    </div>
+                  <div className="col-span-2 text-sm font-medium text-slate-900">
+                    {account.fitScore}/100
+                  </div>
 
-                    <div className="col-span-2 text-sm font-medium text-slate-900">
-                      {account.triggerScore}/100
-                    </div>
+                  <div className="col-span-2 text-sm font-medium text-slate-900">
+                    {account.triggerScore}/100
+                  </div>
 
-                    <div className="col-span-2 flex justify-end">
-                      <span className="inline-flex items-center gap-2 rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1.5 text-xs font-medium text-[#3157e0]">
-                        {isExpanded ? "Collapse" : "Activate account"}
-                        {isExpanded ? (
-                          <ChevronUpIcon className="h-4 w-4" />
-                        ) : (
-                          <ChevronDownIcon className="h-4 w-4" />
-                        )}
-                      </span>
-                    </div>
-                  </button>
+                  <div className="col-span-2 flex justify-end">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1.5 text-xs font-medium text-[#3157e0]">
+                      {isExpanded ? "Collapse" : "Open"}
+                      {isExpanded ? (
+                        <ChevronUpIcon className="h-4 w-4" />
+                      ) : (
+                        <ChevronDownIcon className="h-4 w-4" />
+                      )}
+                    </span>
+                  </div>
+                </button>
 
-                  {isExpanded && expandedAccount && (
-                    <div className="border-t border-slate-200 bg-[#fcfcfd] p-5">
-                      <div className="grid gap-5">
-                        <div className="grid gap-5 xl:grid-cols-12">
-                          <div className="xl:col-span-4">
-                            <div className="rounded-[24px] border border-slate-200 bg-white p-5">
-                              <div className="mb-4 flex items-center justify-between">
-                                <div>
-                                  <div className="text-xs uppercase tracking-[0.18em] text-slate-400">
-                                    Account context
-                                  </div>
-                                  <div className="mt-1 text-lg font-semibold text-slate-900">
-                                    {expandedAccount.name}
-                                  </div>
+                {isExpanded && expandedAccount && (
+                  <div className="border-t border-slate-200 bg-[#fcfcfd] p-4">
+                    <div className="grid gap-4">
+                      <div className="grid gap-4 xl:grid-cols-12">
+                        <div className="xl:col-span-5">
+                          <div className="rounded-[20px] border border-slate-200 bg-white p-4">
+                            <div className="mb-3 flex items-center justify-between">
+                              <div>
+                                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                                  Account context
                                 </div>
-                                <div className="rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#3157e0]">
-                                  Live
+                                <div className="mt-1 text-[18px] font-semibold text-slate-900">
+                                  {expandedAccount.name}
                                 </div>
                               </div>
 
-                              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                <div className="text-xs uppercase tracking-[0.16em] text-slate-400">
-                                  Why now
+                              <div className="rounded-full border border-[#dbe3ff] bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#3157e0]">
+                                Live
+                              </div>
+                            </div>
+
+                            <div className="rounded-[18px] border border-slate-200 bg-slate-50 p-4">
+                              <div className="text-[11px] uppercase tracking-[0.16em] text-slate-400">
+                                Why now
+                              </div>
+                              <p className="mt-2 text-sm leading-6 text-slate-600">
+                                {expandedAccount.whyNow}
+                              </p>
+                            </div>
+
+                            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                              {expandedAccount.signals.map((signal) => (
+                                <div
+                                  key={`${expandedAccount.id}-${signal.label}`}
+                                  className="rounded-[18px] border border-slate-200 bg-white p-3.5"
+                                >
+                                  <div className="text-[11px] uppercase tracking-[0.14em] text-slate-400">
+                                    {signal.label}
+                                  </div>
+                                  <div className="mt-1 text-sm text-slate-700">{signal.value}</div>
                                 </div>
-                                <p className="mt-2 text-sm leading-6 text-slate-600">
-                                  {expandedAccount.whyNow}
-                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="xl:col-span-7">
+                          <div className="rounded-[20px] border border-slate-200 bg-white p-4">
+                            <div className="mb-3 flex items-center justify-between">
+                              <div>
+                                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                                  Prioritised contacts
+                                </div>
+                                <div className="mt-1 text-[18px] font-semibold text-slate-900">
+                                  Best entry points
+                                </div>
                               </div>
 
-                              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                                {expandedAccount.signals.map((signal) => (
-                                  <div
-                                    key={`${expandedAccount.id}-${signal.label}`}
-                                    className="rounded-2xl border border-slate-200 bg-white p-4"
+                              <div className="inline-flex items-center gap-2 text-sm text-slate-500">
+                                <UsersIcon className="h-4 w-4" />
+                                {expandedAccount.contacts.length}/{expandedAccount.contacts.length}
+                              </div>
+                            </div>
+
+                            <div className="divide-y divide-slate-200 overflow-hidden rounded-[18px] border border-slate-200">
+                              {expandedAccount.contacts.map((contact) => {
+                                const isSelected = selectedContactId === contact.id;
+
+                                return (
+                                  <button
+                                    key={contact.id}
+                                    onClick={() => setSelectedContactId(contact.id)}
+                                    className={cx(
+                                      "grid w-full grid-cols-12 items-center gap-3 px-4 py-3 text-left transition",
+                                      isSelected ? "bg-[#f5f8ff]" : "bg-white hover:bg-slate-50"
+                                    )}
                                   >
-                                    <div className="text-xs uppercase tracking-[0.14em] text-slate-400">
-                                      {signal.label}
-                                    </div>
-                                    <div className="mt-1 text-sm text-slate-700">{signal.value}</div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="xl:col-span-4">
-                            <div className="rounded-[24px] border border-slate-200 bg-white p-5">
-                              <div className="mb-4">
-                                <div className="text-xs uppercase tracking-[0.18em] text-slate-400">
-                                  Agent activity
-                                </div>
-                                <div className="mt-1 text-lg font-semibold text-slate-900">
-                                  SignalOps is working this account
-                                </div>
-                              </div>
-
-                              <AgentActivityFeed activity={activity} />
-                            </div>
-                          </div>
-
-                          <div className="xl:col-span-4">
-                            <div className="rounded-[24px] border border-slate-200 bg-white p-5">
-                              <div className="mb-4 flex items-center justify-between">
-                                <div>
-                                  <div className="text-xs uppercase tracking-[0.18em] text-slate-400">
-                                    Prioritised contacts
-                                  </div>
-                                  <div className="mt-1 text-lg font-semibold text-slate-900">
-                                    Best entry points
-                                  </div>
-                                </div>
-
-                                <div className="inline-flex items-center gap-2 text-sm text-slate-500">
-                                  <UsersIcon className="h-4 w-4" />
-                                  {streamedContacts.length}/{expandedAccount.contacts.length}
-                                </div>
-                              </div>
-
-                              <div className="space-y-3">
-                                {streamedContacts.map((contact) => {
-                                  const isSelected = selectedContactId === contact.id;
-
-                                  return (
-                                    <button
-                                      key={contact.id}
-                                      onClick={() => setSelectedContactId(contact.id)}
-                                      className={cx(
-                                        "w-full rounded-2xl border p-4 text-left transition",
-                                        isSelected
-                                          ? "border-[#bfd0ff] bg-[#f5f8ff]"
-                                          : "border-slate-200 bg-white hover:bg-slate-50"
-                                      )}
-                                    >
-                                      <div className="flex items-start justify-between gap-3">
-                                        <div>
-                                          <div className="font-medium text-slate-900">{contact.name}</div>
-                                          <div className="mt-0.5 text-sm text-slate-500">
-                                            {contact.title}
-                                          </div>
-                                        </div>
-
-                                        <span
-                                          className={cx(
-                                            "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium",
-                                            scoreBadgeClasses(contact.score)
-                                          )}
-                                        >
-                                          {contact.score}
-                                        </span>
+                                    <div className="col-span-4 min-w-0">
+                                      <div className="truncate text-[16px] font-medium text-slate-900">
+                                        {contact.name}
                                       </div>
+                                      <div className="truncate text-sm text-slate-500">
+                                        {contact.title}
+                                      </div>
+                                    </div>
 
-                                      <p className="mt-3 text-sm leading-6 text-slate-600">
+                                    <div className="col-span-5 min-w-0">
+                                      <div className="truncate text-sm text-slate-600">
                                         {contact.reason}
-                                      </p>
-
+                                      </div>
                                       {contact.channelHint && (
-                                        <div className="mt-3 inline-flex items-center gap-2 text-xs text-slate-400">
-                                          <ArrowRightIcon className="h-3.5 w-3.5" />
+                                        <div className="mt-1 truncate text-xs text-slate-400">
                                           {contact.channelHint}
                                         </div>
                                       )}
-                                    </button>
-                                  );
-                                })}
-
-                                {streamedContacts.length < expandedAccount.contacts.length && (
-                                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4">
-                                    <div className="flex items-center gap-2 text-sm text-slate-500">
-                                      <SpinnerIcon className="h-4 w-4 text-[#3157e0]" />
-                                      Identifying high-probability contacts
                                     </div>
-                                  </div>
-                                )}
-                              </div>
+
+                                    <div className="col-span-2 flex justify-start">
+                                      <span
+                                        className={cx(
+                                          "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium",
+                                          scoreBadgeClasses(contact.score)
+                                        )}
+                                      >
+                                        {contact.score}
+                                      </span>
+                                    </div>
+
+                                    <div className="col-span-1 flex justify-end">
+                                      <ArrowRightIcon
+                                        className={cx(
+                                          "h-4 w-4",
+                                          isSelected ? "text-[#3157e0]" : "text-slate-300"
+                                        )}
+                                      />
+                                    </div>
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
                         </div>
-
-                        <div>
-                          <SequenceWorkspace account={expandedAccount} contact={selectedContact} />
-                        </div>
                       </div>
+
+                      <SequenceWorkspace account={expandedAccount} contact={selectedContact} />
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
-    </div>
-  );
-}
-
-function AgentActivityFeed({ activity }: { activity: ActivityItem[] }) {
-  return (
-    <div className="space-y-2.5">
-      {activity.map((item) => (
-        <div
-          key={item.id}
-          className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
-        >
-          <div className="mt-0.5">
-            {item.status === "done" ? (
-              <CheckCircleIcon className="h-4 w-4 text-emerald-600" />
-            ) : (
-              <SpinnerIcon className="h-4 w-4 text-[#3157e0]" />
-            )}
-          </div>
-
-          <div className="text-sm text-slate-700">{item.text}</div>
-        </div>
-      ))}
-
-      {activity.length === 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-          Starting account analysis
-        </div>
-      )}
     </div>
   );
 }
@@ -736,16 +647,11 @@ function SequenceWorkspace({
   }, [account, contact, tone]);
 
   async function copyFullSequence() {
-    if (!sequence || !contact) return;
+    if (!sequence) return;
 
     const text = sequence.steps
       .map((step) =>
-        [
-          `${step.label} (${step.sendLabel})`,
-          `Subject: ${step.subject}`,
-          ``,
-          step.body,
-        ].join("\n")
+        [`${step.label} (${step.sendLabel})`, `Subject: ${step.subject}`, ``, step.body].join("\n")
       )
       .join("\n\n--------------------\n\n");
 
@@ -770,11 +676,11 @@ function SequenceWorkspace({
 
   if (!contact) {
     return (
-      <div className="rounded-[24px] border border-slate-200 bg-white p-5">
-        <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Outreach</div>
-        <div className="mt-1 text-lg font-semibold text-slate-900">Sequence workspace</div>
-        <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
-          Select a surfaced contact to open the outreach sequence.
+      <div className="rounded-[20px] border border-slate-200 bg-white p-4">
+        <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Outreach</div>
+        <div className="mt-1 text-[18px] font-semibold text-slate-900">Sequence workspace</div>
+        <div className="mt-3 rounded-[18px] border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+          Select a contact to open the outreach sequence.
         </div>
       </div>
     );
@@ -782,9 +688,9 @@ function SequenceWorkspace({
 
   if (!sequence) {
     return (
-      <div className="rounded-[24px] border border-slate-200 bg-white p-5">
-        <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Outreach</div>
-        <div className="mt-1 text-lg font-semibold text-slate-900">Sequence workspace</div>
+      <div className="rounded-[20px] border border-slate-200 bg-white p-4">
+        <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Outreach</div>
+        <div className="mt-1 text-[18px] font-semibold text-slate-900">Sequence workspace</div>
       </div>
     );
   }
@@ -792,11 +698,11 @@ function SequenceWorkspace({
   const activeStep = sequence.steps[activeStepIndex];
 
   return (
-    <div className="rounded-[24px] border border-slate-200 bg-white p-5">
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+    <div className="rounded-[20px] border border-slate-200 bg-white p-4">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Outreach</div>
-          <div className="mt-1 text-lg font-semibold text-slate-900">Sequence workspace</div>
+          <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Outreach</div>
+          <div className="mt-1 text-[18px] font-semibold text-slate-900">Sequence workspace</div>
           <div className="mt-1 text-sm text-slate-500">
             {contact.name} · {contact.title}
           </div>
@@ -828,13 +734,13 @@ function SequenceWorkspace({
         </div>
       </div>
 
-      <div className="mb-5 grid gap-3 md:grid-cols-3">
+      <div className="mb-4 grid gap-3 md:grid-cols-3">
         <MetaPill label="Target" value={`${contact.name}, ${contact.title}`} />
         <MetaPill label="Angle" value={getAngle(contact)} />
         <MetaPill label="Approach" value={getApproach(contact)} />
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         {sequence.steps.map((step, index) => {
           const active = index === activeStepIndex;
 
@@ -842,11 +748,11 @@ function SequenceWorkspace({
             <div key={step.id} className="flex items-center gap-3">
               <button
                 onClick={() => setActiveStepIndex(index)}
-                className="group inline-flex items-center gap-3 text-left"
+                className="inline-flex items-center gap-3 text-left"
               >
                 <span
                   className={cx(
-                    "flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition",
+                    "flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition",
                     active ? "bg-[#3157e0] text-white shadow-sm" : "bg-[#dfe5ff] text-[#3157e0]"
                   )}
                 >
@@ -855,7 +761,7 @@ function SequenceWorkspace({
 
                 <span
                   className={cx(
-                    "text-base font-medium transition",
+                    "text-[15px] font-medium transition",
                     active ? "text-slate-900" : "text-slate-500"
                   )}
                 >
@@ -872,25 +778,25 @@ function SequenceWorkspace({
       </div>
 
       <div className="relative">
-        <div className="rounded-[28px] border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
-          <div className="flex items-center justify-between rounded-t-[28px] border-b border-slate-200 px-7 py-4">
+        <div className="rounded-[24px] border border-slate-200 bg-white shadow-[0_6px_18px_rgba(15,23,42,0.05)]">
+          <div className="flex items-center justify-between rounded-t-[24px] border-b border-slate-200 px-5 py-3">
             <div className="flex items-center gap-3">
-              <span className="h-3.5 w-3.5 rounded-full bg-[#ec8d86]" />
-              <span className="h-3.5 w-3.5 rounded-full bg-[#8bd2b6]" />
-              <div className="ml-3 text-[15px] font-semibold text-slate-500">
+              <span className="h-3 w-3 rounded-full bg-[#ec8d86]" />
+              <span className="h-3 w-3 rounded-full bg-[#8bd2b6]" />
+              <div className="ml-2 text-sm font-semibold text-slate-500">
                 Step {activeStep.stepNumber} · Day{" "}
                 {activeStep.stepNumber === 1 ? "0" : activeStep.stepNumber === 2 ? "3" : "7"}
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-[15px] font-medium text-slate-500">
+            <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
               <ClockIcon className="h-4 w-4" />
               {activeStep.sendLabel}
             </div>
           </div>
 
-          <div className="border-b border-slate-200 px-7 py-5">
-            <div className="mb-4 flex items-center gap-3 text-[15px] text-slate-500">
+          <div className="border-b border-slate-200 px-5 py-4">
+            <div className="mb-3 flex items-center gap-3 text-sm text-slate-500">
               <UserIcon className="h-4 w-4" />
               <span>
                 To: <span className="font-semibold text-slate-900">{contact.name}</span>{" "}
@@ -898,14 +804,14 @@ function SequenceWorkspace({
               </span>
             </div>
 
-            <div className="flex items-center gap-3 text-[15px] font-semibold text-slate-900">
-              <MailIcon className="h-5 w-5 text-[#3157e0]" />
+            <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
+              <MailIcon className="h-4.5 w-4.5 text-[#3157e0]" />
               {activeStep.subject}
             </div>
           </div>
 
-          <div className="px-7 py-8">
-            <div className="whitespace-pre-wrap text-[17px] leading-[1.9] text-slate-700">
+          <div className="px-5 py-5">
+            <div className="whitespace-pre-wrap text-[15px] leading-[1.75] text-slate-700">
               {activeStep.body}
             </div>
           </div>
@@ -913,23 +819,19 @@ function SequenceWorkspace({
 
         <button
           onClick={prevStep}
-          className="absolute left-0 top-1/2 z-10 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-lg transition hover:scale-[1.03]"
+          className="absolute left-0 top-1/2 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-md transition hover:scale-[1.02]"
           aria-label="Previous step"
         >
-          <ChevronLeftIcon className="h-6 w-6" />
+          <ChevronLeftIcon className="h-5 w-5" />
         </button>
 
         <button
           onClick={nextStep}
-          className="absolute right-0 top-1/2 z-10 flex h-14 w-14 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-lg transition hover:scale-[1.03]"
+          className="absolute right-0 top-1/2 z-10 flex h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-md transition hover:scale-[1.02]"
           aria-label="Next step"
         >
-          <ChevronRightIcon className="h-6 w-6" />
+          <ChevronRightIcon className="h-5 w-5" />
         </button>
-      </div>
-
-      <div className="mt-5 text-center text-sm text-slate-400">
-        Use the arrows to navigate the sequence
       </div>
     </div>
   );
@@ -937,96 +839,11 @@ function SequenceWorkspace({
 
 function MetaPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+    <div className="rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3">
       <div className="text-[11px] uppercase tracking-[0.14em] text-slate-400">{label}</div>
       <div className="mt-1 text-sm text-slate-700">{value}</div>
     </div>
   );
-}
-
-function useAgentActivity(account: Account | null) {
-  const [activity, setActivity] = useState<ActivityItem[]>([]);
-  const runIdRef = useRef(0);
-
-  useEffect(() => {
-    let cancelled = false;
-    const currentRunId = ++runIdRef.current;
-
-    async function run() {
-      if (!account) {
-        setActivity([]);
-        return;
-      }
-
-      setActivity([]);
-      const steps = AGENT_STEPS[account.id] ?? [
-        "Analyzing account",
-        "Pulling contacts",
-        "Scoring personas",
-        "Preparing outreach",
-      ];
-
-      for (let i = 0; i < steps.length; i++) {
-        if (cancelled || runIdRef.current !== currentRunId) return;
-
-        const itemId = `${account.id}_${i}`;
-        setActivity((prev) => [...prev, { id: itemId, text: steps[i], status: "running" }]);
-
-        await delay(450);
-
-        if (cancelled || runIdRef.current !== currentRunId) return;
-
-        setActivity((prev) =>
-          prev.map((item) => (item.id === itemId ? { ...item, status: "done" } : item))
-        );
-
-        await delay(100);
-      }
-    }
-
-    run();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [account]);
-
-  return activity;
-}
-
-function useStreamedContacts(account: Account | null) {
-  const [visibleContacts, setVisibleContacts] = useState<Contact[]>([]);
-  const runIdRef = useRef(0);
-
-  useEffect(() => {
-    let cancelled = false;
-    const currentRunId = ++runIdRef.current;
-
-    async function stream() {
-      if (!account) {
-        setVisibleContacts([]);
-        return;
-      }
-
-      setVisibleContacts([]);
-
-      for (let i = 0; i < account.contacts.length; i++) {
-        if (cancelled || runIdRef.current !== currentRunId) return;
-        await delay(320);
-        if (cancelled || runIdRef.current !== currentRunId) return;
-
-        setVisibleContacts((prev) => [...prev, account.contacts[i]]);
-      }
-    }
-
-    stream();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [account]);
-
-  return visibleContacts;
 }
 
 function BaseIcon({
@@ -1090,17 +907,6 @@ function UsersIcon({ className }: { className?: string }) {
   );
 }
 
-function WandIcon({ className }: { className?: string }) {
-  return (
-    <BaseIcon className={className}>
-      <path d="M4 20L20 4" />
-      <path d="M14 4l1-2 1 2 2 1-2 1-1 2-1-2-2-1 2-1z" />
-      <path d="M18 10l.7-1.4L20 8l-1.3-.6L18 6l-.7 1.4L16 8l1.3.6L18 10z" />
-      <path d="M7 17l-3 3" />
-    </BaseIcon>
-  );
-}
-
 function ChevronDownIcon({ className }: { className?: string }) {
   return (
     <BaseIcon className={className}>
@@ -1142,15 +948,6 @@ function ArrowRightIcon({ className }: { className?: string }) {
   );
 }
 
-function CheckCircleIcon({ className }: { className?: string }) {
-  return (
-    <BaseIcon className={className}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M8.5 12.5l2.2 2.2 4.8-5.2" />
-    </BaseIcon>
-  );
-}
-
 function CopyIcon({ className }: { className?: string }) {
   return (
     <BaseIcon className={className}>
@@ -1184,24 +981,5 @@ function UserIcon({ className }: { className?: string }) {
       <circle cx="12" cy="8" r="3.2" />
       <path d="M6 19c1.4-3 4-4.5 6-4.5s4.6 1.5 6 4.5" />
     </BaseIcon>
-  );
-}
-
-function SpinnerIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={cx("animate-spin", className)}
-      fill="none"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.2" strokeWidth="2" />
-      <path
-        d="M21 12a9 9 0 0 0-9-9"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }
